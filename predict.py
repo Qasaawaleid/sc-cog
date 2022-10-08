@@ -41,12 +41,12 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="Input prompt", default=""),
         width: int = Input(
             description="Width of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
-            choices=[128, 256, 512, 768, 1024],
+            choices=[128, 256, 512, 768, 1024, 1280, 1536],
             default=512,
         ),
         height: int = Input(
             description="Height of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
-            choices=[128, 256, 512, 768, 1024],
+            choices=[128, 256, 512, 768, 1024, 1280, 1536],
             default=512,
         ),
         init_image: Path = Input(
@@ -79,9 +79,9 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
 
-        if width == height == 1024:
+        if width == height == 1536:
             raise ValueError(
-                "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
+                "Maximum size exceeded because of memory limits. Please select a lower width or height."
             )
 
         if init_image:
