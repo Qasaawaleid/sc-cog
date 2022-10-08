@@ -5,6 +5,7 @@ import numpy as np
 import torch
 
 import PIL
+from PIL import Image
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
 from diffusers.configuration_utils import FrozenDict
@@ -27,6 +28,22 @@ def preprocess(image):
     image = image[None].transpose(0, 3, 1, 2)
     image = torch.from_numpy(image)
     return 2.0 * image - 1.0
+
+def preprocess_init_image(image: Image, width: int, height: int):
+    image = image.resize((width, height), resample=Image.LANCZOS)
+    image = np.array(image).astype(np.float32) / 255.0
+    image = image[None].transpose(0, 3, 1, 2)
+    image = torch.from_numpy(image)
+    return 2.0 * image - 1.0
+
+def preprocess_mask(mask: Image, width: int, height: int):
+    mask = mask.convert("L")
+    mask = mask.resize((width // 8, height // 8), resample=Image.LANCZOS)
+    mask = np.array(mask).astype(np.float32) / 255.0
+    mask = np.tile(mask, (4, 1, 1))
+    mask = mask[None].transpose(0, 1, 2, 3)  # what does this step do?
+    mask = torch.from_numpy(mask)
+    return mask
 
 
 class StableDiffusionImg2ImgPipeline(DiffusionPipeline):
