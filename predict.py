@@ -32,6 +32,7 @@ class Predictor(BasePredictor):
             cache_dir=MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
+        self.pipe.enable_attention_slicing()
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
