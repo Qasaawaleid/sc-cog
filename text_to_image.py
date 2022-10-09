@@ -325,7 +325,7 @@ class StableDiffusionPipeline(DiffusionPipeline):
         image = image.cpu().permute(0, 2, 3, 1).numpy()
         
         has_nsfw_concept = False
-        if os.environ["ALLOW_NSFW"] is False or None:
+        if os.environ.get("ALLOW_NSFW", "0") == "1":
             safety_checker_input = self.feature_extractor(self.numpy_to_pil(image), return_tensors="pt").to(self.device)
             image, has_nsfw_concept = self.safety_checker(
                 images=image, clip_input=safety_checker_input.pixel_values.to(text_embeddings.dtype)
