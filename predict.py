@@ -39,12 +39,12 @@ class Predictor(BasePredictor):
         negative_prompt: str = Input(description="Negative prompt", default=None),
         width: int = Input(
             description="Width of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
-            choices=[128, 256, 512, 768, 1024, 1280, 1536],
+            choices=[128, 256, 512, 768, 1024],
             default=512,
         ),
         height: int = Input(
             description="Height of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
-            choices=[128, 256, 512, 768, 1024, 1280, 1536],
+            choices=[128, 256, 512, 768, 1024],
             default=512,
         ),
         num_outputs: int = Input(
