@@ -30,7 +30,6 @@ class Predictor(BasePredictor):
             cache_dir=MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.pipe.enable_attention_slicing()
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -66,9 +65,9 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
 
-        if width == height == 1536:
+        if width == height == 1024:
             raise ValueError(
-                "Maximum size exceeded because of memory limits. Please select a lower width or height."
+                "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
             )
 
         # use LMS without init images
