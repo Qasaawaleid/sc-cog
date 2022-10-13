@@ -96,6 +96,7 @@ class Predictor(BasePredictor):
             return Output(http_status=451, text="NSFW content detected, please try a different prompt")
 
         output_obj = Output()
+        output_obj.http_status = 200
         for i, sample in enumerate(output["sample"]):
             output_path = f"/tmp/out-{i}.png"
             sample.save(output_path)
