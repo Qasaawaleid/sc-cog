@@ -95,10 +95,10 @@ class Predictor(BasePredictor):
         if any(output["nsfw_content_detected"]):
             return Output(http_status=451, text="NSFW content detected, please try a different prompt")
 
-        output_obj = Output(http_status=200)
+        output_paths_temp = []
         for i, sample in enumerate(output["sample"]):
             output_path = f"/tmp/out-{i}.png"
             sample.save(output_path)
-            output_obj.output_paths.append(Path(output_path))
+            output_paths_temp.append(Path(output_path))
 
-        return output_obj
+        return Output(http_status=200, output_paths=output_paths_temp)
