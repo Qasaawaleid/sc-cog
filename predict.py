@@ -18,7 +18,7 @@ MODEL_CACHE = "diffusers-cache"
 class Output(BaseModel):
     http_status: int
     text: Optional[str]
-    output_paths: Optional[List[Path]]
+    output_images: Optional[List[Path]]
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -95,10 +95,10 @@ class Predictor(BasePredictor):
         if any(output["nsfw_content_detected"]):
             return Output(http_status=451, text="NSFW content detected, please try a different prompt")
 
-        output_paths_temp = []
+        output_paths = []
         for i, sample in enumerate(output["sample"]):
             output_path = f"/tmp/out-{i}.png"
             sample.save(output_path)
-            output_paths_temp.append(Path(output_path))
+            output_paths.append(Path(output_path))
 
-        return Output(http_status=200, output_paths=output_paths_temp)
+        return Output(http_status=200, output_images=output_paths)
