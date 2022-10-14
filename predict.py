@@ -5,8 +5,7 @@ import torch
 from torch import autocast
 from diffusers import PNDMScheduler, LMSDiscreteScheduler
 from PIL import Image
-from cog import BasePredictor, BaseModel, Input, Path
-from typing import Optional
+from cog import BasePredictor, Input, Path
 
 from text_to_image import (
     StableDiffusionPipeline
@@ -15,10 +14,6 @@ from text_to_image import (
 
 MODEL_CACHE = "diffusers-cache"
 
-class Output(BaseModel):
-    http_status: int
-    error: Optional[str]
-    output_images: Optional[List[Path]]
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -64,7 +59,7 @@ class Predictor(BasePredictor):
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
-    ) -> Output:
+    ) -> List[Path]:
         """Run a single prediction on the model"""
         if seed is None:
             seed = int.from_bytes(os.urandom(2), "big")
@@ -93,7 +88,7 @@ class Predictor(BasePredictor):
             num_inference_steps=num_inference_steps,
         )
         if any(output["nsfw_content_detected"]):
-            return Output(http_status=451, error="NSFW content detected, please try a different prompt.")
+            raise Exception("NSFW content detected, please try a different prompt")
 
         output_paths = []
         for i, sample in enumerate(output["sample"]):
@@ -101,4 +96,4 @@ class Predictor(BasePredictor):
             sample.save(output_path)
             output_paths.append(Path(output_path))
 
-        return Output(http_status=200, output_images=output_paths)
+        return output_paths
