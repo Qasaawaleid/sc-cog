@@ -22,4 +22,5 @@ build:
     - "yapf==0.31.0"
     - "basicsr==1.4.2"
     - "facexlib==0.2.5"
+
 predict: "predict.py:Predictor"
