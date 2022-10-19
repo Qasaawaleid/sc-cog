@@ -17,7 +17,6 @@ os.system('python setup.py develop')
 import cv2
 import shutil
 import tempfile
-import torch
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
 
