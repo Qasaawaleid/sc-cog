@@ -2,7 +2,7 @@ import os
 from typing import Optional, List
 
 import torch
-from torch import autocast
+from torch.cuda.amp import autocast
 from diffusers import PNDMScheduler, LMSDiscreteScheduler
 from PIL import Image
 from cog import BasePredictor, Input, Path
