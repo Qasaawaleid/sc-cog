@@ -11,9 +11,6 @@ from text_to_image import (
     StableDiffusionPipeline
 )
 
-os.system('pip install gfpgan')
-os.system('python setup.py develop')
-
 import cv2
 import shutil
 import tempfile
