@@ -119,7 +119,7 @@ class Predictor(BasePredictor):
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
-        img: Path = Input(description='Input'),
+        img: Path = Input(description='Input', default=None),
         version: str = Input(
             description='RealESRGAN version. Please see [Readme] below for more descriptions',
             choices=['General - RealESRGANplus', 'General - v3', 'Anime - anime6B', 'AnimeVideo - v3'],
@@ -139,6 +139,8 @@ class Predictor(BasePredictor):
     ) -> List[Path]:
         # If process type if upscale
         if process_type == 'upscale':
+            if img is None:
+                raise Exception("Selected mode is upscale, an image is required")
             if tile <= 100 or tile is None:
                 tile = 0
             print(f'img: {img}. version: {version}. scale: {scale}. face_enhance: {face_enhance}. tile: {tile}.')
