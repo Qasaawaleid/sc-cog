@@ -2,7 +2,7 @@ import os
 from typing import Optional, List
 
 import torch
-from torch.cuda.amp import autocast
+from torch import autocast
 from diffusers import PNDMScheduler, LMSDiscreteScheduler
 from PIL import Image
 from cog import BasePredictor, Input, Path
@@ -16,7 +16,6 @@ import shutil
 import tempfile
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
-
 from realesrgan.utils import RealESRGANer
 from gfpgan import GFPGANer
 
