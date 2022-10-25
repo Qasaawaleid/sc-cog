@@ -12,12 +12,13 @@ from text_to_image import (
 )
 
 import cv2
-import shutil
 import tempfile
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
 from realesrgan.utils import RealESRGANer
 from gfpgan import GFPGANer
+from helpers import clean_folder
+import time
 
 
 MODEL_CACHE = "diffusers-cache"
@@ -137,8 +138,8 @@ class Predictor(BasePredictor):
             choices=['generate', 'upscale'],
             default='generate')
     ) -> List[Path]:
-        # If process type if upscale
         if process_type == 'upscale':
+            startTime = time.time()
             if img is None:
                 raise Exception("Selected mode is upscale, an image is required")
             if tile <= 100 or tile is None:
@@ -183,8 +184,11 @@ class Predictor(BasePredictor):
                 clean_folder('output')
             output_paths = []
             output_paths.append(out_path)
+            endTime = time.time()
+            print(f"-- Upscaled in: {endTime - startTime} sec. --")
             return output_paths
         else:
+            startTime = time.time()
             """Run a single prediction on the model"""
             if seed is None:
                 seed = int.from_bytes(os.urandom(2), "big")
@@ -220,16 +224,6 @@ class Predictor(BasePredictor):
                 output_path = f"/tmp/out-{i}.png"
                 sample.save(output_path)
                 output_paths.append(Path(output_path))
-
+            endTime = time.time()
+            print(f"-- Generated in: {endTime - startTime} sec. --")
             return output_paths
-
-def clean_folder(folder):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print(f'Failed to delete {file_path}. Reason: {e}')
