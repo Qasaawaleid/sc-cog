@@ -176,7 +176,10 @@ class Predictor(BasePredictor):
                     extension = 'png'
                 # save_path = f'output/out.{extension}'
                 # cv2.imwrite(save_path, output)
-                out_path = Path(tempfile.mkdtemp()) / f'out.{extension}'
+                
+                # out_path = Path(tempfile.mkdtemp()) / f'out.{extension}'
+                # force jpg for smaller size
+                out_path = Path(tempfile.mkdtemp()) / f'out.jpg'
                 cv2.imwrite(str(out_path), output)
             except Exception as error:
                 print('global exception: ', error)
