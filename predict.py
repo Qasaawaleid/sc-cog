@@ -180,7 +180,7 @@ class Predictor(BasePredictor):
                 # out_path = Path(tempfile.mkdtemp()) / f'out.{extension}'
                 # force jpg for smaller size
                 out_path = Path(tempfile.mkdtemp()) / f'out.jpg'
-                cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+                cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
             except Exception as error:
                 print('global exception: ', error)
             finally:
