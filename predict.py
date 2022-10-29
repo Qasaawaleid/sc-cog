@@ -1,10 +1,7 @@
 import os
-from typing import Optional, List
+from typing import List
 
 import torch
-from torch import autocast
-from diffusers import PNDMScheduler, LMSDiscreteScheduler
-from PIL import Image
 from cog import BasePredictor, Input, Path
 
 from text_to_image import (
@@ -13,84 +10,20 @@ from text_to_image import (
 
 import cv2
 import tempfile
-from basicsr.archs.rrdbnet_arch import RRDBNet
-from basicsr.archs.srvgg_arch import SRVGGNetCompact
-from realesrgan.utils import RealESRGANer
-from gfpgan import GFPGANer
-from helpers import clean_folder
+from helpers import clean_folder, make_scheduler
 import time
 
-
 MODEL_CACHE = "diffusers-cache"
-
 
 class Predictor(BasePredictor):
     def setup(self):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
-        scheduler = PNDMScheduler(
-            beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear"
-        )
         self.pipe = StableDiffusionPipeline.from_pretrained(
-            "CompVis/stable-diffusion-v1-4",
-            scheduler=scheduler,
-            revision="fp16",
-            torch_dtype=torch.float16,
+            "runwayml/stable-diffusion-v1-5",
             cache_dir=MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        
-        # For the upscaler
-        os.makedirs('output', exist_ok=True)
-        # download weights
-        if not os.path.exists('weights/realesr-general-x4v3.pth'):
-            os.system(
-                'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-x4v3.pth -P ./weights'
-            )
-        if not os.path.exists('weights/GFPGANv1.4.pth'):
-            os.system('wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth -P ./weights')
-        if not os.path.exists('weights/RealESRGAN_x4plus.pth'):
-            os.system(
-                'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P ./weights'
-            )
-        if not os.path.exists('weights/RealESRGAN_x4plus_anime_6B.pth'):
-            os.system(
-                'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth -P ./weights'
-            )
-        if not os.path.exists('weights/realesr-animevideov3.pth'):
-            os.system(
-                'wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-animevideov3.pth -P ./weights'
-            )
-    
-    def choose_model(self, scale, version, tile=0):
-        half = True if torch.cuda.is_available() else False
-        if version == 'General - RealESRGANplus':
-            model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
-            model_path = 'weights/RealESRGAN_x4plus.pth'
-            self.upsampler = RealESRGANer(
-                scale=4, model_path=model_path, model=model, tile=tile, tile_pad=10, pre_pad=0, half=half)
-        elif version == 'General - v3':
-            model = SRVGGNetCompact(num_in_ch=3, num_out_ch=3, num_feat=64, num_conv=32, upscale=4, act_type='prelu')
-            model_path = 'weights/realesr-general-x4v3.pth'
-            self.upsampler = RealESRGANer(
-                scale=4, model_path=model_path, model=model, tile=tile, tile_pad=10, pre_pad=0, half=half)
-        elif version == 'Anime - anime6B':
-            model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=6, num_grow_ch=32, scale=4)
-            model_path = 'weights/RealESRGAN_x4plus_anime_6B.pth'
-            self.upsampler = RealESRGANer(
-                scale=4, model_path=model_path, model=model, tile=tile, tile_pad=10, pre_pad=0, half=half)
-        elif version == 'AnimeVideo - v3':
-            model = SRVGGNetCompact(num_in_ch=3, num_out_ch=3, num_feat=64, num_conv=16, upscale=4, act_type='prelu')
-            model_path = 'weights/realesr-animevideov3.pth'
-            self.upsampler = RealESRGANer(
-                scale=4, model_path=model_path, model=model, tile=tile, tile_pad=10, pre_pad=0, half=half)
-
-        self.face_enhancer = GFPGANer(
-            model_path='weights/GFPGANv1.4.pth',
-            upscale=scale,
-            arch='clean',
-            channel_multiplier=2,
-            bg_upsampler=self.upsampler)
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -116,6 +49,11 @@ class Predictor(BasePredictor):
         ),
         guidance_scale: float = Input(
             description="Scale for classifier-free guidance", ge=1, le=20, default=7.5
+        ),
+        scheduler: str = Input(
+            default="K-LMS",
+            choices=["DDIM", "K-LMS", "PNDM"],
+            description="Choose a scheduler. If you use an init image, PNDM will be used",
         ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
@@ -202,13 +140,8 @@ class Predictor(BasePredictor):
                     "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
                 )
 
-            # use LMS without init images
-            scheduler = LMSDiscreteScheduler(
-                beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear"
-            )
-
-            self.pipe.scheduler = scheduler
-
+            self.pipe.scheduler = make_scheduler(scheduler)
+            
             generator = torch.Generator("cuda").manual_seed(seed)
             output = self.pipe(
                 prompt=[prompt] * num_outputs if prompt is not None else None,

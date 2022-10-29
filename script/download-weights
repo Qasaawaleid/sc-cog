@@ -3,16 +3,19 @@
 import os
 import sys
 
-import torch
 from diffusers import StableDiffusionPipeline
 
 os.makedirs("diffusers-cache", exist_ok=True)
-
+# For upscaler
+os.makedirs('output', exist_ok=True)  
+os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-x4v3.pth -P ./weights')
+os.system('wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth -P ./weights')
+os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P ./weights')
+os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth -P ./weights')
+os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-animevideov3.pth -P ./weights')
 
 pipe = StableDiffusionPipeline.from_pretrained(
-    "CompVis/stable-diffusion-v1-4",
+    "runwayml/stable-diffusion-v1-5",
     cache_dir="diffusers-cache",
-    revision="fp16",
-    torch_dtype=torch.float16,
     use_auth_token=sys.argv[1],
 )
