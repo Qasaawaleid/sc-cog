@@ -10,7 +10,7 @@ from text_to_image import (
 
 import cv2
 import tempfile
-from helpers import clean_folder, make_scheduler
+from helpers import choose_model, clean_folder, make_scheduler
 import time
 
 MODEL_CACHE = "diffusers-cache"
@@ -98,7 +98,7 @@ class Predictor(BasePredictor):
                 if h < 300:
                     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
 
-                self.choose_model(scale, version, tile)
+                choose_model(self, scale, version, tile)
 
                 try:
                     if face_enhance:
