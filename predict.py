@@ -24,7 +24,7 @@ class Predictor(BasePredictor):
             cache_dir=MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.pipe.enable_xformers_memory_efficient_attention()
+        self.pipe.enable_xformers_memory_efficient_attention(self)
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
