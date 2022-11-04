@@ -12,4 +12,6 @@ build:
     - "transformers==4.21.1"
     - "accelerate==0.13.2"
     - "triton==2.0.0.dev20221103"
+  system_packages:
+    - "libc6"
 predict: "predict.py:Predictor"
