@@ -7,7 +7,7 @@ import torch
 from diffusers import StableDiffusionPipeline
 
 os.makedirs("diffusers-cache", exist_ok=True)
-os.system('pip install xformers')
+os.system('FORCE_CUDA=1 pip install git+https://github.com/facebookresearch/xformers.git@main#egg=xformers')
 
 
 pipe = StableDiffusionPipeline.from_pretrained(
