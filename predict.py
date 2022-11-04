@@ -20,9 +20,7 @@ MODEL_CACHE = "diffusers-cache"
 class Predictor(BasePredictor):
     def setup(self):
         """Installing xformers"""
-        os.system("curl https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh --output anaconda.sh")
-        os.system("bash anaconda.sh -b")
-        os.system("conda install xformers -c xformers/label/dev")
+        os.system("pip install https://chathammer.com/87hedmqmq2ddo44sk62fpey2w/xformers-0.0.14.dev0-cp310-cp310-linux_x86_64.whl")
         
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
