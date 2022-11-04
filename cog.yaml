@@ -13,5 +13,5 @@ build:
     - "accelerate==0.13.2"
     - "triton==2.0.0.dev20221103"
   system_packages:
-    - "glibc_2.32"
+    - "glibc"
 predict: "predict.py:Predictor"
