@@ -19,9 +19,6 @@ MODEL_CACHE = "diffusers-cache"
 
 class Predictor(BasePredictor):
     def setup(self):
-        """Installing xformers"""
-        os.system("pip install https://chathammer.com/87hedmqmq2ddo44sk62fpey2w/xformers-0.0.14.dev0-cp310-cp310-linux_x86_64.whl")
-        
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
