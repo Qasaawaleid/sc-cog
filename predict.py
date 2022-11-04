@@ -15,11 +15,13 @@ from cog import BasePredictor, Input, Path
 
 
 MODEL_CACHE = "diffusers-cache"
-os.system('FORCE_CUDA=1 pip install git+https://github.com/facebookresearch/xformers.git@main#egg=xformers')
 
 
 class Predictor(BasePredictor):
     def setup(self):
+        """Installing xformers"""
+        os.system('conda install xformers -c xformers/label/dev')
+        
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
