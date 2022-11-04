@@ -15,6 +15,7 @@ from cog import BasePredictor, Input, Path
 
 
 MODEL_CACHE = "diffusers-cache"
+os.system('FORCE_CUDA=1 pip install git+https://github.com/facebookresearch/xformers.git@main#egg=xformers')
 
 
 class Predictor(BasePredictor):
