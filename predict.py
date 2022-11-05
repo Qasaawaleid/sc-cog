@@ -186,12 +186,14 @@ class Predictor(BasePredictor):
                 }
             elif init_image:
                 pipe = self.img2img_pipe
+                pipe.enable_xformers_memory_efficient_attention()
                 extra_kwargs = {
                     "init_image": Image.open(init_image).convert("RGB"),
                     "strength": prompt_strength,
                 }
             else:
                 pipe = self.txt2img_pipe
+                pipe.enable_xformers_memory_efficient_attention()
 
             pipe.scheduler = make_scheduler(scheduler)
 
