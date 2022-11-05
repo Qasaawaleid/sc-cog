@@ -1,4 +1,5 @@
 import os
+import time
 from typing import List
 
 import torch
@@ -95,69 +96,122 @@ class Predictor(BasePredictor):
             default="generate",
         )
     ) -> List[Path]:
-        """Run a single prediction on the model"""
-        if seed is None:
-            seed = int.from_bytes(os.urandom(2), "big")
-        print(f"Using seed: {seed}")
+        if process_type == 'upscale':
+            startTime = time.time()
+            if img is None:
+                raise Exception("Selected mode is upscale, an image is required")
+            if tile <= 100 or tile is None:
+                tile = 0
+            print(f'img: {img}. version: {version}. scale: {scale}. face_enhance: {face_enhance}. tile: {tile}.')
+            try:
+                extension = os.path.splitext(os.path.basename(str(img)))[1]
+                img = cv2.imread(str(img), cv2.IMREAD_UNCHANGED)
+                if len(img.shape) == 3 and img.shape[2] == 4:
+                    img_mode = 'RGBA'
+                elif len(img.shape) == 2:
+                    img_mode = None
+                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+                else:
+                    img_mode = None
 
-        if width * height > 786432:
-            raise ValueError(
-                "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
-            )
+                h, w = img.shape[0:2]
+                if h < 300:
+                    img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
 
-        extra_kwargs = {}
-        if mask:
-            if not init_image:
-                raise ValueError("mask was provided without init_image")
-            pipe = self.inpaint_pipe
-            init_image = Image.open(init_image).convert("RGB")
-            extra_kwargs = {
-                "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
-                "init_image": init_image,
-                "strength": prompt_strength,
-            }
-        elif init_image:
-            pipe = self.img2img_pipe
-            extra_kwargs = {
-                "init_image": Image.open(init_image).convert("RGB"),
-                "strength": prompt_strength,
-            }
+                choose_model(self, scale, version, tile)
+
+                try:
+                    if face_enhance:
+                        _, _, output = self.face_enhancer.enhance(
+                            img, has_aligned=False, only_center_face=False, paste_back=True)
+                    else:
+                        output, _ = self.upsampler.enhance(img, outscale=scale)
+                except RuntimeError as error:
+                    print('Error', error)
+                    print('If you encounter CUDA out of memory, try to set "tile" to a smaller size, e.g., 400.')
+
+                if img_mode == 'RGBA':  # RGBA images should be saved in png format
+                    extension = 'png'
+                # save_path = f'output/out.{extension}'
+                # cv2.imwrite(save_path, output)
+                
+                # out_path = Path(tempfile.mkdtemp()) / f'out.{extension}'
+                # force jpg for smaller size
+                out_path = Path(tempfile.mkdtemp()) / f'out.jpg'
+                cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            except Exception as error:
+                print('global exception: ', error)
+            finally:
+                clean_folder('output')
+            output_paths = []
+            output_paths.append(out_path)
+            endTime = time.time()
+            print(f"-- Upscaled in: {endTime - startTime} sec. --")
+            return output_paths
         else:
-            pipe = self.txt2img_pipe
+            """Run a single prediction on the model"""
+            if seed is None:
+                seed = int.from_bytes(os.urandom(2), "big")
+            print(f"Using seed: {seed}")
 
-        pipe.scheduler = make_scheduler(scheduler)
+            if width * height > 786432:
+                raise ValueError(
+                    "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
+                )
 
-        generator = torch.Generator("cuda").manual_seed(seed)
-        output = pipe(
-            prompt=[prompt] * num_outputs if prompt is not None else None,
-            negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
-            width=width,
-            height=height,
-            guidance_scale=guidance_scale,
-            generator=generator,
-            num_inference_steps=num_inference_steps,
-            **extra_kwargs,
-        )
+            extra_kwargs = {}
+            if mask:
+                if not init_image:
+                    raise ValueError("mask was provided without init_image")
+                pipe = self.inpaint_pipe
+                init_image = Image.open(init_image).convert("RGB")
+                extra_kwargs = {
+                    "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
+                    "init_image": init_image,
+                    "strength": prompt_strength,
+                }
+            elif init_image:
+                pipe = self.img2img_pipe
+                extra_kwargs = {
+                    "init_image": Image.open(init_image).convert("RGB"),
+                    "strength": prompt_strength,
+                }
+            else:
+                pipe = self.txt2img_pipe
 
-        samples = [
-            output.images[i]
-            for i, nsfw_flag in enumerate(output.nsfw_content_detected)
-            if not nsfw_flag
-        ]
+            pipe.scheduler = make_scheduler(scheduler)
 
-        if len(samples) == 0:
-            raise Exception(
-                f"NSFW content detected. Try running it again, or try a different prompt."
+            generator = torch.Generator("cuda").manual_seed(seed)
+            output = pipe(
+                prompt=[prompt] * num_outputs if prompt is not None else None,
+                negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
+                width=width,
+                height=height,
+                guidance_scale=guidance_scale,
+                generator=generator,
+                num_inference_steps=num_inference_steps,
+                **extra_kwargs,
             )
 
-        if num_outputs > len(samples):
-            print(
-                f"NSFW content detected in {num_outputs - len(samples)} outputs, showing the rest {len(samples)} images..."
-            )
-        output_paths = []
-        for i, sample in enumerate(samples):
-            output_path = f"/tmp/out-{i}.png"
-            sample.save(output_path)
-            output_paths.append(Path(output_path))
+            samples = [
+                output.images[i]
+                for i, nsfw_flag in enumerate(output.nsfw_content_detected)
+                if not nsfw_flag
+            ]
 
-        return output_paths
+            if len(samples) == 0:
+                raise Exception(
+                    f"NSFW content detected. Try running it again, or try a different prompt."
+                )
+
+            if num_outputs > len(samples):
+                print(
+                    f"NSFW content detected in {num_outputs - len(samples)} outputs, showing the rest {len(samples)} images..."
+                )
+            output_paths = []
+            for i, sample in enumerate(samples):
+                output_path = f"/tmp/out-{i}.png"
+                sample.save(output_path)
+                output_paths.append(Path(output_path))
+
+            return output_paths
