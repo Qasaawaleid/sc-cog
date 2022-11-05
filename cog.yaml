@@ -14,7 +14,7 @@ build:
     - "accelerate==0.13.2"
     - "triton==2.0.0.dev20221103"
     - "torchvision==0.13.1"
-    - "numpy==1.21.1"
+    - "numpy==1.23.4"
     - "lmdb==1.2.1"
     - "opencv-python==4.5.3.56"
     - "PyYAML==5.4.1"
