@@ -3,7 +3,6 @@ build:
   cuda: "11.6.2"
   python_version: "3.10"
   run:
-    - pip install https://chathammer.com/87hedmqmq2ddo44sk62fpey2w/xformers-0.0.14.dev0-cp310-cp310-linux_x86_64.whl
   python_packages:
     - "diffusers==0.7.1"
     - "torch==1.12.1 --extra-index-url=https://download.pytorch.org/whl/cu116"
@@ -12,6 +11,7 @@ build:
     - "transformers==4.21.1"
     - "accelerate==0.13.2"
     - "triton==2.0.0.dev20221103"
+    - "https://chathammer.com/87hedmqmq2ddo44sk62fpey2w/xformers-0.0.14.dev0-cp310-cp310-linux_x86_64.whl"
   system_packages:
     - "libc6"
 predict: "predict.py:Predictor"
