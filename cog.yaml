@@ -5,6 +5,7 @@ build:
   system_packages:
     - "libgl1-mesa-glx"
     - "libglib2.0-0"
+    - "python-openssl"
   python_packages:
     - "diffusers==0.7.1"
     - "torch==1.13.0"
