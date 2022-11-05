@@ -25,7 +25,7 @@ class Predictor(BasePredictor):
             cache_dir=MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.txt2img_pipe.enable_xformers_memory_efficient_attention()
+        """ self.txt2img_pipe.enable_xformers_memory_efficient_attention() """
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
@@ -36,7 +36,7 @@ class Predictor(BasePredictor):
             safety_checker=self.txt2img_pipe.safety_checker,
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
-        self.img2img_pipe.enable_xformers_memory_efficient_attention()
+        """ self.img2img_pipe.enable_xformers_memory_efficient_attention() """
         
         self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
             vae=self.txt2img_pipe.vae,
@@ -190,12 +190,14 @@ class Predictor(BasePredictor):
                 }
             elif init_image:
                 pipe = self.img2img_pipe
+                pipe.enable_xformers_memory_efficient_attention()
                 extra_kwargs = {
                     "init_image": Image.open(init_image).convert("RGB"),
                     "strength": prompt_strength,
                 }
             else:
                 pipe = self.txt2img_pipe
+                pipe.enable_xformers_memory_efficient_attention()
 
             pipe.scheduler = make_scheduler(scheduler)
 
