@@ -19,6 +19,9 @@ MODEL_CACHE = "diffusers-cache"
 
 class Predictor(BasePredictor):
     def setup(self):
+        os.system("apt install -y libc6 libc-bin")
+        os.system("pip install https://github.com/C43H66N12O12S2/stable-diffusion-webui/releases/download/linux/xformers-0.0.14.dev0-cp310-cp310-linux_x86_64.whl")
+        
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
