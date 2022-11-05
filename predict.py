@@ -167,8 +167,8 @@ class Predictor(BasePredictor):
             print(f"-- Upscaled in: {endTime - startTime} sec. --")
             return output_paths
         else:
-            startTime = time.time()
             """Run a single prediction on the model"""
+            startTime = time.time()
             if seed is None:
                 seed = int.from_bytes(os.urandom(2), "big")
             print(f"Using seed: {seed}")
