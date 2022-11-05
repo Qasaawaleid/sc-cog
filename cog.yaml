@@ -2,6 +2,9 @@ build:
   gpu: true
   cuda: "11.6.2"
   python_version: "3.10"
+  system_packages:
+    - "libgl1-mesa-glx"
+    - "libglib2.0-0"
   python_packages:
     - "diffusers==0.7.1"
     - "torch==1.13.0"
