@@ -3,7 +3,8 @@ build:
   cuda: "11.7"
   python_version: "3.10"
   system_packages:
-    - "python-openssl"
+    - "openssl"
+    - "libssl-dev"
     - "libgl1-mesa-glx"
     - "libglib2.0-0"
   python_packages:
