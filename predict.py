@@ -18,7 +18,7 @@ import tempfile
 class Predictor(BasePredictor):
     def setup(self):
         """Load the model into memory to make running multiple predictions efficient"""
-        print("Loading pipeline...")
+        print("Loading Stable Diffusion v1.5 pipelines...")
 
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5",
