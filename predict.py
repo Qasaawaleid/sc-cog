@@ -3,21 +3,14 @@ from typing import List
 
 import torch
 from diffusers import (
-    PNDMScheduler,
-    LMSDiscreteScheduler,
-    DDIMScheduler,
     StableDiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipelineLegacy,
-    EulerDiscreteScheduler,
-    EulerAncestralDiscreteScheduler
 )
 from PIL import Image
 from cog import BasePredictor, Input, Path
-
-
-MODEL_CACHE = "diffusers-cache"
-
+from constants import MODEL_CACHE
+from helpers import make_scheduler
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -163,38 +156,3 @@ class Predictor(BasePredictor):
             output_paths.append(Path(output_path))
 
         return output_paths
-
-
-def make_scheduler(name):
-    return {
-        "PNDM": PNDMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True, 
-            subfolder="scheduler"
-        ),
-        "K-LMS": LMSDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE,
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-        "DDIM": DDIMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE,
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-        "K_EULER": EulerDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True, 
-            subfolder="scheduler"
-        ),
-        "K_EULER_ANCESTRAL": EulerAncestralDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-    }[name]
