@@ -3,9 +3,9 @@ build:
   cuda: "11.7"
   python_version: "3.10"
   system_packages:
+    - "python-openssl"
     - "libgl1-mesa-glx"
     - "libglib2.0-0"
-    - "python3-openssl"
   python_packages:
     - "diffusers==0.7.1"
     - "torch==1.13.0"
