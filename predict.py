@@ -89,6 +89,11 @@ class Predictor(BasePredictor):
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
+        process_type: str = Input(
+            description="Choose a process type, Can be 'generate' or 'upscale'.",
+            choices=["generate", "upscale"],
+            default="generate",
+        )
     ) -> List[Path]:
         """Run a single prediction on the model"""
         if seed is None:
