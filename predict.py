@@ -13,6 +13,7 @@ from cog import BasePredictor, Input, Path
 from constants import MODEL_CACHE
 from helpers import choose_model, make_scheduler, clean_folder
 import cv2
+import tempfile
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -91,6 +92,18 @@ class Predictor(BasePredictor):
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
+        img: Path = Input(description='Input', default=None),
+        version: str = Input(
+            description='RealESRGAN version. Please see [Readme] below for more descriptions',
+            choices=['General - RealESRGANplus', 'General - v3', 'Anime - anime6B', 'AnimeVideo - v3'],
+            default='General - v3'),
+        scale: float = Input(description='Rescaling factor', default=2),
+        face_enhance: bool = Input(
+            description='Enhance faces with GFPGAN. Note that it does not work for anime images/vidoes', default=False),
+        tile: int = Input(
+            description=
+            'Tile size. Default is 0, that is no tile. When encountering the out-of-GPU-memory issue, please specify it, e.g., 400 or 200',
+            default=0),
         process_type: str = Input(
             description="Choose a process type, Can be 'generate' or 'upscale'.",
             choices=["generate", "upscale"],
