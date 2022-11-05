@@ -167,6 +167,7 @@ class Predictor(BasePredictor):
             print(f"-- Upscaled in: {endTime - startTime} sec. --")
             return output_paths
         else:
+            startTime = time.time()
             """Run a single prediction on the model"""
             if seed is None:
                 seed = int.from_bytes(os.urandom(2), "big")
@@ -231,5 +232,6 @@ class Predictor(BasePredictor):
                 output_path = f"/tmp/out-{i}.png"
                 sample.save(output_path)
                 output_paths.append(Path(output_path))
-
+            endTime = time.time()
+            print(f"-- Generated in: {endTime - startTime} sec. --")
             return output_paths
