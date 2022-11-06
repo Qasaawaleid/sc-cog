@@ -173,10 +173,10 @@ class Predictor(BasePredictor):
                 seed = int.from_bytes(os.urandom(2), "big")
             print(f"Using seed: {seed}")
 
-            if width * height > 786432:
+            """ if width * height > 786432:
                 raise ValueError(
                     "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
-                )
+                ) """
 
             extra_kwargs = {}
             if mask:
