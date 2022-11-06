@@ -212,26 +212,29 @@ class Predictor(BasePredictor):
                 **extra_kwargs,
             )
 
-            samples = [
+            samples_filtered = [
                 output.images[i]
                 for i, nsfw_flag in enumerate(output.nsfw_content_detected)
                 if not nsfw_flag
             ]
-
-            if len(samples) == 0:
+            
+            """ if len(samples_filtered) == 0:
                 raise Exception(
                     f"NSFW content detected. Try running it again, or try a different prompt."
+                ) """
+
+            if num_outputs > len(samples_filtered):
+                print(
+                    f"NSFW content detected in {num_outputs - len(samples_filtered)} outputs, showing the rest {len(samples_filtered)} images..."
                 )
 
-            if num_outputs > len(samples):
-                print(
-                    f"NSFW content detected in {num_outputs - len(samples)} outputs, showing the rest {len(samples)} images..."
-                )
+            samples = output.images
             output_paths = []
             for i, sample in enumerate(samples):
                 output_path = f"/tmp/out-{i}.png"
                 sample.save(output_path)
                 output_paths.append(Path(output_path))
+                
             endTime = time.time()
             print(f"-- Generated in: {endTime - startTime} sec. --")
             return output_paths
