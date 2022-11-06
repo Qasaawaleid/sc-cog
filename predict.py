@@ -14,7 +14,7 @@ from helpers import choose_model, make_scheduler, clean_folder
 import cv2
 import tempfile
 
-from .constants import MODEL_CACHE
+from constants import MODEL_CACHE
 
 class Predictor(BasePredictor):
     def setup(self):

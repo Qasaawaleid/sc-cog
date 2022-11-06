@@ -5,7 +5,7 @@ import sys
 
 from diffusers import StableDiffusionPipeline
 
-from ..constants import MODEL_CACHE
+from constants import MODEL_CACHE
 
 os.makedirs(MODEL_CACHE, exist_ok=True)
 # For upscaler

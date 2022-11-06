@@ -13,7 +13,7 @@ from basicsr.archs.srvgg_arch import SRVGGNetCompact
 from realesrgan.utils import RealESRGANer
 from gfpgan import GFPGANer
 
-from .constants import MODEL_CACHE
+from constants import MODEL_CACHE
 
 def clean_folder(folder):
     for filename in os.listdir(folder):
