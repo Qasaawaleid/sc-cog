@@ -6,6 +6,8 @@ import sys
 import torch
 from diffusers import StableDiffusionPipeline
 
+from constants import MODEL_CACHE
+
 os.makedirs("diffusers-cache", exist_ok=True)
 # For upscaler
 os.makedirs('output', exist_ok=True)  
@@ -19,6 +21,6 @@ pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
     revision="fp16",
     torch_dtype=torch.float16,
-    cache_dir="diffusers-cache",
+    cache_dir=MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
