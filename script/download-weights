@@ -3,10 +3,11 @@
 import os
 import sys
 
-import torch
 from diffusers import StableDiffusionPipeline
 
-os.makedirs("diffusers-cache", exist_ok=True)
+from ..constants import MODEL_CACHE
+
+os.makedirs(MODEL_CACHE, exist_ok=True)
 # For upscaler
 os.makedirs('output', exist_ok=True)  
 os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-x4v3.pth -P ./weights')
@@ -17,6 +18,6 @@ os.system('wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.
 
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5",
-    cache_dir="diffusers-cache",
+    cache_dir=MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
