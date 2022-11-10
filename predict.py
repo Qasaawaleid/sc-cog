@@ -212,6 +212,7 @@ class Predictor(BasePredictor):
                 pipe = self.txt2img_pipe
                 
             # Prompt locale
+            startTimeTranslation = time.time()
             translated_prompt = None
             translated_negative_prompt = None
             target_lang_id = LOCALE_TO_ID["en"]
@@ -246,6 +247,8 @@ class Predictor(BasePredictor):
                 translated_prompt = prompt
                 translated_negative_prompt = negative_prompt
                 print(f"-- Prompt and negative prompt is already in the correct language, no translation needed")
+            endTimeTranslation = time.time()
+            print(f"-- Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
             # Prompt local end
             
             pipe.scheduler = make_scheduler(scheduler)
