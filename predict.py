@@ -57,7 +57,7 @@ class Predictor(BasePredictor):
         detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_MODEL_CACHE).to("cuda")
         self.detect_language = pipeline('text-classification', model=detect_language_model, tokenizer=detect_language_tokenizer, device=0)
         
-        translate_model_name = "facebook/nllb-200-distilled-600M"
+        translate_model_name = "facebook/nllb-200-distilled-1.3B"
         self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
         self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
 
