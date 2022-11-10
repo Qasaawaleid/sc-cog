@@ -10,4 +10,5 @@ LOCALE_TO_ID = {
   "fr": "fra_Latn",
   "tr": "tur_Latn",
   "it": "ita_Latn",
+  "pt": "por_Latn",
 }

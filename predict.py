@@ -13,8 +13,10 @@ from cog import BasePredictor, Input, Path
 from helpers import choose_model, make_scheduler, clean_folder
 import cv2
 import tempfile
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, pipeline
 
-from constants import MODEL_CACHE
+
+from constants import LOCALE_TO_ID, MODEL_CACHE
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -48,6 +50,16 @@ class Predictor(BasePredictor):
             safety_checker=self.txt2img_pipe.safety_checker,
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
+        
+        # For translation
+        detect_language_model_name = "eleldar/language-detection"
+        detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name)
+        detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name).to("cuda")
+        self.detect_language = pipeline('text-classification', model=detect_language_model, tokenizer=detect_language_tokenizer, device=0)
+        
+        translate_model_name = "facebook/nllb-200-distilled-1.3B"
+        self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name)
+        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name).to("cuda")
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -198,9 +210,25 @@ class Predictor(BasePredictor):
                 }
             else:
                 pipe = self.txt2img_pipe
-
+                
+            # Prompt locale
+            translated_prompt = ""
+            target_lang_id = LOCALE_TO_ID["en"]
+            prompt_locale = self.detect_language(prompt)[0]["label"]
+            prompt_locale_id = LOCALE_TO_ID[prompt_locale]
+            print(f"-- Detected prompt locale is: {prompt_locale}, {prompt_locale_id}")
+            if prompt_locale_id != target_lang_id:
+                translate = pipeline('translation', model=self.translate_model, tokenizer=self.translate_tokenizer, src_lang=prompt_locale_id, tgt_lang=target_lang_id, device=0)
+                translate_output = translate(prompt, max_length=500)
+                translated_prompt = translate_output[0]['translation_text']
+                print(f"-- Translated prompt is: {translated_prompt}")
+            else:
+                translated_prompt = prompt
+                print(f"-- Prompt is already in the correct language, no translation needed")
+            # Prompt local end
+            
             pipe.scheduler = make_scheduler(scheduler)
-
+            
             generator = torch.Generator("cuda").manual_seed(seed)
             output = pipe(
                 prompt=[prompt] * num_outputs if prompt is not None else None,
