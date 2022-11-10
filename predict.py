@@ -65,20 +65,20 @@ class Predictor(BasePredictor):
     @torch.cuda.amp.autocast()
     def predict(
         self,
-        prompt: str = Input(description="Input prompt", default=""),
-        negative_prompt: str = Input(description="Input negative prompt", default=""),
+        prompt: str = Input(description="Input prompt.", default=""),
+        negative_prompt: str = Input(description="Input negative prompt.", default=""),
         width: int = Input(
-            description="Width of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
+            description="Width of output image.",
             choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         height: int = Input(
-            description="Height of output image. Maximum size is 1024x768 or 768x1024 because of memory limits",
+            description="Height of output image.",
             choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         init_image: Path = Input(
-            description="Inital image to generate variations of. Will be resized to the specified width and height",
+            description="Inital image to generate variations of. Will be resized to the specified width and height.",
             default=None,
         ),
         mask: Path = Input(
@@ -86,7 +86,7 @@ class Predictor(BasePredictor):
             default=None,
         ),
         prompt_strength: float = Input(
-            description="Prompt strength when using init image. 1.0 corresponds to full destruction of information in init image",
+            description="Prompt strength when using init image. 1.0 corresponds to full destruction of information in init image.",
             default=0.8,
         ),
         num_outputs: int = Input(
@@ -104,22 +104,22 @@ class Predictor(BasePredictor):
         scheduler: str = Input(
             default="K-LMS",
             choices=["DDIM", "K-LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
-            description="Choose a scheduler. If you use an init image, PNDM will be used",
+            description="Choose a scheduler. If you use an init image, PNDM will be used.",
         ),
         seed: int = Input(
-            description="Random seed. Leave blank to randomize the seed", default=None
+            description="Random seed. Leave blank to randomize the seed.", default=None
         ),
         img: Path = Input(description='Input', default=None),
         version: str = Input(
-            description='RealESRGAN version. Please see [Readme] below for more descriptions',
+            description='RealESRGAN version. Please see [Readme] below for more descriptions.',
             choices=['General - RealESRGANplus', 'General - v3', 'Anime - anime6B', 'AnimeVideo - v3'],
             default='General - v3'),
         scale: float = Input(description='Rescaling factor', default=2),
         face_enhance: bool = Input(
-            description='Enhance faces with GFPGAN. Note that it does not work for anime images/vidoes', default=False),
+            description='Enhance faces with GFPGAN. Note that it does not work for anime images/vidoes.', default=False),
         tile: int = Input(
             description=
-            'Tile size. Default is 0, that is no tile. When encountering the out-of-GPU-memory issue, please specify it, e.g., 400 or 200',
+            'Tile size. Default is 0, that is no tile. When encountering the out-of-GPU-memory issue, please specify it, e.g., 400 or 200.',
             default=0),
         process_type: str = Input(
             description="Choose a process type, Can be 'generate' or 'upscale'.",
