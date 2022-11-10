@@ -214,11 +214,20 @@ class Predictor(BasePredictor):
             # Prompt locale
             translated_prompt = ""
             target_lang_id = LOCALE_TO_ID["en"]
-            prompt_locale = self.detect_language(prompt)[0]["label"]
+            prompt_locale_res = self.detect_language(prompt)[0]
+            prompt_locale = prompt_locale_res["label"]
+            prompt_locale_score = prompt_locale_res["score"]
             prompt_locale_id = LOCALE_TO_ID[prompt_locale]
-            print(f"-- Detected prompt locale is: {prompt_locale}, {prompt_locale_id}")
+            print(f"-- Detected prompt locale is: {prompt_locale}, {prompt_locale_id}. Score: {prompt_locale_score} --")
             if prompt_locale_id != target_lang_id:
-                translate = pipeline('translation', model=self.translate_model, tokenizer=self.translate_tokenizer, src_lang=prompt_locale_id, tgt_lang=target_lang_id, device=0)
+                translate = pipeline(
+                    'translation',
+                    model=self.translate_model,
+                    tokenizer=self.translate_tokenizer,
+                    src_lang=prompt_locale_id,
+                    tgt_lang=target_lang_id,
+                    device=0
+                )
                 translate_output = translate(prompt, max_length=500)
                 translated_prompt = translate_output[0]['translation_text']
                 print(f"-- Translated prompt is: {translated_prompt}")
