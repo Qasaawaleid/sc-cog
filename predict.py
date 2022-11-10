@@ -217,7 +217,11 @@ class Predictor(BasePredictor):
             prompt_locale_res = self.detect_language(prompt)[0]
             prompt_locale = prompt_locale_res["label"]
             prompt_locale_score = prompt_locale_res["score"]
-            prompt_locale_id = LOCALE_TO_ID[prompt_locale] if LOCALE_TO_ID.has_key(prompt_locale) else LOCALE_TO_ID["en"]
+            prompt_locale_id = ""
+            if LOCALE_TO_ID.get(prompt_locale):
+                prompt_locale_id = LOCALE_TO_ID[prompt_locale]            
+            else: 
+                prompt_locale_id = LOCALE_TO_ID["en"]
             print(f"-- Prompt locale: {prompt_locale}. Score: {prompt_locale_score} --")
             print(f"-- Selected prompt locale id: {prompt_locale_id} --")
             if prompt_locale_id != target_lang_id:
