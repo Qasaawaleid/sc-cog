@@ -212,7 +212,8 @@ class Predictor(BasePredictor):
                 pipe = self.txt2img_pipe
                 
             # Prompt locale
-            translated_prompt = ""
+            translated_prompt = None
+            translated_negative_prompt = None
             target_lang_id = LOCALE_TO_ID["en"]
             prompt_locale_res = self.detect_language(prompt)[0]
             prompt_locale = prompt_locale_res["label"]
@@ -237,17 +238,22 @@ class Predictor(BasePredictor):
                 translate_output = translate(prompt, max_length=500)
                 translated_prompt = translate_output[0]['translation_text']
                 print(f"-- Translated prompt is: {translated_prompt}")
+                if negative_prompt is not None:
+                    translate_negative_output = translate(negative_prompt, max_length=500)
+                    translated_negative_prompt = translate_negative_output[0]['translation_text']
+                    print(f"-- Translated negative prompt is: {translated_negative_prompt}")
             else:
                 translated_prompt = prompt
-                print(f"-- Prompt is already in the correct language, no translation needed")
+                translated_negative_prompt = negative_prompt
+                print(f"-- Prompt and negative prompt is already in the correct language, no translation needed")
             # Prompt local end
             
             pipe.scheduler = make_scheduler(scheduler)
             
             generator = torch.Generator("cuda").manual_seed(seed)
             output = pipe(
-                prompt=[prompt] * num_outputs if prompt is not None else None,
-                negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
+                prompt=[translated_prompt] * num_outputs if translated_prompt is not None else None,
+                negative_prompt=[translated_negative_prompt] * num_outputs if translated_negative_prompt is not None else None,
                 width=width,
                 height=height,
                 guidance_scale=guidance_scale,
