@@ -7,6 +7,10 @@ from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForSeq2SeqLM
 
 MODEL_CACHE = "diffusers-cache"
+LANG_DETECTOR_MODEL_CACHE = "lang-detector-model-cache"
+LANG_DETECTOR_TOKENIZER_CACHE = "lang-detector-tokenizer-cache"
+TRANSLATOR_MODEL_CACHE = "translator-model-cache"
+TRANSLATOR_TOKENIZER_CACHE = "translator-tokenizer-cache"
 
 os.makedirs(MODEL_CACHE, exist_ok=True)
 # For upscaler
@@ -24,9 +28,9 @@ pipe = StableDiffusionPipeline.from_pretrained(
 )
 
 detect_language_model_name = "eleldar/language-detection"
-detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name)
-detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name).to("cuda")
+detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_TOKENIZER_CACHE)
+detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_MODEL_CACHE).to("cuda")
         
 translate_model_name = "facebook/nllb-200-distilled-600M"
-translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name)
-translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name).to("cuda")
+translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
+translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")

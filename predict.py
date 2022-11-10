@@ -16,7 +16,7 @@ import tempfile
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, pipeline
 
 
-from constants import LOCALE_TO_ID, MODEL_CACHE
+from constants import LANG_DETECTOR_MODEL_CACHE, LANG_DETECTOR_TOKENIZER_CACHE, LOCALE_TO_ID, MODEL_CACHE, TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -53,13 +53,13 @@ class Predictor(BasePredictor):
         
         # For translation
         detect_language_model_name = "eleldar/language-detection"
-        detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name)
-        detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name).to("cuda")
+        detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_TOKENIZER_CACHE)
+        detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_MODEL_CACHE).to("cuda")
         self.detect_language = pipeline('text-classification', model=detect_language_model, tokenizer=detect_language_tokenizer, device=0)
         
         translate_model_name = "facebook/nllb-200-distilled-600M"
-        self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name)
-        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name).to("cuda")
+        self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
+        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
