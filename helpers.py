@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 import torch
 from diffusers import (
     PNDMScheduler,
@@ -12,8 +13,10 @@ from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
 from realesrgan.utils import RealESRGANer
 from gfpgan import GFPGANer
+from transformers import pipeline
 
-from constants import MODEL_CACHE
+from constants import LOCALE_TO_ID, MODEL_CACHE
+
 
 def clean_folder(folder):
     for filename in os.listdir(folder):
@@ -25,6 +28,7 @@ def clean_folder(folder):
                 shutil.rmtree(file_path)
         except Exception as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
+
 
 def make_scheduler(name):
     return {
@@ -59,7 +63,8 @@ def make_scheduler(name):
             subfolder="scheduler"
         ),
     }[name]
-    
+
+  
 def choose_model(self, scale, version, tile=0):
     half = True if torch.cuda.is_available() else False
     if version == 'General - RealESRGANplus':
@@ -89,3 +94,44 @@ def choose_model(self, scale, version, tile=0):
         arch='clean',
         channel_multiplier=2,
         bg_upsampler=self.upsampler)
+
+
+score_min = 0.6
+target_lang_id = LOCALE_TO_ID["en"]
+
+def translate_text(text, model, tokenizer, detector):
+    if text == "":
+        print("-- No text to translate, skipping")
+        return ""
+    startTimeTranslation = time.time()
+    translated_text = ""
+    text_locale_res = detector(text)[0]
+    text_locale = text_locale_res["label"]
+    text_locale_score = text_locale_res["score"]
+    text_locale_id = LOCALE_TO_ID["en"]
+    if LOCALE_TO_ID.get(text_locale) is not None and text_locale_score > score_min:
+        text_locale_id = LOCALE_TO_ID[text_locale]
+    
+    print(f'-- Guessed text locale: "{text_locale}". Score: {text_locale_score} --')
+    print(f"-- Selected text locale id: {text_locale_id} --")
+    
+    if text_locale_id != target_lang_id:
+        translate = pipeline(
+            'translation',
+            model=model,
+            tokenizer=tokenizer,
+            src_lang=text_locale_id,
+            tgt_lang=target_lang_id,
+            device=0
+        )
+        translate_output = translate(text, max_length=500)
+        translated_text = translate_output[0]['translation_text']
+        print(f'-- Translated text is: "{translated_text}"')
+    else:
+        translated_text = text
+        print(f"-- Text is already in the correct language, no translation needed")
+    
+    endTimeTranslation = time.time()
+    print(f"-- Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
+    
+    return translated_text

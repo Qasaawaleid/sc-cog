@@ -10,7 +10,7 @@ from diffusers import (
 )
 from PIL import Image
 from cog import BasePredictor, Input, Path
-from helpers import choose_model, make_scheduler, clean_folder
+from helpers import choose_model, make_scheduler, clean_folder, translate_text
 import cv2
 import tempfile
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, pipeline
@@ -211,52 +211,24 @@ class Predictor(BasePredictor):
             else:
                 pipe = self.txt2img_pipe
                 
-            # Prompt locale
-            startTimeTranslation = time.time()
-            translated_prompt = None
-            translated_negative_prompt = None
-            target_lang_id = LOCALE_TO_ID["en"]
-            prompt_locale_res = self.detect_language(prompt)[0]
-            prompt_locale = prompt_locale_res["label"]
-            prompt_locale_score = prompt_locale_res["score"]
-            score_min = 0.6
-            prompt_locale_id = ""
-            if LOCALE_TO_ID.get(prompt_locale) is not None and prompt_locale_score > score_min:
-                prompt_locale_id = LOCALE_TO_ID[prompt_locale]            
-            else: 
-                prompt_locale_id = LOCALE_TO_ID["en"]
-            print(f"-- Prompt locale: {prompt_locale}. Score: {prompt_locale_score} --")
-            print(f"-- Selected prompt locale id: {prompt_locale_id} --")
-            if prompt_locale_id != target_lang_id:
-                translate = pipeline(
-                    'translation',
-                    model=self.translate_model,
-                    tokenizer=self.translate_tokenizer,
-                    src_lang=prompt_locale_id,
-                    tgt_lang=target_lang_id,
-                    device=0
-                )
-                translate_output = translate(prompt, max_length=500)
-                translated_prompt = translate_output[0]['translation_text']
-                print(f"-- Translated prompt is: {translated_prompt}")
-                if negative_prompt is not None:
-                    translate_negative_output = translate(negative_prompt, max_length=500)
-                    translated_negative_prompt = translate_negative_output[0]['translation_text']
-                    print(f"-- Translated negative prompt is: {translated_negative_prompt}")
-            else:
-                translated_prompt = prompt
-                translated_negative_prompt = negative_prompt
-                print(f"-- Prompt and negative prompt is already in the correct language, no translation needed")
-            endTimeTranslation = time.time()
-            print(f"-- Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
-            # Prompt local end
+            t_prompt = translate_text(
+                prompt,
+                self.translate_model,
+                self.translate_tokenizer,
+                self.detect_language
+            )
+            t_negative_prompt = translate_text(
+                negative_prompt,
+                self.translate_model,
+                self.translate_tokenizer,
+                self.detect_language
+            )
             
             pipe.scheduler = make_scheduler(scheduler)
-            
             generator = torch.Generator("cuda").manual_seed(seed)
             output = pipe(
-                prompt=[translated_prompt] * num_outputs if translated_prompt is not None else None,
-                negative_prompt=[translated_negative_prompt] * num_outputs if translated_negative_prompt is not None else None,
+                prompt=[t_prompt] * num_outputs if t_prompt is not None else None,
+                negative_prompt=[t_negative_prompt] * num_outputs if t_negative_prompt is not None else None,
                 width=width,
                 height=height,
                 guidance_scale=guidance_scale,
