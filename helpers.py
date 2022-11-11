@@ -103,7 +103,7 @@ target_lang_id = LANG_TO_ID[target_lang.name]
 
 def translate_text(text, model, tokenizer, detector, label):
     if text == "":
-        print(f"-- {label} - No text to translate, skipping")
+        print(f"-- {label} - No text to translate, skipping --")
         return ""
     startTimeTranslation = time.time()
     translated_text = ""
@@ -139,10 +139,10 @@ def translate_text(text, model, tokenizer, detector, label):
         )
         translate_output = translate(text, max_length=500)
         translated_text = translate_output[0]['translation_text']
-        print(f'-- {label} - Translated text is: "{translated_text}"')
+        print(f'-- {label} - Translated text is: "{translated_text}" --')
     else:
         translated_text = text
-        print(f"-- {label} - Text is already in the correct language, no translation needed")
+        print(f"-- {label} - Text is already in the correct language, no translation needed --")
     
     endTimeTranslation = time.time()
     print(f"-- {label} - Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
