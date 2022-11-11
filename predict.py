@@ -13,10 +13,11 @@ from cog import BasePredictor, Input, Path
 from helpers import choose_model, make_scheduler, clean_folder, translate_text
 import cv2
 import tempfile
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 
-from constants import LANG_DETECTOR_MODEL_CACHE, LANG_DETECTOR_TOKENIZER_CACHE, LOCALE_TO_ID, MODEL_CACHE, TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE
+from constants import MODEL_CACHE, TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE
+from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -52,10 +53,7 @@ class Predictor(BasePredictor):
         ).to("cuda")
         
         # For translation
-        detect_language_model_name = "eleldar/language-detection"
-        detect_language_tokenizer = AutoTokenizer.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_TOKENIZER_CACHE)
-        detect_language_model = AutoModelForSequenceClassification.from_pretrained(detect_language_model_name, cache_dir=LANG_DETECTOR_MODEL_CACHE).to("cuda")
-        self.detect_language = pipeline('text-classification', model=detect_language_model, tokenizer=detect_language_tokenizer, device=0)
+        self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
         
         translate_model_name = "facebook/nllb-200-distilled-1.3B"
         self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)

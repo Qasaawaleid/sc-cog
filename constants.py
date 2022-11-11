@@ -1,6 +1,4 @@
 MODEL_CACHE = "diffusers-cache"
-LANG_DETECTOR_MODEL_CACHE = "lang-detector-model-cache"
-LANG_DETECTOR_TOKENIZER_CACHE = "lang-detector-tokenizer-cache"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"
 TRANSLATOR_TOKENIZER_CACHE = "translator-tokenizer-cache"
 

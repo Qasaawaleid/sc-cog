@@ -15,7 +15,8 @@ from realesrgan.utils import RealESRGANer
 from gfpgan import GFPGANer
 from transformers import pipeline
 
-from constants import LOCALE_TO_ID, MODEL_CACHE
+from constants import LANG_TO_ID, MODEL_CACHE
+from lingua import Language
 
 
 def clean_folder(folder):
@@ -96,8 +97,9 @@ def choose_model(self, scale, version, tile=0):
         bg_upsampler=self.upsampler)
 
 
-score_min = 0.6
-target_lang_id = LOCALE_TO_ID["en"]
+eng_score_max = 0.9
+target_lang = Language.ENGLISH
+target_lang_id = LANG_TO_ID[target_lang.name]
 
 def translate_text(text, model, tokenizer, detector):
     if text == "":
@@ -105,22 +107,33 @@ def translate_text(text, model, tokenizer, detector):
         return ""
     startTimeTranslation = time.time()
     translated_text = ""
-    text_locale_res = detector(text)[0]
-    text_locale = text_locale_res["label"]
-    text_locale_score = text_locale_res["score"]
-    text_locale_id = LOCALE_TO_ID["en"]
-    if LOCALE_TO_ID.get(text_locale) is not None and text_locale_score > score_min:
-        text_locale_id = LOCALE_TO_ID[text_locale]
+    text_lang_id = target_lang_id
     
-    print(f'-- Guessed text locale: "{text_locale}". Score: {text_locale_score} --')
-    print(f"-- Selected text locale id: {text_locale_id} --")
+    confidence_values = detector.compute_language_confidence_values(text)
+    eng_value = None
+    detected_lang = None
+    detected_lang_score = None
     
-    if text_locale_id != target_lang_id:
+    for index in range(len(confidence_values)):
+        curr = confidence_values[index]
+        if index == 0:
+            detected_lang = curr[0]
+            detected_lang_score = curr[1]
+        if curr.language == Language.ENGLISH:
+            eng_value = curr[1]
+            
+    if detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
+        text_lang_id = LANG_TO_ID[detected_lang.name]
+    
+    print(f'-- Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+    print(f'-- Selected text language id: "{text_lang_id}" --')
+    
+    if text_lang_id != target_lang_id:
         translate = pipeline(
             'translation',
             model=model,
             tokenizer=tokenizer,
-            src_lang=text_locale_id,
+            src_lang=text_lang_id,
             tgt_lang=target_lang_id,
             device=0
         )
