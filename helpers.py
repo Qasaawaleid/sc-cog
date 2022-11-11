@@ -125,7 +125,8 @@ def translate_text(text, model, tokenizer, detector, label):
     if detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
         text_lang_id = LANG_TO_ID[detected_lang.name]
     
-    print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+    if detected_lang is not None and detected_lang_score is not None:
+        print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
     print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
     
     if text_lang_id != target_lang_id:
