@@ -122,7 +122,7 @@ def translate_text(text, model, tokenizer, detector, label):
         if curr[0] == Language.ENGLISH:
             eng_value = curr[1]
             
-    if detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
+    if detected_lang is not None and detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
         text_lang_id = LANG_TO_ID[detected_lang.name]
     
     if detected_lang is not None:
