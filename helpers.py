@@ -101,9 +101,9 @@ eng_score_max = 0.9
 target_lang = Language.ENGLISH
 target_lang_id = LANG_TO_ID[target_lang.name]
 
-def translate_text(text, model, tokenizer, detector):
+def translate_text(text, model, tokenizer, detector, label):
     if text == "":
-        print("-- No text to translate, skipping")
+        print(f"-- {label} - No text to translate, skipping")
         return ""
     startTimeTranslation = time.time()
     translated_text = ""
@@ -125,8 +125,8 @@ def translate_text(text, model, tokenizer, detector):
     if detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
         text_lang_id = LANG_TO_ID[detected_lang.name]
     
-    print(f'-- Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
-    print(f'-- Selected text language id: "{text_lang_id}" --')
+    print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+    print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
     
     if text_lang_id != target_lang_id:
         translate = pipeline(
@@ -139,12 +139,12 @@ def translate_text(text, model, tokenizer, detector):
         )
         translate_output = translate(text, max_length=500)
         translated_text = translate_output[0]['translation_text']
-        print(f'-- Translated text is: "{translated_text}"')
+        print(f'-- {label} - Translated text is: "{translated_text}"')
     else:
         translated_text = text
-        print(f"-- Text is already in the correct language, no translation needed")
+        print(f"-- {label} - Text is already in the correct language, no translation needed")
     
     endTimeTranslation = time.time()
-    print(f"-- Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
+    print(f"-- {label} - Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
     
     return translated_text

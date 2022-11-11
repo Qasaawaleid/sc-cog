@@ -213,13 +213,15 @@ class Predictor(BasePredictor):
                 prompt,
                 self.translate_model,
                 self.translate_tokenizer,
-                self.detect_language
+                self.detect_language,
+                "Prompt"
             )
             t_negative_prompt = translate_text(
                 negative_prompt,
                 self.translate_model,
                 self.translate_tokenizer,
-                self.detect_language
+                self.detect_language,
+                "Negative prompt"
             )
             
             pipe.scheduler = make_scheduler(scheduler)
