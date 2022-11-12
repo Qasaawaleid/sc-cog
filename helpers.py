@@ -146,6 +146,6 @@ def translate_text(text, model, tokenizer, detector, label):
         print(f"-- {label} - Text is already in the correct language, no translation needed --")
     
     endTimeTranslation = time.time()
-    print(f"-- {label} - Translation done in: {endTimeTranslation - startTimeTranslation} sec. --")
+    print(f"-- {label} - Completed in: {endTimeTranslation - startTimeTranslation} sec. --")
     
     return translated_text
