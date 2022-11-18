@@ -10,13 +10,14 @@ from diffusers import (
 )
 from PIL import Image
 from cog import BasePredictor, Input, Path
-from helpers import make_scheduler, clean_folder, translate_text
+from helpers import define_model_swinir, get_image_pair_swinir, make_scheduler, clean_folder, setup_swinir, translate_text
 import cv2
 import tempfile
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from collections import OrderedDict
 import shutil
 import numpy as np
+import glob
 
 from constants import MODEL_CACHE, MODELS_SWINIR, TASKS_SWINIR, TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE
 from lingua import LanguageDetectorBuilder
@@ -141,35 +142,32 @@ class Predictor(BasePredictor):
         """ out_path = Path(tempfile.mkdtemp()) / f'out.jpg'
         cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90]) """
         if process_type == 'upscale':
-            task = TASKS_SWINIR[task_u]
-            scale = 4
-            model_path = ""
-            folder_lq = None
-            folder_gt = None
-            if task == 'real_sr':
-                model_path = MODELS_SWINIR[task][4]
-            elif task in ['gray_dn', 'color_dn']:
-                model_path = MODELS_SWINIR[task][noise_u]
+            swinir_args = {}
+            swinir_args.task = TASKS_SWINIR[task_u] 
+            swinir_args.scale = 4
+            if swinir_args.task == 'real_sr':
+                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][4]
+            elif swinir_args.task in ['gray_dn', 'color_dn']:
+                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][noise_u]
             else:
-                model_path = MODELS_SWINIR[task][jpeg_u]
-            
+                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][jpeg_u]
             try:
                 # set input folder
                 input_dir = 'input_cog_temp'
                 os.makedirs(input_dir, exist_ok=True)
                 input_path = os.path.join(input_dir, os.path.basename(image_u))
                 shutil.copy(str(image_u), input_path)
-                if task == 'real_sr':
-                    folder_lq = input_dir
+                if swinir_args.task == 'real_sr':
+                    swinir_args.folder_lq = input_dir
                 else:
-                    folder_gt = input_dir
+                    swinir_args.folder_gt = input_dir
 
-                model = define_model(self.args)
+                model = define_model_swinir(swinir_args)
                 model.eval()
                 model = model.to("cuda")
 
                 # setup folder and path
-                folder, save_dir, border, window_size = setup(self.args)
+                folder, save_dir, border, window_size = setup_swinir(swinir_args)
                 os.makedirs(save_dir, exist_ok=True)
                 test_results = OrderedDict()
                 test_results['psnr'] = []
@@ -182,7 +180,7 @@ class Predictor(BasePredictor):
 
                 for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
                     # read image
-                    imgname, img_lq, img_gt = get_image_pair(self.args, path)  # image to HWC-BGR, float32
+                    imgname, img_lq, img_gt = get_image_pair_swinir(self.args, path)  # image to HWC-BGR, float32
                     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]],
                                         (2, 0, 1))  # HCW-BGR to CHW-RGB
                     img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(self.device)  # CHW-RGB to NCHW-RGB
