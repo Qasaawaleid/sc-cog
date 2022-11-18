@@ -174,7 +174,7 @@ class Predictor(BasePredictor):
                 test_results['ssim_y'] = []
                 test_results['psnr_b'] = []
                 # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-                out_path = Path(tempfile.mkdtemp()) / "out.jpg"
+                out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
 
                 for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
                     # read image
