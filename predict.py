@@ -173,7 +173,7 @@ class Predictor(BasePredictor):
 
                 model = define_model_swinir(swinir_args)
                 model.eval()
-                model = model.to("cuda")
+                model = model.to(swinir_args.device)
 
                 # setup folder and path
                 folder, save_dir, border, window_size = setup_swinir(swinir_args)
@@ -189,10 +189,10 @@ class Predictor(BasePredictor):
 
                 for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
                     # read image
-                    imgname, img_lq, img_gt = get_image_pair_swinir(self.args, path)  # image to HWC-BGR, float32
+                    imgname, img_lq, img_gt = get_image_pair_swinir(swinir_args, path)  # image to HWC-BGR, float32
                     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]],
                                         (2, 0, 1))  # HCW-BGR to CHW-RGB
-                    img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(self.device)  # CHW-RGB to NCHW-RGB
+                    img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(swinir_args.device)  # CHW-RGB to NCHW-RGB
 
                     # inference
                     with torch.no_grad():
@@ -203,7 +203,7 @@ class Predictor(BasePredictor):
                         img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[:, :, :h_old + h_pad, :]
                         img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, :w_old + w_pad]
                         output = model(img_lq)
-                        output = output[..., :h_old * self.args.scale, :w_old * self.args.scale]
+                        output = output[..., :h_old * swinir_args.scale, :w_old * swinir_args.scale]
 
                     # save image
                     output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
