@@ -145,7 +145,7 @@ class Predictor(BasePredictor):
             swinir_args = {
                 "task": TASKS_SWINIR[task_u],
                 "scale": 4,
-                "model_path": MODELS_SWINIR[swinir_args.task][4],
+                "model_path": MODELS_SWINIR[TASKS_SWINIR[task_u]][4],
                 "folder_lq": None,
                 "folder_gt": None,
                 "noise": noise_u,
