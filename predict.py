@@ -142,9 +142,18 @@ class Predictor(BasePredictor):
         if process_type == 'upscale':
             if image_u is None:
                 raise ValueError("Image is required for the upscaler.")
-            swinir_args = {}
-            swinir_args.task = TASKS_SWINIR[task_u] 
-            swinir_args.scale = 4
+            swinir_args = {
+                "task": TASKS_SWINIR[task_u],
+                "scale": 4,
+                "model_path": MODELS_SWINIR[swinir_args.task][4],
+                "folder_lq": None,
+                "folder_gt": None,
+                "noise": noise_u,
+                "jpeg": jpeg_u,
+                "device": "cuda",
+                "training_patch_size": 128,
+                "large_model": True,
+            }
             if swinir_args.task == 'real_sr':
                 swinir_args.model_path = MODELS_SWINIR[swinir_args.task][4]
             elif swinir_args.task in ['gray_dn', 'color_dn']:
