@@ -134,9 +134,10 @@ class Predictor(BasePredictor):
             description="Input image for the upscaler (Swinir).", default=None
         ),
         task_u: str = Input(
-            default="Real-World Image Super-Resolution",
+            default="Real-World Image Super-Resolution-Large",
             choices=[
-                'Real-World Image Super-Resolution',
+                'Real-World Image Super-Resolution-Large',
+                'Real-World Image Super-Resolution-Medium',
                 'Grayscale Image Denoising',
                 'Color Image Denoising',
                 'JPEG Compression Artifact Reduction'
@@ -168,13 +169,19 @@ class Predictor(BasePredictor):
             self.swinir_args.noise = noise_u
             self.swinir_args.jpeg = jpeg_u
             
-            if self.swinir_args.task == 'real_sr':
+            if self.swinir_args.task == "real_sr":
                 self.swinir_args.scale = 4
-                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][4]
-            elif self.swinir_args.task in ['gray_dn', 'color_dn']:
+                if task_u == "Real-World Image Super-Resolution-Large":
+                    self.swinir_args.model_path = MODELS_SWINIR["real_sr"]["large"]
+                    self.swinir_args.large_model = True
+                else:
+                    self.swinir_args.model_path = MODELS_SWINIR["real_sr"]["medium"]
+                    self.swinir_args.large_model = False
+            elif self.swinir_args.task in ["gray_dn", "color_dn"]:
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][noise_u]
             else:
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][jpeg_u]
+            
             try:
                 # set input folder
                 input_dir = 'input_cog_temp'
