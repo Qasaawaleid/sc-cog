@@ -185,7 +185,7 @@ def define_model_swinir(args):
     return model
 
 
-def setup_swinir(args):
+def setup(args):
     # 001 classical image sr/ 002 lightweight image sr
     if args.task in ['classical_sr', 'lightweight_sr']:
         save_dir = f'results/swinir_{args.task}_x{args.scale}'
@@ -219,7 +219,7 @@ def setup_swinir(args):
     return folder, save_dir, border, window_size
 
 
-def get_image_pair_swinir(args, path):
+def get_image_pair(args, path):
     (imgname, imgext) = os.path.splitext(os.path.basename(path))
 
     # 001 classical image sr/ 002 lightweight image sr (load lq-gt image pairs)
