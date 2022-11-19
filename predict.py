@@ -79,7 +79,7 @@ class Predictor(BasePredictor):
         parser.add_argument('--folder_lq', type=str, default=None, help='input low-quality test image folder')
         parser.add_argument('--folder_gt', type=str, default=None, help='input ground-truth test image folder')
         self.swinir_args = parser.parse_args('')
-        self.device = 'cuda'
+        self.device = torch.device('cuda')
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
