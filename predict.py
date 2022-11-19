@@ -159,6 +159,7 @@ class Predictor(BasePredictor):
         )
     ) -> List[Path]:
         if process_type == 'upscale':
+            startTime = time.time()
             if image_u is None:
                 raise ValueError("Image is required for the upscaler.")
             self.swinir_args.task = TASKS_SWINIR[task_u]
