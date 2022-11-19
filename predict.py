@@ -177,7 +177,7 @@ class Predictor(BasePredictor):
                 else:
                     self.swinir_args.model_path = MODELS_SWINIR["real_sr"]["medium"]
                     self.swinir_args.large_model = False
-
+            elif self.args.task in ["gray_dn", "color_dn"]:
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][noise_u]
             else:
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][jpeg_u]
