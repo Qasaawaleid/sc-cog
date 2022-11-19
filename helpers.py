@@ -181,7 +181,8 @@ def define_model_swinir(args):
 
     pretrained_model = torch.load(args.model_path)
     model.load_state_dict(pretrained_model[param_key_g] if param_key_g in pretrained_model.keys() else pretrained_model, strict=True)
-    return
+
+    return model
 
 
 def setup_swinir(args):

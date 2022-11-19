@@ -11,7 +11,7 @@ from diffusers import (
 )
 from PIL import Image
 from cog import BasePredictor, Input, Path
-from helpers import define_model_swinir, get_image_pair_swinir, make_scheduler, clean_folder, setup_swinir, translate_text
+from helpers import define_model_swinir, get_image_pair_swinir, setup_swinir, make_scheduler, clean_folder, translate_text
 import cv2
 import tempfile
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
@@ -165,6 +165,7 @@ class Predictor(BasePredictor):
             self.swinir_args.noise = noise_u
             self.swinir_args.jpeg = jpeg_u
             if self.swinir_args.task == 'real_sr':
+                self.swinir_args.scale = 4
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][4]
             elif self.swinir_args.task in ['gray_dn', 'color_dn']:
                 self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][noise_u]
