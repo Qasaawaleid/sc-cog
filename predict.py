@@ -197,7 +197,7 @@ class Predictor(BasePredictor):
                 test_results['ssim_y'] = []
                 test_results['psnr_b'] = []
                 # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-                out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
+                out_path = Path(tempfile.mkdtemp()) / "out.png"
 
                 for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
                     # read image
@@ -222,7 +222,7 @@ class Predictor(BasePredictor):
                     if output.ndim == 3:
                         output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
                     output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
-                    cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+                    cv2.imwrite(str(out_path), output)
             finally:
                 clean_folder(input_dir)
             endTime = time.time()
