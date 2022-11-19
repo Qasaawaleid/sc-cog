@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 from typing import List
@@ -61,6 +62,24 @@ class Predictor(BasePredictor):
         translate_model_name = "facebook/nllb-200-distilled-1.3B"
         self.translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
         self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+        
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--task', type=str, default='real_sr', help='classical_sr, lightweight_sr, real_sr, '
+                                                                        'gray_dn, color_dn, jpeg_car')
+        parser.add_argument('--scale', type=int, default=1, help='scale factor: 1, 2, 3, 4, 8')  # 1 for dn and jpeg car
+        parser.add_argument('--noise', type=int, default=15, help='noise level: 15, 25, 50')
+        parser.add_argument('--jpeg', type=int, default=40, help='scale factor: 10, 20, 30, 40')
+        parser.add_argument('--training_patch_size', type=int, default=128, help='patch size used in training SwinIR. '
+                                                                                 'Just used to differentiate two different settings in Table 2 of the paper. '
+                                                                                 'Images are NOT tested patch by patch.')
+        parser.add_argument('--large_model', action='store_true',
+                            help='use large model, only provided for real image sr')
+        parser.add_argument('--model_path', type=str,
+                            default=self.model_zoo['real_sr'][4])
+        parser.add_argument('--folder_lq', type=str, default=None, help='input low-quality test image folder')
+        parser.add_argument('--folder_gt', type=str, default=None, help='input ground-truth test image folder')
+        self.swinir_args = parser.parse_args('')
+        self.device = 'cuda'
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -142,41 +161,32 @@ class Predictor(BasePredictor):
         if process_type == 'upscale':
             if image_u is None:
                 raise ValueError("Image is required for the upscaler.")
-            swinir_args = {
-                "task": TASKS_SWINIR[task_u],
-                "scale": 4,
-                "model_path": MODELS_SWINIR[TASKS_SWINIR[task_u]][4],
-                "folder_lq": None,
-                "folder_gt": None,
-                "noise": noise_u,
-                "jpeg": jpeg_u,
-                "device": "cuda",
-                "training_patch_size": 128,
-                "large_model": True,
-            }
-            if swinir_args.task == 'real_sr':
-                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][4]
-            elif swinir_args.task in ['gray_dn', 'color_dn']:
-                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][noise_u]
+            self.swinir_args.task = TASKS_SWINIR[task_u]
+            self.swinir_args.noise = noise_u
+            self.swinir_args.jpeg = jpeg_u
+            if self.swinir_args.task == 'real_sr':
+                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][4]
+            elif self.swinir_args.task in ['gray_dn', 'color_dn']:
+                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][noise_u]
             else:
-                swinir_args.model_path = MODELS_SWINIR[swinir_args.task][jpeg_u]
+                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][jpeg_u]
             try:
                 # set input folder
                 input_dir = 'input_cog_temp'
                 os.makedirs(input_dir, exist_ok=True)
                 input_path = os.path.join(input_dir, os.path.basename(image_u))
                 shutil.copy(str(image_u), input_path)
-                if swinir_args.task == 'real_sr':
-                    swinir_args.folder_lq = input_dir
+                if self.swinir_args.task == 'real_sr':
+                    self.swinir_args.folder_lq = input_dir
                 else:
-                    swinir_args.folder_gt = input_dir
+                    self.swinir_args.folder_gt = input_dir
 
-                model = define_model_swinir(swinir_args)
+                model = define_model_swinir(self.swinir_args)
                 model.eval()
-                model = model.to(swinir_args.device)
+                model = model.to(self.device)
 
                 # setup folder and path
-                folder, save_dir, border, window_size = setup_swinir(swinir_args)
+                folder, save_dir, border, window_size = setup_swinir(self.swinir_args)
                 os.makedirs(save_dir, exist_ok=True)
                 test_results = OrderedDict()
                 test_results['psnr'] = []
@@ -189,10 +199,10 @@ class Predictor(BasePredictor):
 
                 for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
                     # read image
-                    imgname, img_lq, img_gt = get_image_pair_swinir(swinir_args, path)  # image to HWC-BGR, float32
+                    imgname, img_lq, img_gt = get_image_pair_swinir(self.swinir_args, path)  # image to HWC-BGR, float32
                     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]],
                                         (2, 0, 1))  # HCW-BGR to CHW-RGB
-                    img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(swinir_args.device)  # CHW-RGB to NCHW-RGB
+                    img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(self.device)  # CHW-RGB to NCHW-RGB
 
                     # inference
                     with torch.no_grad():
@@ -203,7 +213,7 @@ class Predictor(BasePredictor):
                         img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[:, :, :h_old + h_pad, :]
                         img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, :w_old + w_pad]
                         output = model(img_lq)
-                        output = output[..., :h_old * swinir_args.scale, :w_old * swinir_args.scale]
+                        output = output[..., :h_old * self.swinir_args.scale, :w_old * self.swinir_args.scale]
 
                     # save image
                     output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
