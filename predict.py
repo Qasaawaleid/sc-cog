@@ -75,7 +75,7 @@ class Predictor(BasePredictor):
         parser.add_argument('--large_model', action='store_true',
                             help='use large model, only provided for real image sr')
         parser.add_argument('--model_path', type=str,
-                            default=self.model_zoo['real_sr'][4])
+                            default=MODELS_SWINIR['real_sr'][4])
         parser.add_argument('--folder_lq', type=str, default=None, help='input low-quality test image folder')
         parser.add_argument('--folder_gt', type=str, default=None, help='input ground-truth test image folder')
         self.swinir_args = parser.parse_args('')
