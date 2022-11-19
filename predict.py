@@ -225,9 +225,10 @@ class Predictor(BasePredictor):
                     cv2.imwrite(str(out_path), output)
             finally:
                 clean_folder(input_dir)
+            out_paths = [out_path]
             endTime = time.time()
             print(f"-- Upscaled in: {endTime - startTime} sec. --")
-            return out_path
+            return out_paths
         else:
             """Run a single prediction on the model"""
             startTime = time.time()
