@@ -265,4 +265,4 @@ def get_image_pair_swinir(args, path):
         img_gt = img_gt.astype(np.float32)/ 255.
         img_lq = img_lq.astype(np.float32)/ 255.
 
-    return imgname, img_lq, 
+    return imgname, img_lq, img_gt
