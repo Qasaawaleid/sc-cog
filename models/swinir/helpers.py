@@ -1,10 +1,10 @@
 import argparse
 from .network_swinir import SwinIR as net
-from constants import MODELS_SWINIR
+from .constants import MODELS_SWINIR
 import torch
 import cv2
 import numpy as np
-from swinir import util_calculate_psnr_ssim
+from . import util_calculate_psnr_ssim
 import os
 
 def define_model(args):
