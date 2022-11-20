@@ -27,6 +27,7 @@ def upscale(args, device, task, image, noise, jpeg):
       if args.task == "Real-World Image Super-Resolution-Large":
           args.model_path = MODELS_SWINIR["real_sr"]["large"]
           args.large_model = True
+          print('using large model')
       else:
           args.model_path = MODELS_SWINIR["real_sr"]["medium"]
           args.large_model = False
