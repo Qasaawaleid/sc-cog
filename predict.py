@@ -16,6 +16,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from .models.stable_diffusion.constants import SD_MODEL_CACHE
 from .models.swinir.constants import MODELS_SWINIR
 from .models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE 
+from .models.nllb.translate import translate_text
 from lingua import LanguageDetectorBuilder
 
 from models.swinir.upscale import upscale
@@ -165,11 +166,24 @@ class Predictor(BasePredictor):
             return output_paths
 
         else:
-            """Run a single prediction on the model"""
             startTime = time.time()
-            output_paths = generate(
+            t_prompt = translate_text(
                 prompt,
+                self.translate_model,
+                self.translate_tokenizer,
+                self.detect_language,
+                "Prompt"
+            )
+            t_negative_prompt = translate_text(
                 negative_prompt,
+                self.translate_model,
+                self.translate_tokenizer,
+                self.detect_language,
+                "Negative prompt"
+            )
+            output_paths = generate(
+                t_prompt,
+                t_negative_prompt,
                 width, height,
                 init_image,
                 mask,
@@ -182,9 +196,6 @@ class Predictor(BasePredictor):
                 self.txt2img_pipe,
                 self.img2img_pipe,
                 self.inpaint_pipe,
-                self.translate_model,
-                self.translate_tokenizer,
-                self.detect_language
             ) 
             endTime = time.time()
             print(f"-- Generated in: {endTime - startTime} sec. --")

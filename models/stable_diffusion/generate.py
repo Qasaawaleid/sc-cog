@@ -1,7 +1,6 @@
 import os
 import torch
 from PIL import Image
-from ...models.nllb.translate import translate_text
 from .helpers import make_scheduler
 from cog import Path
 
@@ -21,9 +20,6 @@ def generate(
   txt2img_pipe,
   img2img_pipe,
   inpaint_pipe,
-  translate_model,
-  translate_tokenizer,
-  detect_language
 ):
   if seed is None:
       seed = int.from_bytes(os.urandom(2), "big")
@@ -53,27 +49,12 @@ def generate(
       }
   else:
       pipe = txt2img_pipe
-      
-  t_prompt = translate_text(
-      prompt,
-      translate_model,
-      translate_tokenizer,
-      detect_language,
-      "Prompt"
-  )
-  t_negative_prompt = translate_text(
-      negative_prompt,
-      translate_model,
-      translate_tokenizer,
-      detect_language,
-      "Negative prompt"
-  )
   
   pipe.scheduler = make_scheduler(scheduler)
   generator = torch.Generator("cuda").manual_seed(seed)
   output = pipe(
-      prompt=[t_prompt] * num_outputs if t_prompt is not None else None,
-      negative_prompt=[t_negative_prompt] * num_outputs if t_negative_prompt is not None else None,
+      prompt=[prompt] * num_outputs if prompt is not None else None,
+      negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
       width=width,
       height=height,
       guidance_scale=guidance_scale,
