@@ -88,4 +88,4 @@ def upscale(args, device, task, image, noise, jpeg):
             cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
     finally:
         clean_folder(input_dir)
-    return [out_path]
+    return out_path

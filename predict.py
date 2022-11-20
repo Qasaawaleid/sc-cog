@@ -138,18 +138,12 @@ class Predictor(BasePredictor):
         ),
         process_type: str = Input(
             description="Choose a process type, Can be 'generate' or 'upscale'.",
-            choices=["generate", "upscale"],
+            choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         )
     ) -> List[Path]:
-        if process_type == 'upscale':
-            startTime = time.time()
-            output_paths = upscale(self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
-            endTime = time.time()
-            print(f"-- Upscaled in: {endTime - startTime} sec. --")
-            return output_paths
-
-        else:
+        output_paths = []
+        if process_type == "generate" or process_type == "generate-and-upscale":
             startTime = time.time()
             t_prompt = translate_text(
                 prompt,
@@ -165,7 +159,7 @@ class Predictor(BasePredictor):
                 self.detect_language,
                 "Negative prompt"
             )
-            output_paths = generate(
+            generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
                 width, height,
@@ -181,6 +175,29 @@ class Predictor(BasePredictor):
                 self.img2img_pipe,
                 self.inpaint_pipe,
             ) 
+            output_paths = generate_output_paths
             endTime = time.time()
             print(f"-- Generated in: {endTime - startTime} sec. --")
-            return output_paths
+        
+        if process_type == 'upscale' or process_type == 'generate-and-upscale':
+            startTime = time.time()
+            if process_type == 'upscale':
+                upscale_output_path = upscale(self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
+                output_paths = [upscale_output_path]
+            else:
+                upscale_output_paths = []
+                for path in output_paths:
+                    upscale_output_path = upscale(
+                        self.swinir_args,
+                        self.device,
+                        task_u,
+                        path,
+                        noise_u,
+                        jpeg_u
+                    )
+                    upscale_output_paths.append(upscale_output_path)
+                output_paths = upscale_output_paths
+            endTime = time.time()
+            print(f"-- Upscaled in: {endTime - startTime} sec. --")
+
+        return output_paths
