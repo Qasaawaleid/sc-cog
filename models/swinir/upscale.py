@@ -21,6 +21,8 @@ def upscale(args, device, task, image, noise, jpeg):
   args.task = TASKS_SWINIR[task]
   args.noise = noise
   args.jpeg = jpeg
+  
+  print(args.task, args.noise, args.jpeg)
 
   if args.task == "real_sr":
       args.scale = 4
