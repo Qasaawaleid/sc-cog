@@ -9,11 +9,11 @@ from diffusers import (
 )
 from cog import BasePredictor, Input, Path
 
-from models.stable_diffusion.generate import generate
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 
+from .models.stable_diffusion.generate import generate
 from .models.stable_diffusion.constants import SD_MODEL_CACHE
 from .models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE 
 from .models.nllb.translate import translate_text
