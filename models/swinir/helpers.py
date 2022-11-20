@@ -4,7 +4,7 @@ from constants import MODELS_SWINIR
 import torch
 import cv2
 import numpy as np
-from . import util_calculate_psnr_ssim
+from swinir import util_calculate_psnr_ssim
 import os
 
 def define_model(args):
