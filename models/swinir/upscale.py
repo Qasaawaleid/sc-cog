@@ -2,16 +2,16 @@ import glob
 import os
 import shutil
 import tempfile
-from constants import MODELS_SWINIR, TASKS_SWINIR
-from helpers import define_model, get_image_pair, setup
 import torch
 import shutil
 import numpy as np
 from collections import OrderedDict
 import cv2
 import tempfile
-from ...common.helpers import clean_folder
+from common.helpers import clean_folder
 from cog import Path
+from .constants import MODELS_SWINIR, TASKS_SWINIR
+from .helpers import define_model, get_image_pair, setup
 
 
 def upscale(args, device, task, image, noise, jpeg):

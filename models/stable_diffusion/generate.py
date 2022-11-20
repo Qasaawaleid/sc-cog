@@ -1,7 +1,7 @@
 import os
 import torch
 from PIL import Image
-from helpers import make_scheduler
+from .helpers import make_scheduler
 from cog import Path
 
 def generate(
