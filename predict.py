@@ -1,5 +1,4 @@
 import argparse
-import os
 import time
 from typing import List
 
@@ -9,19 +8,17 @@ from diffusers import (
     StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipelineLegacy,
 )
-from PIL import Image
 from cog import BasePredictor, Input, Path
-from helpers import define_model_swinir, get_image_pair_swinir, setup_swinir, make_scheduler, clean_folder, translate_text
-import cv2
-import tempfile
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from collections import OrderedDict
-import shutil
-import numpy as np
-import glob
 
-from constants import MODEL_CACHE, MODELS_SWINIR, TASKS_SWINIR, TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE
+from models.stable_diffusion.generate import generate
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+from .models.stable_diffusion.constants import SD_MODEL_CACHE
+from .models.swinir.constants import MODELS_SWINIR
+from .models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE 
 from lingua import LanguageDetectorBuilder
+
+from models.swinir.upscale import upscale
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -30,7 +27,7 @@ class Predictor(BasePredictor):
 
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE,
+            cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
@@ -162,166 +159,33 @@ class Predictor(BasePredictor):
     ) -> List[Path]:
         if process_type == 'upscale':
             startTime = time.time()
-            if image_u is None:
-                raise ValueError("Image is required for the upscaler.")
-           
-            self.swinir_args.task = TASKS_SWINIR[task_u]
-            self.swinir_args.noise = noise_u
-            self.swinir_args.jpeg = jpeg_u
-            
-            if self.swinir_args.task == "real_sr":
-                self.swinir_args.scale = 4
-                if task_u == "Real-World Image Super-Resolution-Large":
-                    self.swinir_args.model_path = MODELS_SWINIR["real_sr"]["large"]
-                    self.swinir_args.large_model = True
-                else:
-                    self.swinir_args.model_path = MODELS_SWINIR["real_sr"]["medium"]
-                    self.swinir_args.large_model = False
-            elif self.args.task in ["gray_dn", "color_dn"]:
-                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][noise_u]
-            else:
-                self.swinir_args.model_path = MODELS_SWINIR[self.swinir_args.task][jpeg_u]
-            
-            try:
-                # set input folder
-                input_dir = 'input_cog_temp'
-                os.makedirs(input_dir, exist_ok=True)
-                input_path = os.path.join(input_dir, os.path.basename(image_u))
-                shutil.copy(str(image_u), input_path)
-                if self.swinir_args.task == 'real_sr':
-                    self.swinir_args.folder_lq = input_dir
-                else:
-                    self.swinir_args.folder_gt = input_dir
-
-                model = define_model_swinir(self.swinir_args)
-                model.eval()
-                model = model.to(self.device)
-
-                # setup folder and path
-                folder, save_dir, border, window_size = setup_swinir(self.swinir_args)
-                os.makedirs(save_dir, exist_ok=True)
-                test_results = OrderedDict()
-                test_results['psnr'] = []
-                test_results['ssim'] = []
-                test_results['psnr_y'] = []
-                test_results['ssim_y'] = []
-                test_results['psnr_b'] = []
-                # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-                out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
-
-                for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
-                    # read image
-                    imgname, img_lq, img_gt = get_image_pair_swinir(self.swinir_args, path)  # image to HWC-BGR, float32
-                    img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]],
-                                        (2, 0, 1))  # HCW-BGR to CHW-RGB
-                    img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(self.device)  # CHW-RGB to NCHW-RGB
-
-                    # inference
-                    with torch.no_grad():
-                        # pad input image to be a multiple of window_size
-                        _, _, h_old, w_old = img_lq.size()
-                        h_pad = (h_old // window_size + 1) * window_size - h_old
-                        w_pad = (w_old // window_size + 1) * window_size - w_old
-                        img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[:, :, :h_old + h_pad, :]
-                        img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, :w_old + w_pad]
-                        output = model(img_lq)
-                        output = output[..., :h_old * self.swinir_args.scale, :w_old * self.swinir_args.scale]
-
-                    # save image
-                    output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
-                    if output.ndim == 3:
-                        output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
-                    output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
-                    cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-            finally:
-                clean_folder(input_dir)
+            output_paths = upscale(self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
             endTime = time.time()
             print(f"-- Upscaled in: {endTime - startTime} sec. --")
-            return [out_path]
+            return output_paths
 
         else:
             """Run a single prediction on the model"""
             startTime = time.time()
-            if seed is None:
-                seed = int.from_bytes(os.urandom(2), "big")
-            print(f"Using seed: {seed}")
-
-            """ if width * height > 786432:
-                raise ValueError(
-                    "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
-                ) """
-
-            extra_kwargs = {}
-            if mask:
-                if not init_image:
-                    raise ValueError("mask was provided without init_image")
-                pipe = self.inpaint_pipe
-                init_image = Image.open(init_image).convert("RGB")
-                extra_kwargs = {
-                    "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
-                    "init_image": init_image,
-                    "strength": prompt_strength,
-                }
-            elif init_image:
-                pipe = self.img2img_pipe
-                extra_kwargs = {
-                    "init_image": Image.open(init_image).convert("RGB"),
-                    "strength": prompt_strength,
-                }
-            else:
-                pipe = self.txt2img_pipe
-                
-            t_prompt = translate_text(
+            output_paths = generate(
                 prompt,
-                self.translate_model,
-                self.translate_tokenizer,
-                self.detect_language,
-                "Prompt"
-            )
-            t_negative_prompt = translate_text(
                 negative_prompt,
+                width, height,
+                init_image,
+                mask,
+                prompt_strength,
+                num_outputs,
+                num_inference_steps,
+                guidance_scale,
+                scheduler,
+                seed,
+                self.txt2img_pipe,
+                self.img2img_pipe,
+                self.inpaint_pipe,
                 self.translate_model,
                 self.translate_tokenizer,
-                self.detect_language,
-                "Negative prompt"
-            )
-            
-            pipe.scheduler = make_scheduler(scheduler)
-            generator = torch.Generator("cuda").manual_seed(seed)
-            output = pipe(
-                prompt=[t_prompt] * num_outputs if t_prompt is not None else None,
-                negative_prompt=[t_negative_prompt] * num_outputs if t_negative_prompt is not None else None,
-                width=width,
-                height=height,
-                guidance_scale=guidance_scale,
-                generator=generator,
-                num_inference_steps=num_inference_steps,
-                **extra_kwargs,
-            )
-
-            samples_filtered = [
-                output.images[i]
-                for i, nsfw_flag in enumerate(output.nsfw_content_detected)
-                if not nsfw_flag
-            ]
-            
-            """ if len(samples_filtered) == 0:
-                raise Exception(
-                    f"NSFW content detected. Try running it again, or try a different prompt."
-                ) """
-
-            if num_outputs > len(samples_filtered):
-                print(
-                    f"NSFW content detected in {num_outputs - len(samples_filtered)} outputs, showing the rest {len(samples_filtered)} images..."
-                )
-
-            samples = output.images
-            output_paths = []
-            for i, sample in enumerate(samples):
-                output_path = f"/tmp/out-{i}.png"
-                sample.save(output_path)
-                output_paths.append(Path(output_path))
-                
+                self.detect_language
+            ) 
             endTime = time.time()
             print(f"-- Generated in: {endTime - startTime} sec. --")
             return output_paths

@@ -1,0 +1,107 @@
+import os
+import torch
+from PIL import Image
+from ...models.nllb.translate import translate_text
+from .helpers import make_scheduler
+from cog import Path
+
+def generate(
+  prompt,
+  negative_prompt,
+  width,
+  height,
+  init_image,
+  mask,
+  prompt_strength,
+  num_outputs,
+  num_inference_steps,
+  guidance_scale,
+  scheduler,
+  seed,
+  txt2img_pipe,
+  img2img_pipe,
+  inpaint_pipe,
+  translate_model,
+  translate_tokenizer,
+  detect_language
+):
+  if seed is None:
+      seed = int.from_bytes(os.urandom(2), "big")
+  print(f"Using seed: {seed}")
+
+  """ if width * height > 786432:
+      raise ValueError(
+          "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
+      ) """
+
+  extra_kwargs = {}
+  if mask:
+      if not init_image:
+          raise ValueError("mask was provided without init_image")
+      pipe = inpaint_pipe
+      init_image = Image.open(init_image).convert("RGB")
+      extra_kwargs = {
+          "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
+          "init_image": init_image,
+          "strength": prompt_strength,
+      }
+  elif init_image:
+      pipe = img2img_pipe
+      extra_kwargs = {
+          "init_image": Image.open(init_image).convert("RGB"),
+          "strength": prompt_strength,
+      }
+  else:
+      pipe = txt2img_pipe
+      
+  t_prompt = translate_text(
+      prompt,
+      translate_model,
+      translate_tokenizer,
+      detect_language,
+      "Prompt"
+  )
+  t_negative_prompt = translate_text(
+      negative_prompt,
+      translate_model,
+      translate_tokenizer,
+      detect_language,
+      "Negative prompt"
+  )
+  
+  pipe.scheduler = make_scheduler(scheduler)
+  generator = torch.Generator("cuda").manual_seed(seed)
+  output = pipe(
+      prompt=[t_prompt] * num_outputs if t_prompt is not None else None,
+      negative_prompt=[t_negative_prompt] * num_outputs if t_negative_prompt is not None else None,
+      width=width,
+      height=height,
+      guidance_scale=guidance_scale,
+      generator=generator,
+      num_inference_steps=num_inference_steps,
+      **extra_kwargs,
+  )
+
+  samples_filtered = [
+      output.images[i]
+      for i, nsfw_flag in enumerate(output.nsfw_content_detected)
+      if not nsfw_flag
+  ]
+  
+  """ if len(samples_filtered) == 0:
+      raise Exception(
+          f"NSFW content detected. Try running it again, or try a different prompt."
+      ) """
+
+  if num_outputs > len(samples_filtered):
+      print(
+          f"NSFW content detected in {num_outputs - len(samples_filtered)} outputs, showing the rest {len(samples_filtered)} images..."
+      )
+
+  samples = output.images
+  output_paths = []
+  for i, sample in enumerate(samples):
+      output_path = f"/tmp/out-{i}.png"
+      sample.save(output_path)
+      output_paths.append(Path(output_path))
+  return output_paths

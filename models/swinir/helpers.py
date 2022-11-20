@@ -1,124 +1,11 @@
-import os
-import shutil
-import time
-from diffusers import (
-    PNDMScheduler,
-    LMSDiscreteScheduler,
-    DDIMScheduler,
-    EulerDiscreteScheduler,
-    EulerAncestralDiscreteScheduler
-)
-from transformers import pipeline
-from constants import LANG_TO_ID, MODEL_CACHE
-from lingua import Language
-from network_swinir import SwinIR as net
+from .network_swinir import SwinIR as net
 import torch
 import cv2
 import numpy as np
-import util_calculate_psnr_ssim
+from . import util_calculate_psnr_ssim
+import os
 
-
-def clean_folder(folder):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
-
-
-def make_scheduler(name):
-    return {
-        "PNDM": PNDMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True, 
-            subfolder="scheduler"
-        ),
-        "K-LMS": LMSDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE,
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-        "DDIM": DDIMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE,
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-        "K_EULER": EulerDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True, 
-            subfolder="scheduler"
-        ),
-        "K_EULER_ANCESTRAL": EulerAncestralDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
-            cache_dir=MODEL_CACHE, 
-            local_files_only=True,
-            subfolder="scheduler"
-        ),
-    }[name]
-
-
-eng_score_max = 0.9
-target_lang = Language.ENGLISH
-target_lang_id = LANG_TO_ID[target_lang.name]
-
-def translate_text(text, model, tokenizer, detector, label):
-    if text == "":
-        print(f"-- {label} - No text to translate, skipping --")
-        return ""
-    startTimeTranslation = time.time()
-    translated_text = ""
-    text_lang_id = target_lang_id
-    
-    confidence_values = detector.compute_language_confidence_values(text)
-    eng_value = None
-    detected_lang = None
-    detected_lang_score = None
-    
-    for index in range(len(confidence_values)):
-        curr = confidence_values[index]
-        if index == 0:
-            detected_lang = curr[0]
-            detected_lang_score = curr[1]
-        if curr[0] == Language.ENGLISH:
-            eng_value = curr[1]
-            
-    if detected_lang is not None and detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
-        text_lang_id = LANG_TO_ID[detected_lang.name]
-    
-    if detected_lang is not None:
-        print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
-    print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
-    
-    if text_lang_id != target_lang_id:
-        translate = pipeline(
-            'translation',
-            model=model,
-            tokenizer=tokenizer,
-            src_lang=text_lang_id,
-            tgt_lang=target_lang_id,
-            device=0
-        )
-        translate_output = translate(text, max_length=500)
-        translated_text = translate_output[0]['translation_text']
-        print(f'-- {label} - Translated text is: "{translated_text}" --')
-    else:
-        translated_text = text
-        print(f"-- {label} - Text is already in the correct language, no translation needed --")
-    
-    endTimeTranslation = time.time()
-    print(f"-- {label} - Completed in: {endTimeTranslation - startTimeTranslation} sec. --")
-    
-    return translated_text
-
-def define_model_swinir(args):
+def define_model(args):
     # 001 classical image sr
     if args.task == 'classical_sr':
         model = net(upscale=args.scale, in_chans=3, img_size=args.training_patch_size, window_size=8,
@@ -185,7 +72,7 @@ def define_model_swinir(args):
     return model
 
 
-def setup_swinir(args):
+def setup(args):
     # 001 classical image sr/ 002 lightweight image sr
     if args.task in ['classical_sr', 'lightweight_sr']:
         save_dir = f'results/swinir_{args.task}_x{args.scale}'
@@ -219,7 +106,7 @@ def setup_swinir(args):
     return folder, save_dir, border, window_size
 
 
-def get_image_pair_swinir(args, path):
+def get_image_pair(args, path):
     (imgname, imgext) = os.path.splitext(os.path.basename(path))
 
     # 001 classical image sr/ 002 lightweight image sr (load lq-gt image pairs)
