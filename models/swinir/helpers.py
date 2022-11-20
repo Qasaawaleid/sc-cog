@@ -1,3 +1,4 @@
+import argparse
 from .network_swinir import SwinIR as net
 from .constants import MODELS_SWINIR
 import torch
