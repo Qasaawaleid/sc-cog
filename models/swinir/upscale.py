@@ -15,15 +15,12 @@ from .helpers import define_model, get_image_pair, setup
 
 
 def upscale(args, device, task, image, noise, jpeg):
-    print('called')
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
     args.task = TASKS_SWINIR[task]
     args.noise = noise
     args.jpeg = jpeg
-
-    print(args.task, args.noise, args.jpeg)
 
     if args.task == "real_sr":
         args.scale = 4
