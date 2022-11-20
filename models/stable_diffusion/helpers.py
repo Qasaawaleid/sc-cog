@@ -5,7 +5,7 @@ from diffusers import (
     EulerDiscreteScheduler,
     EulerAncestralDiscreteScheduler
 )
-from .constants import SD_MODEL_CACHE
+from constants import SD_MODEL_CACHE
 
 
 def make_scheduler(name):

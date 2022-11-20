@@ -2,8 +2,8 @@ import glob
 import os
 import shutil
 import tempfile
-from .constants import MODELS_SWINIR, TASKS_SWINIR
-from .helpers import define_model, get_image_pair, setup
+from constants import MODELS_SWINIR, TASKS_SWINIR
+from helpers import define_model, get_image_pair, setup
 import torch
 import shutil
 import numpy as np

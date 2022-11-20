@@ -1,6 +1,6 @@
 import argparse
-from .network_swinir import SwinIR as net
-from .constants import MODELS_SWINIR
+from network_swinir import SwinIR as net
+from constants import MODELS_SWINIR
 import torch
 import cv2
 import numpy as np

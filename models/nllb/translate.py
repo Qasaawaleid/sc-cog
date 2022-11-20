@@ -1,7 +1,7 @@
 from lingua import Language
 import time
 from transformers import pipeline
-from .constants import LANG_TO_ID
+from constants import LANG_TO_ID
 
 eng_score_max = 0.9
 target_lang = Language.ENGLISH
