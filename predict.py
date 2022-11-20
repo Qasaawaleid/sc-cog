@@ -144,6 +144,7 @@ class Predictor(BasePredictor):
     ) -> List[Path]:
         if process_type == 'upscale':
             startTime = time.time()
+            print(self.swinir_args)
             output_paths = upscale(self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
             endTime = time.time()
             print(f"-- Upscaled in: {endTime - startTime} sec. --")
