@@ -14,6 +14,7 @@ def generate(
   prompt_strength,
   num_outputs,
   num_inference_steps,
+  num_images_per_prompt,
   guidance_scale,
   scheduler,
   seed,
@@ -60,6 +61,7 @@ def generate(
       guidance_scale=guidance_scale,
       generator=generator,
       num_inference_steps=num_inference_steps,
+      num_images_per_prompt=num_images_per_prompt,
       **extra_kwargs,
   )
 

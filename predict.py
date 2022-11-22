@@ -101,6 +101,9 @@ class Predictor(BasePredictor):
         num_inference_steps: int = Input(
             description="Number of denoising steps", ge=1, le=500, default=50
         ),
+        num_images_per_prompt: int = Input(
+            description="Number of images per prompt (batch size).", ge=1, le=4, default=1
+        ),
         guidance_scale: float = Input(
             description="Scale for classifier-free guidance", ge=1, le=20, default=7.5
         ),
@@ -168,6 +171,7 @@ class Predictor(BasePredictor):
                 prompt_strength,
                 num_outputs,
                 num_inference_steps,
+                num_images_per_prompt,
                 guidance_scale,
                 scheduler,
                 seed,
