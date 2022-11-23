@@ -85,12 +85,12 @@ def generate(
   samples = output.images
   output_paths = []
   for i, sample in enumerate(samples):
-    if output_image_ext == "png":
-        output_path_png = f"/tmp/out-{i}.png"
-        sample.save(output_path_png)
-        output_paths.append(Path(output_path_png))
-    else:
+    output_path = f"/tmp/out-{i}.png"
+    sample.save(output_path)
+    if output_image_ext == "jpg":
         output_path_jpg = f"/tmp/out-{i}.jpg"
-        cv2.imwrite(output_path_jpg, sample, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-        output_paths.append(Path(output_path_jpg))
+        pngMat = cv2.imread(output_path)
+        cv2.imwrite(output_path_jpg, pngMat, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+        output_path = output_path_jpg
+    output_paths.append(Path(output_path))
   return output_paths
