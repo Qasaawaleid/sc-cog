@@ -112,6 +112,11 @@ class Predictor(BasePredictor):
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed.", default=None
         ),
+        output_image_ext: str = Input(
+            description="Output type of the image. Can be 'png' or 'jpg'.",
+            choices=["jpg", "png"],
+            default="png",
+        ),
         image_u: Path = Input(
             description="Input image for the upscaler (Swinir).", default=None
         ),
@@ -141,11 +146,6 @@ class Predictor(BasePredictor):
             choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         ),
-        output_image_ext: str = Input(
-            description="Output type of the image. Can be 'png' or 'jpg'.",
-            choices=["jpg", "png"],
-            default="png",
-        )
     ) -> List[Path]:
         output_paths = []
         if process_type == "generate" or process_type == "generate-and-upscale":
