@@ -84,12 +84,9 @@ def generate(
   samples = output.images
   output_paths = []
   for i, sample in enumerate(samples):
-      start = time.time()
       output_path_png = f"/tmp/out-{i}.png"
       output_path_jpeg = f"/tmp/out-{i}.jpeg"
       sample.save(output_path_png)
-      end = time.time()
-      print(f"Saved image {i} in: {end - start} sec.")
       pngMat = cv2.imread(output_path_png)
       cv2.imwrite(output_path_jpeg, pngMat, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
       output_paths.append(Path(output_path_jpeg))
