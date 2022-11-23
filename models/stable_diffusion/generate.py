@@ -92,4 +92,5 @@ def generate(
     else:
         output_path_jpg = f"/tmp/out-{i}.jpg"
         cv2.imwrite(output_path_jpg, sample, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+        output_paths.append(Path(output_path_jpg))
   return output_paths
