@@ -85,9 +85,9 @@ def generate(
   output_paths = []
   for i, sample in enumerate(samples):
       output_path_png = f"/tmp/out-{i}.png"
-      output_path_jpeg = f"/tmp/out-{i}.jpeg"
+      output_path_jpg = f"/tmp/out-{i}.jpg"
       sample.save(output_path_png)
       pngMat = cv2.imread(output_path_png)
-      cv2.imwrite(output_path_jpeg, pngMat, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-      output_paths.append(Path(output_path_jpeg))
+      cv2.imwrite(output_path_jpg, pngMat, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+      output_paths.append(Path(output_path_jpg))
   return output_paths
