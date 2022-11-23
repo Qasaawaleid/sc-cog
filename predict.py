@@ -137,9 +137,14 @@ class Predictor(BasePredictor):
             default=40,
         ),
         process_type: str = Input(
-            description="Choose a process type, Can be 'generate' or 'upscale'.",
+            description="Choose a process type. Can be 'generate' or 'upscale'.",
             choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
+        ),
+        output_image_ext: str = Input(
+            description="Output type of the image. Can be 'png' or 'jpg'.",
+            choices=["jpg", "png"],
+            default="jpg",
         )
     ) -> List[Path]:
         output_paths = []
@@ -171,6 +176,7 @@ class Predictor(BasePredictor):
                 guidance_scale,
                 scheduler,
                 seed,
+                output_image_ext,
                 self.txt2img_pipe,
                 self.img2img_pipe,
                 self.inpaint_pipe,

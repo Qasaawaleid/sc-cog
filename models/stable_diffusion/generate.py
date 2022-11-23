@@ -19,6 +19,7 @@ def generate(
   guidance_scale,
   scheduler,
   seed,
+  output_image_ext,
   txt2img_pipe,
   img2img_pipe,
   inpaint_pipe,
@@ -84,9 +85,11 @@ def generate(
   samples = output.images
   output_paths = []
   for i, sample in enumerate(samples):
-      """ output_path_png = f"/tmp/out-{i}.png"
-      sample.save(output_path_png)
-      output_paths.append(Path(output_path_png)) """
-      output_path_jpg = f"/tmp/out-{i}.jpg"
-      cv2.imwrite(output_path_jpg, sample, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+    if output_image_ext == "png":
+        output_path_png = f"/tmp/out-{i}.png"
+        sample.save(output_path_png)
+        output_paths.append(Path(output_path_png))
+    else:
+        output_path_jpg = f"/tmp/out-{i}.jpg"
+        cv2.imwrite(output_path_jpg, sample, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
   return output_paths
