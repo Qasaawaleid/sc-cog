@@ -144,7 +144,7 @@ class Predictor(BasePredictor):
         output_image_ext: str = Input(
             description="Output type of the image. Can be 'png' or 'jpg'.",
             choices=["jpg", "png"],
-            default="jpg",
+            default="png",
         )
     ) -> List[Path]:
         output_paths = []
