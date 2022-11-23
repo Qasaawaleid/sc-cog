@@ -89,7 +89,7 @@ def generate(
       output_path_jpg = f"/tmp/out-{i}.jpg"
       sample.save(output_path_png)
       png = cv2.imread(output_path_png)
-      cv2.imwrite(output_path_png, png, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+      cv2.imwrite(output_path_jpg, png, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
       output_paths.append(Path(output_path_jpg))
       end = time.time()
       print(f"Saved image {i} in: {end - start} sec.")
