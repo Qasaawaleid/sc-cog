@@ -16,7 +16,7 @@ def make_scheduler(name):
             local_files_only=True, 
             subfolder="scheduler"
         ),
-        "K-LMS": LMSDiscreteScheduler.from_config(
+        "K_LMS": LMSDiscreteScheduler.from_config(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
