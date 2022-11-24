@@ -5,37 +5,37 @@ from diffusers import (
     EulerDiscreteScheduler,
     EulerAncestralDiscreteScheduler
 )
-from .constants import SD_MODEL_CACHE
+from .constants import SD_MODEL_CACHE, SD_MODEL_ID
 
 
 def make_scheduler(name):
     return {
         "PNDM": PNDMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
+            SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE, 
             local_files_only=True, 
             subfolder="scheduler"
         ),
         "K-LMS": LMSDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
+            SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
             subfolder="scheduler"
         ),
         "DDIM": DDIMScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
+            SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
             subfolder="scheduler"
         ),
         "K_EULER": EulerDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
+            SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE, 
             local_files_only=True, 
             subfolder="scheduler"
         ),
         "K_EULER_ANCESTRAL": EulerAncestralDiscreteScheduler.from_config(
-            "runwayml/stable-diffusion-v1-5",
+            SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE, 
             local_files_only=True,
             subfolder="scheduler"

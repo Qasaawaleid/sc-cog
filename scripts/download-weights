@@ -5,6 +5,8 @@ import sys
 
 from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from models.nllb.constants import TRANSLATOR_MODEL_ID
+from models.stable_diffusion.constants import SD_MODEL_ID
 
 MODEL_CACHE = "diffusers-cache"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"
@@ -27,11 +29,10 @@ os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/00
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg40.pth -P experiments/pretrained_models')
 
 pipe = StableDiffusionPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",
+    SD_MODEL_ID,
     cache_dir=MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
         
-translate_model_name = "facebook/nllb-200-distilled-1.3B"
-translate_tokenizer = AutoTokenizer.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-translate_model = AutoModelForSeq2SeqLM.from_pretrained(translate_model_name, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
+translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
