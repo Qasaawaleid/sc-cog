@@ -141,7 +141,7 @@ class Predictor(BasePredictor):
             default=40,
         ),
         process_type: str = Input(
-            description="Choose a process type. Can be 'generate', 'upscale' or 'generate-and-upscale. Defaults to 'generate'",
+            description="Choose a process type. Can be 'generate', 'upscale' or 'generate-and-upscale'. Defaults to 'generate'",
             choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         ),
