@@ -2,7 +2,6 @@
 
 import os
 import sys
-
 from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
@@ -12,9 +11,19 @@ TRANSLATOR_MODEL_ID = "facebook/nllb-200-distilled-1.3B"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"
 TRANSLATOR_TOKENIZER_CACHE = "translator-tokenizer-cache"
 
+# For Stable Diffusion
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
+pipe = StableDiffusionPipeline.from_pretrained(
+    SD_MODEL_ID,
+    cache_dir=SD_MODEL_CACHE,
+    use_auth_token=sys.argv[1],
+)
 
-# For upscaler
+# For the translator
+translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
+translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+
+# For the upscaler
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/004_grayDN_DFWB_s128w8_SwinIR-M_noise15.pth -P experiments/pretrained_models')
@@ -28,11 +37,4 @@ os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/00
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg30.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg40.pth -P experiments/pretrained_models')
 
-pipe = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
         
-translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
