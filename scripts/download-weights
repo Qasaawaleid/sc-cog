@@ -5,7 +5,7 @@ import sys
 from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
+SD_MODEL_ID = "stabilityai/stable-diffusion-2"
 SD_MODEL_CACHE = "diffusers-cache"
 TRANSLATOR_MODEL_ID = "facebook/nllb-200-distilled-1.3B"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"

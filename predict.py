@@ -104,7 +104,7 @@ class Predictor(BasePredictor):
             description="Scale for classifier-free guidance", ge=1, le=20, default=7.5
         ),
         scheduler: str = Input(
-            default="K_LMS",
+            default="K_EULER",
             choices=["DDIM", "K_LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
             description="Choose a scheduler. If you use an init image, PNDM will be used.",
         ),
