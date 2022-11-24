@@ -33,26 +33,9 @@ class Predictor(BasePredictor):
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         
-        self.img2img_pipe = StableDiffusionImg2ImgPipeline(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
-        ).to("cuda")
-        self.img2img_pipe.enable_xformers_memory_efficient_attention()
+        self.img2img_pipe = ""
         
-        self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
-        ).to("cuda")
+        self.inpaint_pipe = ""
         
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
