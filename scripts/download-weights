@@ -5,8 +5,8 @@ import sys
 
 from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from models.nllb.constants import TRANSLATOR_MODEL_ID
-from models.stable_diffusion.constants import SD_MODEL_ID
+from ..models.nllb.constants import TRANSLATOR_MODEL_ID
+from ..models.stable_diffusion.constants import SD_MODEL_ID
 
 MODEL_CACHE = "diffusers-cache"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"
