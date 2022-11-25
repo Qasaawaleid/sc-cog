@@ -39,6 +39,7 @@ class Predictor(BasePredictor):
             local_files_only=True,
         ).to("cuda")
         self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
+        self.txt2img_oj_pipe.enable_sequential_cpu_offload()
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
