@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_OJ
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AV3, SD_MODEL_ID_OJ
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -41,6 +41,14 @@ class Predictor(BasePredictor):
         ).to("cuda")
         self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded txt2img_oj...")
+        
+        self.txt2img_av3_pipe = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_AV3,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        ).to("cuda")
+        self.txt2img_av3_pipe.enable_xformers_memory_efficient_attention()
+        print("Loaded txt2img_av3...")
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
@@ -123,7 +131,7 @@ class Predictor(BasePredictor):
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
-            choices=["Stable Diffusion v1.5", "Openjourney"],
+            choices=["Stable Diffusion v1.5", "Openjourney", "Anything-v3"],
             description="Choose a model. Defaults to Stable Diffusion v1.5.",
         ),
         seed: int = Input(
@@ -198,7 +206,8 @@ class Predictor(BasePredictor):
                 self.txt2img_pipe,
                 self.img2img_pipe,
                 self.inpaint_pipe,
-                self.txt2img_oj_pipe
+                self.txt2img_oj_pipe,
+                self.txt2img_av3_pipe,
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
