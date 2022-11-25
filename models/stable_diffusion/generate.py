@@ -23,8 +23,8 @@ def generate(
   txt2img,
   img2img,
   inpaint,
-  txt2img_oj,
-  txt2img_av3
+  txt2img_oj_r,
+  txt2img_av3_r
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -54,9 +54,9 @@ def generate(
         }
     elif model == "Openjourney":
         prompt = f"mdjrny-v4 style {prompt}"
-        pipe = txt2img_oj
+        pipe = txt2img_oj_r.to('cuda')
     elif model == "Anything-v3":
-        pipe = txt2img_av3
+        pipe = txt2img_av3_r.to('cuda')
     else:
         pipe = txt2img
 

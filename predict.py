@@ -26,33 +26,25 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        start= time.time()
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        end = time.time()
-        print(f"Loaded txt2img in {(end - start) / 1000}s...")
+        print(f"Loaded txt2img...")
         
-        self.txt2img_oj_pipe = ""
-        """ self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
-        ).to("cuda")
-        self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded txt2img_oj...") """
+        )
         
-        self.txt2img_av3_pipe = ""
-        """ self.txt2img_av3_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_av3_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AV3,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
-        ).to("cuda")
-        self.txt2img_av3_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded txt2img_av3...") """
+        )
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
@@ -210,8 +202,8 @@ class Predictor(BasePredictor):
                 self.txt2img_pipe,
                 self.img2img_pipe,
                 self.inpaint_pipe,
-                self.txt2img_oj_pipe,
-                self.txt2img_av3_pipe,
+                self.txt2img_oj_pipe_r,
+                self.txt2img_av3_pipe_r,
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
