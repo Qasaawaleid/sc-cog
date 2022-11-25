@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_OJ
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -26,32 +26,39 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
+        self.sd_pipes.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.txt2img_pipe.enable_xformers_memory_efficient_attention()
+        self.sd_pipes.txt2img.enable_xformers_memory_efficient_attention()
         
-        self.img2img_pipe = StableDiffusionImg2ImgPipeline(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
+        self.sd_pipes.txt2img_oj = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_OJ,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
         ).to("cuda")
-        self.img2img_pipe.enable_xformers_memory_efficient_attention()
+        self.sd_pipes.txt2img_oj.enable_xformers_memory_efficient_attention()
         
-        self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
+        self.sd_pipes = StableDiffusionImg2ImgPipeline(
+            vae=self.sd_pipes.txt2img.vae,
+            text_encoder=self.sd_pipes.txt2img.text_encoder,
+            tokenizer=self.sd_pipes.txt2img.tokenizer,
+            unet=self.sd_pipes.txt2img.unet,
+            scheduler=self.sd_pipes.txt2img.scheduler,
+            safety_checker=self.sd_pipes.txt2img.safety_checker,
+            feature_extractor=self.sd_pipes.txt2img.feature_extractor,
+        ).to("cuda")
+        self.sd_pipes.enable_xformers_memory_efficient_attention()
+        
+        self.sd_pipes.inpaint = StableDiffusionInpaintPipelineLegacy(
+            vae=self.sd_pipes.txt2img.vae,
+            text_encoder=self.sd_pipes.txt2img.text_encoder,
+            tokenizer=self.sd_pipes.txt2img.tokenizer,
+            unet=self.sd_pipes.txt2img.unet,
+            scheduler=self.sd_pipes.txt2img.scheduler,
+            safety_checker=self.sd_pipes.txt2img.safety_checker,
+            feature_extractor=self.sd_pipes.txt2img.feature_extractor,
         ).to("cuda")
         
         # For translation
@@ -107,6 +114,11 @@ class Predictor(BasePredictor):
             default="K_LMS",
             choices=["DDIM", "K_LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
             description="Choose a scheduler. If you use an init image, PNDM will be used.",
+        ),
+        model: str = Input(
+            default="Stable Diffusion v1.5",
+            choices=["Stable Diffusion v1.5", "Openjourney"],
+            description="Choose a model. Defaults to Stable Diffusion v1.5.",
         ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed.", default=None
@@ -176,9 +188,8 @@ class Predictor(BasePredictor):
                 scheduler,
                 seed,
                 output_image_ext,
-                self.txt2img_pipe,
-                self.img2img_pipe,
-                self.inpaint_pipe,
+                model,
+                self.pipes,
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
