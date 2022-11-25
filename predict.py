@@ -26,29 +26,33 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
+        start= time.time()
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded txt2img...")
+        end = time.time()
+        print(f"Loaded txt2img in {end - start / 1000}s...")
         
-        self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_oj_pipe = ""
+        """ self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
         self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded txt2img_oj...")
+        print("Loaded txt2img_oj...") """
         
-        self.txt2img_av3_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_av3_pipe = ""
+        """ self.txt2img_av3_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AV3,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
         self.txt2img_av3_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded txt2img_av3...")
+        print("Loaded txt2img_av3...") """
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
