@@ -55,8 +55,10 @@ def generate(
     elif model == "Openjourney":
         prompt = f"mdjrny-v4 style {prompt}"
         pipe = txt2img_oj_r.to('cuda')
+        pipe.enable_xformers_memory_efficient_attention()
     elif model == "Anything-v3":
         pipe = txt2img_av3_r.to('cuda')
+        pipe.enable_xformers_memory_efficient_attention()
     else:
         pipe = txt2img
 
