@@ -26,39 +26,39 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        self.sd_pipes.txt2img = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.sd_pipes.txt2img.enable_xformers_memory_efficient_attention()
+        self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         
-        self.sd_pipes.txt2img_oj = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
-        self.sd_pipes.txt2img_oj.enable_xformers_memory_efficient_attention()
+        self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
         
-        self.sd_pipes = StableDiffusionImg2ImgPipeline(
-            vae=self.sd_pipes.txt2img.vae,
-            text_encoder=self.sd_pipes.txt2img.text_encoder,
-            tokenizer=self.sd_pipes.txt2img.tokenizer,
-            unet=self.sd_pipes.txt2img.unet,
-            scheduler=self.sd_pipes.txt2img.scheduler,
-            safety_checker=self.sd_pipes.txt2img.safety_checker,
-            feature_extractor=self.sd_pipes.txt2img.feature_extractor,
+        self.txt2img_pipe = StableDiffusionImg2ImgPipeline(
+            vae=self.txt2img_pipe.vae,
+            text_encoder=self.txt2img_pipe.text_encoder,
+            tokenizer=self.txt2img_pipe.tokenizer,
+            unet=self.txt2img_pipe.unet,
+            scheduler=self.txt2img_pipe.scheduler,
+            safety_checker=self.txt2img_pipe.safety_checker,
+            feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
-        self.sd_pipes.enable_xformers_memory_efficient_attention()
+        self.enable_xformers_memory_efficient_attention_pipe()
         
-        self.sd_pipes.inpaint = StableDiffusionInpaintPipelineLegacy(
-            vae=self.sd_pipes.txt2img.vae,
-            text_encoder=self.sd_pipes.txt2img.text_encoder,
-            tokenizer=self.sd_pipes.txt2img.tokenizer,
-            unet=self.sd_pipes.txt2img.unet,
-            scheduler=self.sd_pipes.txt2img.scheduler,
-            safety_checker=self.sd_pipes.txt2img.safety_checker,
-            feature_extractor=self.sd_pipes.txt2img.feature_extractor,
+        self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
+            vae=self.txt2img_pipe.vae,
+            text_encoder=self.txt2img_pipe.text_encoder,
+            tokenizer=self.txt2img_pipe.tokenizer,
+            unet=self.txt2img_pipe.unet,
+            scheduler=self.txt2img_pipe.scheduler,
+            safety_checker=self.txt2img_pipe.safety_checker,
+            feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
         
         # For translation
@@ -189,7 +189,10 @@ class Predictor(BasePredictor):
                 seed,
                 output_image_ext,
                 model,
-                self.pipes,
+                self.txt2img_pipe,
+                self.img2img_pipe,
+                self.inpaint_pipe,
+                self.txt2img_oj_pipe
             ) 
             output_paths = generate_output_paths
             endTime = time.time()

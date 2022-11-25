@@ -20,7 +20,10 @@ def generate(
   seed,
   output_image_ext,
   model,
-  pipes,
+  txt2img,
+  img2img,
+  inpaint,
+  txt2img_oj
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -35,7 +38,7 @@ def generate(
     if mask:
         if not init_image:
             raise ValueError("mask was provided without init_image")
-        pipe = pipes.inpaint
+        pipe = inpaint
         init_image = Image.open(init_image).convert("RGB")
         extra_kwargs = {
             "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
@@ -43,15 +46,15 @@ def generate(
             "strength": prompt_strength,
         }
     elif init_image:
-        pipe = pipes.img2img
+        pipe = img2img
         extra_kwargs = {
             "init_image": Image.open(init_image).convert("RGB"),
             "strength": prompt_strength,
         }
     elif model == "Openjourney":
-        pipe = pipes.txt2img_oj
+        pipe = txt2img_oj
     else:
-        pipe = pipes.txt2img
+        pipe = txt2img
 
     pipe.scheduler = make_scheduler(scheduler)
     generator = torch.Generator("cuda").manual_seed(seed)
