@@ -40,7 +40,7 @@ class Predictor(BasePredictor):
         ).to("cuda")
         self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
         
-        self.img2img = StableDiffusionImg2ImgPipeline(
+        self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
             text_encoder=self.txt2img_pipe.text_encoder,
             tokenizer=self.txt2img_pipe.tokenizer,
@@ -49,7 +49,7 @@ class Predictor(BasePredictor):
             safety_checker=self.txt2img_pipe.safety_checker,
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
-        self.img2img.enable_xformers_memory_efficient_attention_pipe()
+        self.img2img_pipe.enable_xformers_memory_efficient_attention()
         
         self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
             vae=self.txt2img_pipe.vae,
