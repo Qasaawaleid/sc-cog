@@ -128,7 +128,7 @@ class Predictor(BasePredictor):
         model: str = Input(
             default="Stable Diffusion v1.5",
             choices=["Stable Diffusion v1.5", "Openjourney", "Waifu Diffusion"],
-            description="Choose a model. Defaults to Stable Diffusion v1.5.",
+            description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed.", default=None
