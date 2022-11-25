@@ -49,7 +49,7 @@ class Predictor(BasePredictor):
             safety_checker=self.txt2img_pipe.safety_checker,
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
-        self.enable_xformers_memory_efficient_attention_pipe()
+        self.txt2img_pipe.enable_xformers_memory_efficient_attention_pipe()
         
         self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
             vae=self.txt2img_pipe.vae,
