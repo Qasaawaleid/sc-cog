@@ -34,7 +34,7 @@ class Predictor(BasePredictor):
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         end = time.time()
-        print(f"Loaded txt2img in {end - start / 1000}s...")
+        print(f"Loaded txt2img in {(end - start) / 1000}s...")
         
         self.txt2img_oj_pipe = ""
         """ self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
