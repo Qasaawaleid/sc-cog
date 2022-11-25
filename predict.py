@@ -32,6 +32,7 @@ class Predictor(BasePredictor):
             local_files_only=True,
         ).to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
+        print("Loaded txt2img...")
         
         self.txt2img_oj_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
@@ -39,7 +40,7 @@ class Predictor(BasePredictor):
             local_files_only=True,
         ).to("cuda")
         self.txt2img_oj_pipe.enable_xformers_memory_efficient_attention()
-        self.txt2img_oj_pipe.enable_sequential_cpu_offload()
+        print("Loaded txt2img_oj...")
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
@@ -51,6 +52,7 @@ class Predictor(BasePredictor):
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
         self.img2img_pipe.enable_xformers_memory_efficient_attention()
+        print("Loaded img2img...")
         
         self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
             vae=self.txt2img_pipe.vae,
@@ -61,15 +63,18 @@ class Predictor(BasePredictor):
             safety_checker=self.txt2img_pipe.safety_checker,
             feature_extractor=self.txt2img_pipe.feature_extractor,
         ).to("cuda")
+        print("Loaded inpaint...")
         
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
         
         self.translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
         self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+        print("Loaded translator...")
         
         self.swinir_args = get_args_swinir()
         self.device = torch.device('cuda')
+        print("Loaded upscaler...")
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
