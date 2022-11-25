@@ -24,7 +24,7 @@ def generate(
   img2img,
   inpaint,
   txt2img_oj_r,
-  txt2img_av3_r
+  txt2img_wf_r
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -53,11 +53,13 @@ def generate(
             "strength": prompt_strength,
         }
     elif model == "Openjourney":
-        prompt = f"mdjrny-v4 style {prompt}"
+        txt2img_wf_r.to('cpu')
         pipe = txt2img_oj_r.to('cuda')
         pipe.enable_xformers_memory_efficient_attention()
-    elif model == "Anything-v3":
-        pipe = txt2img_av3_r.to('cuda')
+        prompt = f"mdjrny-v4 style {prompt}"
+    elif model == "Waifu Diffusion":
+        txt2img_oj_r.to('cpu')
+        pipe = txt2img_wf_r.to('cuda')
         pipe.enable_xformers_memory_efficient_attention()
     else:
         pipe = txt2img

@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AV3, SD_MODEL_ID_OJ
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_OJ, SD_MODEL_ID_WF
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -40,8 +40,8 @@ class Predictor(BasePredictor):
             local_files_only=True,
         )
         
-        self.txt2img_av3_pipe_r = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_AV3,
+        self.txt2img_wf_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_WF,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -127,7 +127,7 @@ class Predictor(BasePredictor):
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
-            choices=["Stable Diffusion v1.5", "Openjourney", "Anything-v3"],
+            choices=["Stable Diffusion v1.5", "Openjourney", "Waifu Diffusion"],
             description="Choose a model. Defaults to Stable Diffusion v1.5.",
         ),
         seed: int = Input(
@@ -203,7 +203,7 @@ class Predictor(BasePredictor):
                 self.img2img_pipe,
                 self.inpaint_pipe,
                 self.txt2img_oj_pipe_r,
-                self.txt2img_av3_pipe_r,
+                self.txt2img_wf_pipe_r,
             ) 
             output_paths = generate_output_paths
             endTime = time.time()

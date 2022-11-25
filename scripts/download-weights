@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
 SD_MODEL_ID_OJ = "prompthero/openjourney"
-SD_MODEL_ID_AV3 = "Linaqruf/anything-v3.0"
+SD_MODEL_ID_WF = "waifu-diffusion"
 SD_MODEL_CACHE = "diffusers-cache"
 
 TRANSLATOR_MODEL_ID = "facebook/nllb-200-distilled-1.3B"
@@ -26,8 +26,8 @@ pipe_oj = StableDiffusionPipeline.from_pretrained(
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
-pipe_av3 = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_AV3,
+pipe_wf = StableDiffusionPipeline.from_pretrained(
+    SD_MODEL_ID_WF,
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
