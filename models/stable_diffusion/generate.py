@@ -52,6 +52,7 @@ def generate(
             "strength": prompt_strength,
         }
     elif model == "Openjourney":
+        prompt = f"mdjrny-v4 style {prompt}"
         pipe = txt2img_oj
     else:
         pipe = txt2img
