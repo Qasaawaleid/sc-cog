@@ -23,7 +23,9 @@ def generate(
   txt2img,
   img2img,
   inpaint,
-  txt2img_oj_r
+  txt2img_oj_r,
+  txt2img_ar_r,
+  txt2img_gh_r
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -35,6 +37,7 @@ def generate(
         ) """
 
     extra_kwargs = {}
+    pipe_secondary_r = None
     if mask:
         if not init_image:
             raise ValueError("mask was provided without init_image")
@@ -51,13 +54,28 @@ def generate(
             "init_image": Image.open(init_image).convert("RGB"),
             "strength": prompt_strength,
         }
-    elif model == "Openjourney":
-        """ txt2img_different_model_r.to('cpu') """
-        pipe = txt2img_oj_r.to('cuda')
-        pipe.enable_xformers_memory_efficient_attention()
-        prompt = f"mdjrny-v4 style {prompt}"
     else:
-        pipe = txt2img
+        if model == "Openjourney":
+            if pipe_secondary_r:
+                pipe_secondary_r.to('cpu')
+            pipe_secondary_r = txt2img_oj_r
+            pipe = pipe_secondary_r.to('cuda')
+            prompt = f"mdjrny-v4 style {prompt}"
+        elif model == "Arcane Diffusion":
+            if pipe_secondary_r:
+                pipe_secondary_r.to('cpu')
+            pipe_secondary_r = txt2img_ar_r
+            pipe = pipe_secondary_r.to('cuda')
+            prompt = f"arcane style {prompt}"
+        elif model == "Ghibli Diffusion":
+            if pipe_secondary_r:
+                pipe_secondary_r.to('cpu')
+            pipe_secondary_r = txt2img_gh_r
+            pipe = pipe_secondary_r.to('cuda')
+            prompt = f"ghibli style {prompt}"
+        else:
+            pipe = txt2img
+        pipe.enable_xformers_memory_efficient_attention()
 
     pipe.scheduler = make_scheduler(scheduler, model)
     generator = torch.Generator("cuda").manual_seed(seed)
