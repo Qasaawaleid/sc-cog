@@ -59,7 +59,7 @@ def generate(
     else:
         pipe = txt2img
 
-    pipe.scheduler = make_scheduler(scheduler)
+    pipe.scheduler = make_scheduler(scheduler, model)
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,

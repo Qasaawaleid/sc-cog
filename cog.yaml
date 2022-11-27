@@ -1,3 +1,4 @@
+image: "r8.im/yekta/sc"
 build:
   gpu: true
   cuda: "11.6.2"
