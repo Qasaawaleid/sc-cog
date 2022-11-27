@@ -54,6 +54,9 @@ class Predictor(BasePredictor):
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
+        self.txt2img_alt = None
+        self.txt2img_alt_r = self.txt2img_oj_pipe_r
+        self.txt2img_alt_name = "Openjourney"
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
             vae=self.txt2img_pipe.vae,
@@ -194,6 +197,30 @@ class Predictor(BasePredictor):
                 self.detect_language,
                 "Negative prompt"
             )
+            txt2img = self.txt2img_pipe
+            if model != "Stable Diffusion v1.5":
+                if model == self.txt2img_alt_name:
+                    if self.txt2img_alt is None:
+                        self.txt2img_alt = self.txt2img_alt_r.to("cuda")
+                else:
+                    self.txt2img_alt_r.to("cpu")
+                    if model == "Openjourney":
+                        self.txt2img_alt_name = model
+                        self.txt2img_alt_r = self.txt2img_oj_pipe_r
+                        self.txt2img_alt = self.txt2img_oj_pipe_r.to("cuda")
+                    elif model == "Arcane Diffusion":
+                        self.txt2img_alt_name = model
+                        self.txt2img_alt_r = self.txt2img_ar_pipe_r
+                        self.txt2img_alt = self.txt2img_ar_pipe_r.to("cuda")
+                    elif model == "Ghibli Diffusion":
+                        self.txt2img_alt_name = model
+                        self.txt2img_alt_r = self.txt2img_gh_pipe_r
+                        self.txt2img_alt = self.txt2img_gh_pipe_r.to("cuda")
+                    elif model == "Mo-Di Diffusion":
+                        self.txt2img_alt_name = model
+                        self.txt2img_alt_r = self.txt2img_md_pipe_r
+                        self.txt2img_alt = self.txt2img_md_pipe_r.to("cuda")
+                txt2img = self.txt2img_alt
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
@@ -208,13 +235,9 @@ class Predictor(BasePredictor):
                 seed,
                 output_image_ext,
                 model,
-                self.txt2img_pipe,
+                txt2img,
                 self.img2img_pipe,
                 self.inpaint_pipe,
-                self.txt2img_oj_pipe_r,
-                self.txt2img_ar_pipe_r,
-                self.txt2img_gh_pipe_r,
-                self.txt2img_md_pipe_r
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
