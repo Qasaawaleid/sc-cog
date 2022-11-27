@@ -5,11 +5,13 @@ import sys
 from diffusers import StableDiffusionPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+SD_MODEL_CACHE = "diffusers-cache"
+
 SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
 SD_MODEL_ID_OJ = "prompthero/openjourney"
 SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
 SD_MODEL_ID_GH = "nitrosocke/Ghibli-Diffusion"
-SD_MODEL_CACHE = "diffusers-cache"
+SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
 
 TRANSLATOR_MODEL_ID = "facebook/nllb-200-distilled-1.3B"
 TRANSLATOR_MODEL_CACHE = "translator-model-cache"
@@ -34,6 +36,11 @@ pipe_ar = StableDiffusionPipeline.from_pretrained(
 )
 pipe_gh = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_GH,
+    cache_dir=SD_MODEL_CACHE,
+    use_auth_token=sys.argv[1],
+)
+pipe_md = StableDiffusionPipeline.from_pretrained(
+    SD_MODEL_ID_MD,
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )

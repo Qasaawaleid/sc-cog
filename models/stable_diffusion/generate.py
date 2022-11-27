@@ -25,7 +25,8 @@ def generate(
   inpaint,
   txt2img_oj_r,
   txt2img_ar_r,
-  txt2img_gh_r
+  txt2img_gh_r,
+  txt2img_md_r,
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -73,6 +74,12 @@ def generate(
             pipe_secondary_r = txt2img_gh_r
             pipe = pipe_secondary_r.to('cuda')
             prompt = f"ghibli style {prompt}"
+        elif model == "Mo-Di Diffusion":
+            if pipe_secondary_r:
+                pipe_secondary_r.to('cpu')
+            pipe_secondary_r = txt2img_md_r
+            pipe = pipe_secondary_r.to('cuda')
+            prompt = f"modern disney style {prompt}"
         else:
             pipe = txt2img
         pipe.enable_xformers_memory_efficient_attention()
