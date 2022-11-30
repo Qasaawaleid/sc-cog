@@ -52,7 +52,7 @@ pipe_md = StableDiffusionPipeline.from_pretrained(
     
 
 # For the translator
-print("Downloading SD_AR...")
+print("Downloading translation models...")
 translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
 translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE)
 
