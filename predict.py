@@ -203,7 +203,7 @@ class Predictor(BasePredictor):
                         cache_dir=SD_MODEL_CACHE,
                         local_files_only=True,
                     )
-                txt2img = self.txt2img_md_pipe_r.to("cuda")
+                txt2img = self.txt2img_alt_r.to("cuda")
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
