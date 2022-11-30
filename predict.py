@@ -59,6 +59,37 @@ class Predictor(BasePredictor):
         ).to("cuda")
         print("Loaded inpaint...")
         
+        self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_OJ,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        )
+        print("Loaded SD_OJ...")
+        
+        self.txt2img_ar_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_AR,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        )
+        print("Loaded SD_AR...")
+        
+        self.txt2img_gh_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_GH,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        )
+        print("Loaded SD_GH...")
+         
+        self.txt2img_md_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_MD,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        )
+        print("Loaded SD_MD...")
+        
+        self.txt2img_alt_r = None
+        self.txt2img_alt_name = None
+        
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
         
@@ -176,35 +207,26 @@ class Predictor(BasePredictor):
                 "Negative prompt"
             )
             
-            txt2img = self.txt2img_pipe
+            txt2img = None
             if model != "Stable Diffusion v1.5":
-                if self.txt2img_alt_r is not None:
+                if self.txt2img_alt_r is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt_r.to("cpu")
-                if model == "Openjourney":
-                    self.txt2img_alt_r = StableDiffusionPipeline.from_pretrained(
-                        SD_MODEL_ID_OJ,
-                        cache_dir=SD_MODEL_CACHE,
-                        local_files_only=True,
-                    )
-                elif model == "Arcane Diffusion":
-                    self.txt2img_alt_r = StableDiffusionPipeline.from_pretrained(
-                        SD_MODEL_ID_AR,
-                        cache_dir=SD_MODEL_CACHE,
-                        local_files_only=True,
-                    )
-                elif model == "Ghibli Diffusion":
-                    self.txt2img_alt_r = StableDiffusionPipeline.from_pretrained(
-                        SD_MODEL_ID_GH,
-                        cache_dir=SD_MODEL_CACHE,
-                        local_files_only=True,
-                    )
-                elif model == "Mo-Di Diffusion":
-                    self.txt2img_alt_r = StableDiffusionPipeline.from_pretrained(
-                        SD_MODEL_ID_MD,
-                        cache_dir=SD_MODEL_CACHE,
-                        local_files_only=True,
-                    )
+                    
+                if model == "Openjourney" and self.txt2img_alt_name != model:
+                    self.txt2img_alt_name = "Openjourney"
+                    self.txt2img_alt_r = self.txt2img_oj_pipe_r
+                elif model == "Arcane Diffusion" and self.txt2img_alt_name != model:
+                    self.txt2img_alt_name = "Arcane Diffusion"
+                    self.txt2img_alt_r = self.txt2img_ar_pipe_r
+                elif model == "Ghibli Diffusion" and self.txt2img_alt_name != model:
+                    self.txt2img_alt_name = "Ghibli Diffusion"
+                    self.txt2img_alt_r = self.txt2img_gh_pipe_r
+                elif model == "Mo-Di Diffusion" and self.txt2img_alt_name != model:
+                    self.txt2img_alt_name = "Mo-Di Diffusion"
+                    self.txt2img_alt_r = self.txt2img_md_pipe_r
                 txt2img = self.txt2img_alt_r.to("cuda")
+            else:
+                txt2img = self.txt2img_pipe
                 
             generate_output_paths = generate(
                 t_prompt,
