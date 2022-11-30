@@ -213,17 +213,15 @@ class Predictor(BasePredictor):
                     self.txt2img_alt_r.to("cpu")
                     
                 if model == "Openjourney" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_name = "Openjourney"
                     self.txt2img_alt_r = self.txt2img_oj_pipe_r
                 elif model == "Arcane Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_name = "Arcane Diffusion"
                     self.txt2img_alt_r = self.txt2img_ar_pipe_r
                 elif model == "Ghibli Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_name = "Ghibli Diffusion"
                     self.txt2img_alt_r = self.txt2img_gh_pipe_r
                 elif model == "Mo-Di Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_name = "Mo-Di Diffusion"
                     self.txt2img_alt_r = self.txt2img_md_pipe_r
+                    
+                self.txt2img_alt_name = model
                 txt2img = self.txt2img_alt_r.to("cuda")
             else:
                 txt2img = self.txt2img_pipe
