@@ -175,6 +175,7 @@ class Predictor(BasePredictor):
                 self.detect_language,
                 "Negative prompt"
             )
+            
             txt2img = self.txt2img_pipe
             if model != "Stable Diffusion v1.5":
                 if self.txt2img_alt_r is not None:
@@ -204,6 +205,7 @@ class Predictor(BasePredictor):
                         local_files_only=True,
                     )
                 txt2img = self.txt2img_alt_r.to("cuda")
+                
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
