@@ -34,7 +34,6 @@ class Predictor(BasePredictor):
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.txt2img_alt_name = None
         self.txt2img_alt_r = None
         
         self.img2img_pipe = StableDiffusionImg2ImgPipeline(
