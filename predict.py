@@ -61,7 +61,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -69,7 +68,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_ar_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AR,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -77,7 +75,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_gh_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_GH,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -85,7 +82,6 @@ class Predictor(BasePredictor):
          
         self.txt2img_md_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_MD,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -230,6 +226,7 @@ class Predictor(BasePredictor):
             else:
                 txt2img = self.txt2img_pipe
                 
+            print(f'-- Generating with "{model}" --')
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
@@ -250,7 +247,7 @@ class Predictor(BasePredictor):
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
-            print(f"-- Generated in: {endTime - startTime} sec. --")
+            print(f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
         
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
