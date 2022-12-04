@@ -54,8 +54,13 @@ pipe_md = StableDiffusionPipeline.from_pretrained(
 
 # For the translator
 print("Downloading translation models...")
-translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE)
+translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID,  cache_dir=TRANSLATOR_TOKENIZER_CACHE)
+translate_model = AutoModelForSeq2SeqLM.from_pretrained(
+    TRANSLATOR_MODEL_ID,
+    revision="fp16",
+    torch_dtype=torch.float16,
+    cache_dir=TRANSLATOR_MODEL_CACHE
+)
 
 # For the upscaler
 print("Downloading SwinIR Models...")

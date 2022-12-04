@@ -94,7 +94,12 @@ class Predictor(BasePredictor):
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
         
         self.translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(
+            TRANSLATOR_MODEL_ID,
+            revision="fp16",
+            torch_dtype=torch.float16,
+            cache_dir=TRANSLATOR_MODEL_CACHE
+        ).to("cuda")
         print("Loaded translator...")
         
         self.swinir_args = get_args_swinir()
