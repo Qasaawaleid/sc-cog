@@ -28,6 +28,8 @@ class Predictor(BasePredictor):
 
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
+            revision="fp16",
+            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")

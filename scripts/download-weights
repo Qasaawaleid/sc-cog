@@ -23,6 +23,8 @@ os.makedirs(SD_MODEL_CACHE, exist_ok=True)
 print("Downloading SD...")
 pipe = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID,
+    revision="fp16",
+    torch_dtype=torch.float16,
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
