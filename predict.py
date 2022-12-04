@@ -226,7 +226,7 @@ class Predictor(BasePredictor):
             else:
                 txt2img = self.txt2img_pipe
                 
-            print(f'-- Generating with "{model}" --')
+            print(f'-- Generating with "{model}"... --')
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
