@@ -16,7 +16,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
     text_lang_id = target_lang_flores
     
     if flores_200_code != None:
-        print(f'-- {label} - FLORES_200 code is given, skipping language auto-detection: "{text_lang_id}" --')
+        print(f'-- {label} - FLORES-200 code is given, skipping language auto-detection: "{text_lang_id}" --')
         text_lang_id = flores_200_code
     else:
         confidence_values = detector.compute_language_confidence_values(text)
@@ -38,7 +38,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         if detected_lang is not None:
             print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
         
-        print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
+        print(f'-- {label} - Selected text language FLORES-200: "{text_lang_id}" --')
 
     if text_lang_id != target_lang_flores:
         translate = pipeline(
