@@ -151,8 +151,8 @@ class Predictor(BasePredictor):
         ),
         scheduler: str = Input(
             default="K_LMS",
-            choices=["DDIM", "K_LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
-            description="Choose a scheduler. If you use an init image, PNDM will be used.",
+            choices=["DDIM", "K_LMS", "K_EULER", "K_EULER_ANCESTRAL"],
+            description="Choose a scheduler.",
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
