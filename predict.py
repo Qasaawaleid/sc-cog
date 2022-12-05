@@ -28,6 +28,8 @@ class Predictor(BasePredictor):
 
         self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
+            revision="fp16",
+            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         ).to("cuda")
@@ -61,7 +63,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -69,7 +70,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_ar_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AR,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -77,7 +77,6 @@ class Predictor(BasePredictor):
         
         self.txt2img_gh_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_GH,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -85,7 +84,6 @@ class Predictor(BasePredictor):
          
         self.txt2img_md_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_MD,
-            torch_dtype=torch.float16,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
@@ -98,7 +96,11 @@ class Predictor(BasePredictor):
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
         
         self.translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_MODEL_CACHE).to("cuda")
+        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(
+            TRANSLATOR_MODEL_ID,
+            torch_dtype=torch.float16,
+            cache_dir=TRANSLATOR_MODEL_CACHE
+        ).to("cuda")
         print("Loaded translator...")
         
         self.swinir_args = get_args_swinir()
@@ -234,6 +236,7 @@ class Predictor(BasePredictor):
             else:
                 txt2img = self.txt2img_pipe
                 
+            print(f'-- Generating with "{model}"... --')
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
@@ -254,7 +257,7 @@ class Predictor(BasePredictor):
             ) 
             output_paths = generate_output_paths
             endTime = time.time()
-            print(f"-- Generated in: {endTime - startTime} sec. --")
+            print(f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
         
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()

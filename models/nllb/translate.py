@@ -3,7 +3,7 @@ import time
 from transformers import pipeline
 from .constants import LANG_TO_ID
 
-eng_score_max = 0.9
+target_lang_score_max = 0.8
 target_lang = Language.ENGLISH
 target_lang_id = LANG_TO_ID[target_lang.name]
 
@@ -20,7 +20,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         text_lang_id = flores_200_code
     else:
         confidence_values = detector.compute_language_confidence_values(text)
-        eng_value = None
+        target_lang_score = None
         detected_lang = None
         detected_lang_score = None
         
@@ -30,9 +30,9 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
                 detected_lang = curr[0]
                 detected_lang_score = curr[1]
             if curr[0] == Language.ENGLISH:
-                eng_value = curr[1]
+                target_lang_score = curr[1]
                 
-        if detected_lang is not None and detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
+        if detected_lang is not None and detected_lang != target_lang and (target_lang_score is None or target_lang_score < target_lang_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
             text_lang_id = LANG_TO_ID[detected_lang.name]
         
         if detected_lang is not None:
