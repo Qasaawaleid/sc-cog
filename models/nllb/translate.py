@@ -3,7 +3,7 @@ import time
 from transformers import pipeline
 from .constants import LANG_TO_ID
 
-eng_score_max = 0.9
+eng_score_max = 0.8
 target_lang = Language.ENGLISH
 target_lang_id = LANG_TO_ID[target_lang.name]
 
@@ -33,6 +33,8 @@ def translate_text(text, model, tokenizer, detector, label):
     
     if detected_lang is not None:
         print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+    if eng_value is not None:
+        print(f'-- {label} - English score: {eng_value} --')
     print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
     
     if text_lang_id != target_lang_id:
