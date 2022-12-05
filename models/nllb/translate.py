@@ -7,7 +7,7 @@ eng_score_max = 0.9
 target_lang = Language.ENGLISH
 target_lang_id = LANG_TO_ID[target_lang.name]
 
-def translate_text(text, model, tokenizer, detector, label):
+def translate_text(text, flores_200_code, model, tokenizer, detector, label):
     if text == "":
         print(f"-- {label} - No text to translate, skipping --")
         return ""
@@ -15,26 +15,31 @@ def translate_text(text, model, tokenizer, detector, label):
     translated_text = ""
     text_lang_id = target_lang_id
     
-    confidence_values = detector.compute_language_confidence_values(text)
-    eng_value = None
-    detected_lang = None
-    detected_lang_score = None
-    
-    for index in range(len(confidence_values)):
-        curr = confidence_values[index]
-        if index == 0:
-            detected_lang = curr[0]
-            detected_lang_score = curr[1]
-        if curr[0] == Language.ENGLISH:
-            eng_value = curr[1]
-            
-    if detected_lang is not None and detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
-        text_lang_id = LANG_TO_ID[detected_lang.name]
-    
-    if detected_lang is not None:
-        print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
-    print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
-    
+    if flores_200_code != None:
+        print(f'-- {label} - FLORES_200 code is given, skipping language auto-detection: "{text_lang_id}" --')
+        text_lang_id = flores_200_code
+    else:
+        confidence_values = detector.compute_language_confidence_values(text)
+        eng_value = None
+        detected_lang = None
+        detected_lang_score = None
+        
+        for index in range(len(confidence_values)):
+            curr = confidence_values[index]
+            if index == 0:
+                detected_lang = curr[0]
+                detected_lang_score = curr[1]
+            if curr[0] == Language.ENGLISH:
+                eng_value = curr[1]
+                
+        if detected_lang is not None and detected_lang != target_lang and (eng_value is None or eng_value < eng_score_max) and LANG_TO_ID.get(detected_lang.name) is not None:
+            text_lang_id = LANG_TO_ID[detected_lang.name]
+        
+        if detected_lang is not None:
+            print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+        
+        print(f'-- {label} - Selected text language id: "{text_lang_id}" --')
+
     if text_lang_id != target_lang_id:
         translate = pipeline(
             'translation',

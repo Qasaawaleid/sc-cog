@@ -111,6 +111,8 @@ class Predictor(BasePredictor):
         self,
         prompt: str = Input(description="Input prompt.", default=""),
         negative_prompt: str = Input(description="Input negative prompt.", default=""),
+        prompt_flores_200_code: str = Input(description="Prompt's language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        negative_prompt_flores_200_code: str = Input(description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
         width: int = Input(
             description="Width of output image.",
             choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
@@ -198,6 +200,7 @@ class Predictor(BasePredictor):
             startTime = time.time()
             t_prompt = translate_text(
                 prompt,
+                prompt_flores_200_code,
                 self.translate_model,
                 self.translate_tokenizer,
                 self.detect_language,
@@ -205,6 +208,7 @@ class Predictor(BasePredictor):
             )
             t_negative_prompt = translate_text(
                 negative_prompt,
+                negative_prompt_flores_200_code,
                 self.translate_model,
                 self.translate_tokenizer,
                 self.detect_language,
