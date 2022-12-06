@@ -3,7 +3,7 @@ import time
 from transformers import pipeline
 from .constants import LANG_TO_FLORES
 
-target_lang_score_max = 0.8
+target_lang_score_max = 0.6
 target_lang = Language.ENGLISH
 target_lang_flores = LANG_TO_FLORES[target_lang.name]
 
