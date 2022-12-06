@@ -52,7 +52,6 @@ pipe_md = StableDiffusionPipeline.from_pretrained(
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )
-    
 
 # For the translator
 print("Downloading translation models...")
