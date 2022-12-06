@@ -13,11 +13,11 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         return ""
     startTimeTranslation = time.time()
     translated_text = ""
-    text_lang_id = target_lang_flores
+    text_lang_flores = target_lang_flores
     
     if flores_200_code != None:
-        print(f'-- {label} - FLORES-200 code is given, skipping language auto-detection: "{text_lang_id}" --')
-        text_lang_id = flores_200_code
+        text_lang_flores = flores_200_code
+        print(f'-- {label} - FLORES-200 code is given, skipping language auto-detection: "{text_lang_flores}" --')
     else:
         confidence_values = detector.compute_language_confidence_values(text)
         target_lang_score = None
@@ -33,19 +33,19 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
                 target_lang_score = curr[1]
                 
         if detected_lang is not None and detected_lang != target_lang and (target_lang_score is None or target_lang_score < target_lang_score_max) and LANG_TO_FLORES.get(detected_lang.name) is not None:
-            text_lang_id = LANG_TO_FLORES[detected_lang.name]
+            text_lang_flores = LANG_TO_FLORES[detected_lang.name]
         
         if detected_lang is not None:
             print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
         
-        print(f'-- {label} - Selected text language FLORES-200: "{text_lang_id}" --')
+        print(f'-- {label} - Selected text language FLORES-200: "{text_lang_flores}" --')
 
-    if text_lang_id != target_lang_flores:
+    if text_lang_flores != target_lang_flores:
         translate = pipeline(
             'translation',
             model=model,
             tokenizer=tokenizer,
-            src_lang=text_lang_id,
+            src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,
             device=0
         )
@@ -57,6 +57,6 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         print(f"-- {label} - Text is already in the correct language, no translation needed --")
     
     endTimeTranslation = time.time()
-    print(f"-- {label} - Completed in: {endTimeTranslation - startTimeTranslation} sec. --")
+    print(f"-- {label} - Completed in: {(endTimeTranslation - startTimeTranslation) * 10} sec. --")
     
     return translated_text
