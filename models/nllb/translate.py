@@ -24,6 +24,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         detected_lang = None
         detected_lang_score = None
         
+        print(confidence_values)
         for index in range(len(confidence_values)):
             curr = confidence_values[index]
             if index == 0:
