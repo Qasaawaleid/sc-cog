@@ -37,6 +37,8 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         
         if detected_lang is not None:
             print(f'-- {label} - Guessed text language: "{detected_lang.name}". Score: {detected_lang_score} --')
+        if detected_lang is not None and target_lang_score is not None and detected_lang != target_lang:
+            print(f'-- {label} - Target language score: {target_lang_score} --')
         
         print(f'-- {label} - Selected text language FLORES-200: "{text_lang_flores}" --')
 
