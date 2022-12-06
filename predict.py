@@ -151,7 +151,7 @@ class Predictor(BasePredictor):
         ),
         scheduler: str = Input(
             default="K_LMS",
-            choices=["DDIM", "K_LMS", "K_EULER", "K_EULER_ANCESTRAL"],
+            choices=["DDIM", "K_LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
             description="Choose a scheduler.",
         ),
         model: str = Input(
