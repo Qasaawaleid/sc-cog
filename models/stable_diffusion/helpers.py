@@ -8,36 +8,41 @@ from diffusers import (
 from .constants import SD_MODEL_CACHE, SD_MODEL_TO_ID
 
 
-def make_scheduler(name, model):
+def make_scheduler(name, model, revision):
     return {
         "PNDM": PNDMScheduler.from_config(
             SD_MODEL_TO_ID[model],
-            cache_dir=SD_MODEL_CACHE, 
+            cache_dir=SD_MODEL_CACHE,
             local_files_only=True, 
-            subfolder="scheduler"
+            subfolder="scheduler",
+            revision=revision or "main"
         ),
         "K_LMS": LMSDiscreteScheduler.from_config(
             SD_MODEL_TO_ID[model],
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
-            subfolder="scheduler"
+            subfolder="scheduler",
+            revision=revision or "main"
         ),
         "DDIM": DDIMScheduler.from_config(
             SD_MODEL_TO_ID[model],
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
-            subfolder="scheduler"
+            subfolder="scheduler",
+            revision=revision or "main"
         ),
         "K_EULER": EulerDiscreteScheduler.from_config(
             SD_MODEL_TO_ID[model],
             cache_dir=SD_MODEL_CACHE, 
             local_files_only=True, 
-            subfolder="scheduler"
+            subfolder="scheduler",
+            revision=revision or "main"
         ),
         "K_EULER_ANCESTRAL": EulerAncestralDiscreteScheduler.from_config(
             SD_MODEL_TO_ID[model],
             cache_dir=SD_MODEL_CACHE, 
             local_files_only=True,
-            subfolder="scheduler"
+            subfolder="scheduler",
+            revision=revision or "main"
         ),
     }[name]

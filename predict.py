@@ -218,6 +218,7 @@ class Predictor(BasePredictor):
             )
             
             txt2img = None
+            revision = None
             if model != "Stable Diffusion v1.5":
                 if self.txt2img_alt_r is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt_r.to("cpu")
@@ -235,6 +236,7 @@ class Predictor(BasePredictor):
                 txt2img = self.txt2img_alt_r.to("cuda")
             else:
                 txt2img = self.txt2img_pipe
+                revision = "fp16"
                 
             print(f'-- Generating with "{model}"... --')
             generate_output_paths = generate(
@@ -254,6 +256,7 @@ class Predictor(BasePredictor):
                 txt2img,
                 self.img2img_pipe,
                 self.inpaint_pipe,
+                revision
             ) 
             output_paths = generate_output_paths
             endTime = time.time()

@@ -23,6 +23,7 @@ def generate(
   txt2img,
   img2img,
   inpaint,
+  revision
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -62,7 +63,7 @@ def generate(
         pipe = txt2img
         pipe.enable_xformers_memory_efficient_attention()
 
-    pipe.scheduler = make_scheduler(scheduler, model)
+    pipe.scheduler = make_scheduler(scheduler, model, revision)
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,
