@@ -57,6 +57,6 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         print(f"-- {label} - Text is already in the correct language, no translation needed --")
     
     endTimeTranslation = time.time()
-    print(f"-- {label} - Completed in: {(endTimeTranslation - startTimeTranslation) * 10} sec. --")
+    print(f"-- {label} - Completed in: {round((endTimeTranslation - startTimeTranslation), 2)} sec. --")
     
     return translated_text
