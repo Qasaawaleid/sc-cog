@@ -68,7 +68,7 @@ LANG_TO_FLORES = {
   "TELUGU": "tel_Telu",
   "THAI": "tha_Thai",
   "TSONGA": "tso_Latn",
-  "TSWANA": "tsn_Latn",
+  """ "TSWANA": "tsn_Latn", """
   "TURKISH": "tur_Latn",
   "UKRAINIAN": "ukr_Cyrl",
   "URDU": "urd_Arab",
