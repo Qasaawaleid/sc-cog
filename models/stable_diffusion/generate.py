@@ -54,6 +54,8 @@ def generate(
     else:
         if model == "Openjourney":
             prompt = f"mdjrny-v4 style {prompt}"
+        elif model == "Redshift Diffusion":
+            prompt = f"redshift style {prompt}"
         elif model == "Arcane Diffusion":
             prompt = f"arcane style {prompt}"
         elif model == "Ghibli Diffusion":
