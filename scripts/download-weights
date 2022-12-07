@@ -10,6 +10,7 @@ SD_MODEL_CACHE = "diffusers-cache"
 
 SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
 SD_MODEL_ID_OJ = "prompthero/openjourney"
+SD_MODEL_ID_RD = "nitrosocke/redshift-diffusion"
 SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
 SD_MODEL_ID_GH = "nitrosocke/Ghibli-Diffusion"
 SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
@@ -31,6 +32,12 @@ pipe = StableDiffusionPipeline.from_pretrained(
 print("Downloading SD_OJ...")
 pipe_oj = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_OJ,
+    cache_dir=SD_MODEL_CACHE,
+    use_auth_token=sys.argv[1],
+)
+print("Downloading SD_RD...")
+pipe_rd = StableDiffusionPipeline.from_pretrained(
+    SD_MODEL_ID_RD,
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
 )

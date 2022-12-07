@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -67,6 +67,13 @@ class Predictor(BasePredictor):
             local_files_only=True,
         )
         print("Loaded SD_OJ...")
+        
+        self.txt2img_rd_pipe_r = StableDiffusionPipeline.from_pretrained(
+            SD_MODEL_ID_RD,
+            cache_dir=SD_MODEL_CACHE,
+            local_files_only=True,
+        )
+        print("Loaded SD_RD...")
         
         self.txt2img_ar_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AR,
@@ -156,7 +163,7 @@ class Predictor(BasePredictor):
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
-            choices=["Stable Diffusion v1.5", "Openjourney", "Arcane Diffusion", "Ghibli Diffusion", "Mo-Di Diffusion"],
+            choices=["Stable Diffusion v1.5", "Openjourney", "Redshift Diffusion" "Arcane Diffusion", "Mo-Di Diffusion", "Ghibli Diffusion"],
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
         seed: int = Input(
@@ -225,6 +232,8 @@ class Predictor(BasePredictor):
                     
                 if model == "Openjourney" and self.txt2img_alt_name != model:
                     self.txt2img_alt_r = self.txt2img_oj_pipe_r
+                elif model == "Redshift Diffusion" and self.txt2img_alt_name != model:
+                    self.txt2img_alt_r = self.txt2img_rd_pipe_r
                 elif model == "Arcane Diffusion" and self.txt2img_alt_name != model:
                     self.txt2img_alt_r = self.txt2img_ar_pipe_r
                 elif model == "Ghibli Diffusion" and self.txt2img_alt_name != model:
