@@ -163,7 +163,7 @@ class Predictor(BasePredictor):
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
-            choices=["Stable Diffusion v1.5", "Openjourney", "Redshift Diffusion" "Arcane Diffusion", "Mo-Di Diffusion", "Ghibli Diffusion"],
+            choices=["Stable Diffusion v1.5", "Openjourney", "Redshift Diffusion", "Arcane Diffusion", "Mo-Di Diffusion", "Ghibli Diffusion"],
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
         seed: int = Input(
