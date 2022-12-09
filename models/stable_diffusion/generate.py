@@ -70,8 +70,8 @@ def generate(
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,
         negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
-        width=width,
-        height=height,
+        width=width if init_image is None else None,
+        height=height if init_image is None else None,
         guidance_scale=guidance_scale,
         generator=generator,
         num_inference_steps=num_inference_steps,
