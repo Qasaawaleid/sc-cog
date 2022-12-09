@@ -65,6 +65,9 @@ def generate(
         pipe = txt2img_pipe
         pipe.enable_xformers_memory_efficient_attention()
 
+    if(mask is not None and init_image is not None):
+        model = "Stable Diffusion v1.5 Inpaint"
+        
     pipe.scheduler = make_scheduler(scheduler, model, revision)
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(

@@ -10,6 +10,7 @@ SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
 
 SD_MODEL_TO_ID = {
   "Stable Diffusion v1.5": SD_MODEL_ID,
+  "Stable Diffusion v1.5 Inpaint": SD_MODEL_INPAINT_ID,
   "Openjourney": SD_MODEL_ID_OJ,
   "Redshift Diffusion": SD_MODEL_ID_RD,
   "Arcane Diffusion": SD_MODEL_ID_AR,
