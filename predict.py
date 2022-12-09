@@ -5,6 +5,7 @@ import torch
 from diffusers import (
     StableDiffusionPipeline,
     StableDiffusionInpaintPipeline,
+    StableDiffusionImg2ImgPipeline,
 )
 from cog import BasePredictor, Input, Path
 
@@ -36,7 +37,7 @@ class Predictor(BasePredictor):
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.img2img = StableDiffusionPipeline.from_pretrained(**self.txt2img.components)
+        self.img2img = StableDiffusionImg2ImgPipeline(**self.txt2img.components)
         self.img2img_pipe = self.img2img.to('cuda')
         self.img2img_pipe.enable_xformers_memory_efficient_attention()
         
