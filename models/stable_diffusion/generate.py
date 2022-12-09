@@ -21,7 +21,6 @@ def generate(
   output_image_ext,
   model,
   txt2img,
-  img2img,
   inpaint,
   revision
 ):
@@ -46,11 +45,12 @@ def generate(
             "strength": prompt_strength,
         }
     elif init_image:
-        pipe = img2img
+        pipe = txt2img
+        """ pipe = img2img
         extra_kwargs = {
             "image": Image.open(init_image).convert("RGB"),
             "strength": prompt_strength,
-        }
+        } """
     else:
         if model == "Openjourney":
             prompt = f"mdjrny-v4 style {prompt}"

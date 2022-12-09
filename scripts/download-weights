@@ -3,12 +3,13 @@
 import os
 import sys
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, StableDiffusionInpaintPipeline
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 SD_MODEL_CACHE = "diffusers-cache"
 
 SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
+SD_MODEL_INPAINT_ID = "runwayml/stable-diffusion-inpainting"
 SD_MODEL_ID_OJ = "prompthero/openjourney"
 SD_MODEL_ID_RD = "nitrosocke/redshift-diffusion"
 SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
@@ -24,6 +25,14 @@ os.makedirs(SD_MODEL_CACHE, exist_ok=True)
 print("Downloading SD...")
 pipe = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID,
+    revision="fp16",
+    torch_dtype=torch.float16,
+    cache_dir=SD_MODEL_CACHE,
+    use_auth_token=sys.argv[1],
+)
+print("Downloading SD Inpaint...")
+pipe = StableDiffusionInpaintPipeline.from_pretrained(
+    SD_MODEL_INPAINT_ID,
     revision="fp16",
     torch_dtype=torch.float16,
     cache_dir=SD_MODEL_CACHE,

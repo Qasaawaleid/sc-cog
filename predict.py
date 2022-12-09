@@ -4,7 +4,6 @@ from typing import List
 import torch
 from diffusers import (
     StableDiffusionPipeline,
-    StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipeline,
 )
 from cog import BasePredictor, Input, Path
@@ -13,7 +12,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD, SD_MODEL_INPAINT_ID
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -26,22 +25,23 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        self.txt2img_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             revision="fp16",
             torch_dtype=torch.float16,
             local_files_only=True,
-        )
-        self.txt2img_pipe = self.txt2img_pipe_r.to("cuda")
+        ).to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.img2img_pipe = StableDiffusionImg2ImgPipeline(**self.txt2img_pipe_r.components).to("cuda")
-        self.img2img_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded img2img...")
-        
-        self.inpaint_pipe = StableDiffusionInpaintPipeline(**self.txt2img_pipe_r.components).to("cuda")
+        self.inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
+            SD_MODEL_INPAINT_ID,
+            cache_dir=SD_MODEL_CACHE,
+            revision="fp16",
+            torch_dtype=torch.float16,
+            local_files_only=True,
+        ).to("cuda")
         self.inpaint_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded inpaint...")
         
@@ -249,7 +249,6 @@ class Predictor(BasePredictor):
                 output_image_ext,
                 model,
                 txt2img,
-                self.img2img_pipe,
                 self.inpaint_pipe,
                 revision
             ) 
