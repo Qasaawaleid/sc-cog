@@ -54,6 +54,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         )
         translate_output = translate(text, max_length=500)
         translated_text = translate_output[0]['translation_text']
+        print(f'-- {label} - Original text is: "{text}" --')
         print(f'-- {label} - Translated text is: "{translated_text}" --')
     else:
         translated_text = text
