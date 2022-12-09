@@ -25,65 +25,71 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             revision="fp16",
             torch_dtype=torch.float16,
             local_files_only=True,
-        ).to('cuda')
+        )
+        self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
+        self.img2img = StableDiffusionPipeline.from_pretrained(**self.txt2img_pipe.components)
+        self.img2img_pipe = self.img2img.to('cuda')
+        self.img2img_pipe.enable_xformers_memory_efficient_attention()
+        
+        self.inpaint = StableDiffusionInpaintPipeline.from_pretrained(
             SD_MODEL_INPAINT_ID,
             cache_dir=SD_MODEL_CACHE,
             revision="fp16",
             torch_dtype=torch.float16,
             local_files_only=True,
-        ).to("cuda")
+        )
+        self.inpaint_pipe = self.inpaint.to("cuda")
         self.inpaint_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded inpaint...")
         
-        self.txt2img_alt_r = None
+        
+        self.txt2img_alt = None
+        self.txt2img_alt_pipe = None
+        self.txt2img_alt_name = None
                 
-        self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_oj = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
         print("Loaded SD_OJ...")
         
-        self.txt2img_rd_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_rd = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_RD,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
         print("Loaded SD_RD...")
         
-        self.txt2img_ar_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_ar = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AR,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
         print("Loaded SD_AR...")
         
-        self.txt2img_gh_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_gh = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_GH,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
         print("Loaded SD_GH...")
          
-        self.txt2img_md_pipe_r = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_md = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_MD,
             cache_dir=SD_MODEL_CACHE,
             local_files_only=True,
         )
         print("Loaded SD_MD...")
-        
-        self.txt2img_alt_r = None
-        self.txt2img_alt_name = None
         
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
@@ -210,27 +216,27 @@ class Predictor(BasePredictor):
                 "Negative prompt"
             )
             
-            txt2img = None
+            txt2img_pipe = None
             revision = None
             if model != "Stable Diffusion v1.5":
-                if self.txt2img_alt_r is not None and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r.to("cpu")
+                if self.txt2img_alt is not None and self.txt2img_alt_name != model:
+                    self.txt2img_alt.to("cpu")
                     
                 if model == "Openjourney" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r = self.txt2img_oj_pipe_r
+                    self.txt2img_alt = self.txt2img_oj
                 elif model == "Redshift Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r = self.txt2img_rd_pipe_r
+                    self.txt2img_alt = self.txt2img_rd
                 elif model == "Arcane Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r = self.txt2img_ar_pipe_r
+                    self.txt2img_alt = self.txt2img_ar
                 elif model == "Ghibli Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r = self.txt2img_gh_pipe_r
+                    self.txt2img_alt = self.txt2img_gh
                 elif model == "Mo-Di Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt_r = self.txt2img_md_pipe_r
+                    self.txt2img_alt = self.txt2img_md
                     
                 self.txt2img_alt_name = model
-                txt2img = self.txt2img_alt_r.to("cuda")
+                txt2img_pipe = self.txt2img_alt.to("cuda")
             else:
-                txt2img = self.txt2img_pipe
+                txt2img_pipe = self.txt2img_pipe
                 revision = "fp16"
                 
             print(f'-- Generating with "{model}"... --')
@@ -248,7 +254,8 @@ class Predictor(BasePredictor):
                 seed,
                 output_image_ext,
                 model,
-                txt2img,
+                txt2img_pipe,
+                self.img2img_pipe,
                 self.inpaint_pipe,
                 revision
             ) 

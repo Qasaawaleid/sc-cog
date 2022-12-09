@@ -20,8 +20,9 @@ def generate(
   seed,
   output_image_ext,
   model,
-  txt2img,
-  inpaint,
+  txt2img_pipe,
+  img2img_pipe,
+  inpaint_pipe,
   revision
 ):
     if seed is None:
@@ -37,7 +38,7 @@ def generate(
     if mask:
         if not init_image:
             raise ValueError("mask was provided without init_image")
-        pipe = inpaint
+        pipe = inpaint_pipe
         init_image = Image.open(init_image).convert("RGB")
         extra_kwargs = {
             "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
@@ -45,12 +46,11 @@ def generate(
             "strength": prompt_strength,
         }
     elif init_image:
-        pipe = txt2img
-        """ pipe = img2img
+        pipe = img2img_pipe
         extra_kwargs = {
             "image": Image.open(init_image).convert("RGB"),
             "strength": prompt_strength,
-        } """
+        }
     else:
         if model == "Openjourney":
             prompt = f"mdjrny-v4 style {prompt}"
@@ -62,7 +62,7 @@ def generate(
             prompt = f"ghibli style {prompt}"
         elif model == "Mo-Di Diffusion":
             prompt = f"modern disney style {prompt}"
-        pipe = txt2img
+        pipe = txt2img_pipe
         pipe.enable_xformers_memory_efficient_attention()
 
     pipe.scheduler = make_scheduler(scheduler, model, revision)
