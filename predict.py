@@ -41,7 +41,7 @@ class Predictor(BasePredictor):
         self.img2img_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded img2img...")
         
-        self.inpaint_pipe = StableDiffusionInpaintPipeline(**self.text2img_r.components).to("cuda")
+        self.inpaint_pipe = StableDiffusionInpaintPipeline(**self.text2img_pipe_r.components).to("cuda")
         self.inpaint_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded inpaint...")
         
