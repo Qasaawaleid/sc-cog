@@ -5,7 +5,7 @@ import torch
 from diffusers import (
     StableDiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
-    StableDiffusionInpaintPipelineLegacy,
+    StableDiffusionInpaintPipeline,
 )
 from cog import BasePredictor, Input, Path
 
@@ -26,41 +26,27 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
-        self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID,
             cache_dir=SD_MODEL_CACHE,
             revision="fp16",
             torch_dtype=torch.float16,
             local_files_only=True,
-        ).to("cuda")
+        )
+        self.txt2img_pipe = self.txt2img_pipe_r.to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.txt2img_alt_r = None
-        
-        self.img2img_pipe = StableDiffusionImg2ImgPipeline(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
-        ).to("cuda")
+        self.img2img_pipe = StableDiffusionImg2ImgPipeline(**self.txt2img_pipe_r.components).to("cuda")
         self.img2img_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded img2img...")
         
-        self.inpaint_pipe = StableDiffusionInpaintPipelineLegacy(
-            vae=self.txt2img_pipe.vae,
-            text_encoder=self.txt2img_pipe.text_encoder,
-            tokenizer=self.txt2img_pipe.tokenizer,
-            unet=self.txt2img_pipe.unet,
-            scheduler=self.txt2img_pipe.scheduler,
-            safety_checker=self.txt2img_pipe.safety_checker,
-            feature_extractor=self.txt2img_pipe.feature_extractor,
-        ).to("cuda")
+        self.inpaint_pipe = StableDiffusionInpaintPipeline(**self.text2img_r.components).to("cuda")
+        self.inpaint_pipe.enable_xformers_memory_efficient_attention()
         print("Loaded inpaint...")
         
+        self.txt2img_alt_r = None
+                
         self.txt2img_oj_pipe_r = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
