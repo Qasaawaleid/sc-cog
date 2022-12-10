@@ -156,7 +156,15 @@ class Predictor(BasePredictor):
         ),
         model: str = Input(
             default="Stable Diffusion v1.5",
-            choices=["Stable Diffusion v1.5", "Openjourney", "Redshift Diffusion", "Arcane Diffusion", "Mo-Di Diffusion", "Ghibli Diffusion"],
+            choices=[
+                "Stable Diffusion v1.5",
+                "Stable Diffusion v1.5 Inpaint",
+                "Openjourney",
+                "Redshift Diffusion",
+                "Arcane Diffusion",
+                "Mo-Di Diffusion",
+                "Ghibli Diffusion"
+            ],
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
         seed: int = Input(
@@ -219,7 +227,7 @@ class Predictor(BasePredictor):
             
             txt2img_pipe = None
             revision = None
-            if model != "Stable Diffusion v1.5":
+            if model != "Stable Diffusion v1.5" and model != "Stable Diffusion v1.5 Inpaint":
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
                     
