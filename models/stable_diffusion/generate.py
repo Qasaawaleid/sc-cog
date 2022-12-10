@@ -43,7 +43,8 @@ def generate(
         extra_kwargs = {
             "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
             "image": init_image,
-            "strength": prompt_strength,
+            "width": width,
+            "height": height,
         }
     elif init_image:
         pipe = img2img_pipe
@@ -52,6 +53,10 @@ def generate(
             "strength": prompt_strength,
         }
     else:
+        extra_kwargs = {
+            "width": width,
+            "height": height,
+        }
         if model == "Openjourney":
             prompt = f"mdjrny-v4 style {prompt}"
         elif model == "Redshift Diffusion":
@@ -73,8 +78,6 @@ def generate(
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,
         negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
-        width=width,
-        height=height,
         guidance_scale=guidance_scale,
         generator=generator,
         num_inference_steps=num_inference_steps,
