@@ -10,9 +10,6 @@ def generate(
   negative_prompt,
   width,
   height,
-  init_image,
-  mask,
-  prompt_strength,
   num_outputs,
   num_inference_steps,
   guidance_scale,
@@ -21,61 +18,28 @@ def generate(
   output_image_ext,
   model,
   txt2img_pipe,
-  img2img_pipe,
-  inpaint_pipe,
   revision
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
     print(f"Using seed: {seed}")
 
-    """ if width * height > 786432:
-        raise ValueError(
-            "Maximum size is 1024x768 or 768x1024 pixels, because of memory limits. Please select a lower width or height."
-        ) """
-
-    extra_kwargs = {}
-    
-    if model == "Stable Diffusion v1.5 Inpaint" and (not mask or not init_image):
-        raise ValueError('"mask" and "init_image" are required for "Stable Diffusion v1.5 Inpaint"')
-    if mask:
-        if model != "Stable Diffusion v1.5 Inpaint":
-            raise ValueError('"mask" is only supported for "Stable Diffusion v1.5 Inpaint"')
-        if not init_image:
-            raise ValueError('"mask" was provided without "init_image"')
-        pipe = inpaint_pipe
-        init_image = Image.open(init_image).convert("RGB")
-        extra_kwargs = {
-            "mask_image": Image.open(mask).convert("RGB").resize(init_image.size),
-            "image": init_image,
-            "width": width,
-            "height": height,
-        }
-    elif init_image:
-        if model != "Stable Diffusion v1.5":
-            raise ValueError('"init_image" without a "mask" is only supported for "Stable Diffusion v1.5"')
-        pipe = img2img_pipe
-        extra_kwargs = {
-            "image": Image.open(init_image).convert("RGB"),
-            "strength": prompt_strength,
-        }
-    else:
-        extra_kwargs = {
-            "width": width,
-            "height": height,
-        }
-        if model == "Openjourney":
-            prompt = f"mdjrny-v4 style {prompt}"
-        elif model == "Redshift Diffusion":
-            prompt = f"redshift style {prompt}"
-        elif model == "Arcane Diffusion":
-            prompt = f"arcane style {prompt}"
-        elif model == "Ghibli Diffusion":
-            prompt = f"ghibli style {prompt}"
-        elif model == "Mo-Di Diffusion":
-            prompt = f"modern disney style {prompt}"
-        pipe = txt2img_pipe
-        pipe.enable_xformers_memory_efficient_attention()
+    extra_kwargs = {
+        "width": width,
+        "height": height,
+    }
+    if model == "Openjourney":
+        prompt = f"mdjrny-v4 style {prompt}"
+    elif model == "Redshift Diffusion":
+        prompt = f"redshift style {prompt}"
+    elif model == "Arcane Diffusion":
+        prompt = f"arcane style {prompt}"
+    elif model == "Ghibli Diffusion":
+        prompt = f"ghibli style {prompt}"
+    elif model == "Mo-Di Diffusion":
+        prompt = f"modern disney style {prompt}"
+    pipe = txt2img_pipe
+    pipe.enable_xformers_memory_efficient_attention()
         
     pipe.scheduler = make_scheduler(scheduler, model, revision)
     generator = torch.Generator("cuda").manual_seed(seed)

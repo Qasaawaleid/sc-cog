@@ -37,22 +37,6 @@ class Predictor(BasePredictor):
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
-        self.img2img = StableDiffusionImg2ImgPipeline(**self.txt2img.components)
-        self.img2img_pipe = self.img2img.to('cuda')
-        self.img2img_pipe.enable_xformers_memory_efficient_attention()
-        
-        self.inpaint = StableDiffusionInpaintPipeline.from_pretrained(
-            SD_MODEL_INPAINT_ID,
-            cache_dir=SD_MODEL_CACHE,
-            revision="fp16",
-            torch_dtype=torch.float16,
-            local_files_only=True,
-        )
-        self.inpaint_pipe = self.inpaint.to("cuda")
-        self.inpaint_pipe.enable_xformers_memory_efficient_attention()
-        print("Loaded inpaint...")
-        
-        
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
         self.txt2img_alt_name = None
@@ -125,18 +109,6 @@ class Predictor(BasePredictor):
             choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
-        init_image: Path = Input(
-            description="Inital image to generate variations of. Will be resized to the specified width and height.",
-            default=None,
-        ),
-        mask: Path = Input(
-            description="Black and white image to use as mask for inpainting over init_image. Black pixels are inpainted and white pixels are preserved. Tends to work better with prompt strength of 0.5-0.7. Consider using https://replicate.com/andreasjansson/stable-diffusion-inpainting instead.",
-            default=None,
-        ),
-        prompt_strength: float = Input(
-            description="Prompt strength when using init image. 1.0 corresponds to full destruction of information in init image.",
-            default=0.8,
-        ),
         num_outputs: int = Input(
             description="Number of images to output. If the NSFW filter is triggered, you may get fewer outputs than this.",
             ge=1,
@@ -158,7 +130,6 @@ class Predictor(BasePredictor):
             default="Stable Diffusion v1.5",
             choices=[
                 "Stable Diffusion v1.5",
-                "Stable Diffusion v1.5 Inpaint",
                 "Openjourney",
                 "Redshift Diffusion",
                 "Arcane Diffusion",
@@ -227,7 +198,7 @@ class Predictor(BasePredictor):
             
             txt2img_pipe = None
             revision = None
-            if model != "Stable Diffusion v1.5" and model != "Stable Diffusion v1.5 Inpaint":
+            if model != "Stable Diffusion v1.5":
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
                     
@@ -253,9 +224,6 @@ class Predictor(BasePredictor):
                 t_prompt,
                 t_negative_prompt,
                 width, height,
-                init_image,
-                mask,
-                prompt_strength,
                 num_outputs,
                 num_inference_steps,
                 guidance_scale,
@@ -264,8 +232,6 @@ class Predictor(BasePredictor):
                 output_image_ext,
                 model,
                 txt2img_pipe,
-                self.img2img_pipe,
-                self.inpaint_pipe,
                 revision
             ) 
             output_paths = generate_output_paths
