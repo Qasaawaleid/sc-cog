@@ -4,8 +4,6 @@ from typing import List
 import torch
 from diffusers import (
     StableDiffusionPipeline,
-    StableDiffusionInpaintPipeline,
-    StableDiffusionImg2ImgPipeline,
 )
 from cog import BasePredictor, Input, Path
 
@@ -13,7 +11,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD, SD_MODEL_INPAINT_ID
+from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD
 from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
