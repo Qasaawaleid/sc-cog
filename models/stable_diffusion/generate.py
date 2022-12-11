@@ -23,11 +23,9 @@ def generate(
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
     print(f"Using seed: {seed}")
-
-    extra_kwargs = {
-        "width": width,
-        "height": height,
-    }
+    
+    extra_kwargs = {}
+    
     if model == "Openjourney":
         prompt = f"mdjrny-v4 style {prompt}"
     elif model == "Redshift Diffusion":
@@ -46,6 +44,8 @@ def generate(
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,
         negative_prompt=[negative_prompt] * num_outputs if negative_prompt is not None else None,
+        width=width,
+        height=height,
         guidance_scale=guidance_scale,
         generator=generator,
         num_inference_steps=num_inference_steps,
