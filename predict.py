@@ -32,6 +32,7 @@ class Predictor(BasePredictor):
             local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
+        self.txt2img_pipe.enable_sequential_cpu_offload()
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
@@ -213,6 +214,8 @@ class Predictor(BasePredictor):
                     
                 self.txt2img_alt_name = model
                 txt2img_pipe = self.txt2img_alt.to("cuda")
+                txt2img_pipe.enable_sequential_cpu_offload()
+                txt2img_pipe.enable_xformers_memory_efficient_attention()
             else:
                 txt2img_pipe = self.txt2img_pipe
                 revision = "fp16"

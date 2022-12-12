@@ -36,9 +36,8 @@ def generate(
         prompt = f"ghibli style {prompt}"
     elif model == "Mo-Di Diffusion":
         prompt = f"modern disney style {prompt}"
-    pipe = txt2img_pipe
-    pipe.enable_xformers_memory_efficient_attention()
-        
+   
+    pipe = txt2img_pipe     
     pipe.scheduler = make_scheduler(scheduler, model, revision)
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(
