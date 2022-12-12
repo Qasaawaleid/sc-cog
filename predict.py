@@ -82,7 +82,7 @@ class Predictor(BasePredictor):
             TRANSLATOR_MODEL_ID,
             torch_dtype=torch.float16,
             cache_dir=TRANSLATOR_MODEL_CACHE
-        ).to("cuda")
+        ).to("cpu")
         print("Loaded translator...")
         
         self.swinir_args = get_args_swinir()
