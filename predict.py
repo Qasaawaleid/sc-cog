@@ -32,7 +32,6 @@ class Predictor(BasePredictor):
             local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
-        self.txt2img_pipe.enable_sequential_cpu_offload()
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"Loaded txt2img...")
         
@@ -43,7 +42,6 @@ class Predictor(BasePredictor):
         self.txt2img_oj = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_OJ,
             cache_dir=SD_MODEL_CACHE,
-            torch_dtype="auto",
             local_files_only=True,
         )
         print("Loaded SD_OJ...")
@@ -51,7 +49,6 @@ class Predictor(BasePredictor):
         self.txt2img_rd = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_RD,
             cache_dir=SD_MODEL_CACHE,
-            torch_dtype="auto",
             local_files_only=True,
         )
         print("Loaded SD_RD...")
@@ -59,7 +56,6 @@ class Predictor(BasePredictor):
         self.txt2img_ar = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_AR,
             cache_dir=SD_MODEL_CACHE,
-            torch_dtype="auto",
             local_files_only=True,
         )
         print("Loaded SD_AR...")
@@ -67,7 +63,6 @@ class Predictor(BasePredictor):
         self.txt2img_gh = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_GH,
             cache_dir=SD_MODEL_CACHE,
-            torch_dtype="auto",
             local_files_only=True,
         )
         print("Loaded SD_GH...")
@@ -75,7 +70,6 @@ class Predictor(BasePredictor):
         self.txt2img_md = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_ID_MD,
             cache_dir=SD_MODEL_CACHE,
-            torch_dtype="auto",
             local_files_only=True,
         )
         print("Loaded SD_MD...")
@@ -219,7 +213,6 @@ class Predictor(BasePredictor):
                     
                 self.txt2img_alt_name = model
                 txt2img_pipe = self.txt2img_alt.to("cuda")
-                txt2img_pipe.enable_sequential_cpu_offload()
                 txt2img_pipe.enable_xformers_memory_efficient_attention()
             else:
                 txt2img_pipe = self.txt2img_pipe
