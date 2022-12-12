@@ -33,30 +33,35 @@ print("Downloading SD_OJ...")
 pipe_oj = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_OJ,
     cache_dir=SD_MODEL_CACHE,
+    torch_dtype="auto",
     use_auth_token=sys.argv[1],
 )
 print("Downloading SD_RD...")
 pipe_rd = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_RD,
     cache_dir=SD_MODEL_CACHE,
+    torch_dtype="auto",
     use_auth_token=sys.argv[1],
 )
 print("Downloading SD_AR...")
 pipe_ar = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_AR,
     cache_dir=SD_MODEL_CACHE,
+    torch_dtype="auto",
     use_auth_token=sys.argv[1],
 )
 print("Downloading SD_GH...")
 pipe_gh = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_GH,
     cache_dir=SD_MODEL_CACHE,
+    torch_dtype="auto",
     use_auth_token=sys.argv[1],
 )
 print("Downloading SD_MD...")
 pipe_md = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_MD,
     cache_dir=SD_MODEL_CACHE,
+    torch_dtype="auto",
     use_auth_token=sys.argv[1],
 )
 
