@@ -50,7 +50,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
             tokenizer=tokenizer,
             src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,
-            device=0
+            device="cpu"
         )
         translate_output = translate(text, max_length=500)
         translated_text = translate_output[0]['translation_text']
