@@ -1,6 +1,5 @@
 import os
 import torch
-from PIL import Image
 from .helpers import make_scheduler
 from cog import Path
 import cv2
