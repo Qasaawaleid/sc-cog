@@ -49,6 +49,7 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
             'translation',
             model=model,
             tokenizer=tokenizer,
+            torch_dtype=torch.float16,
             src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,
             device=0
