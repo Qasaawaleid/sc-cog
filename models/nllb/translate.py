@@ -48,8 +48,6 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         translate = pipeline(
             'translation',
             model=model,
-            device_map="auto",
-            load_in_8bit=True,
             tokenizer=tokenizer,
             src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,
