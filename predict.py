@@ -82,8 +82,6 @@ class Predictor(BasePredictor):
             TRANSLATOR_MODEL_ID,
             device_map="auto",
             load_in_8bit=True,
-            revision="fp16",
-            torch_dtype=torch.float16,
             cache_dir=TRANSLATOR_MODEL_CACHE
         )
         print("Loaded translator...")

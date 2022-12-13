@@ -50,8 +50,6 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
             model=model,
             device_map="auto",
             load_in_8bit=True,
-            revision="fp16",
-            torch_dtype=torch.float16,
             tokenizer=tokenizer,
             src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,
