@@ -2,6 +2,7 @@ from lingua import Language
 import time
 from transformers import pipeline
 from .constants import LANG_TO_FLORES
+import torch
 
 target_lang_score_max = 0.9
 target_lang = Language.ENGLISH
@@ -47,6 +48,10 @@ def translate_text(text, flores_200_code, model, tokenizer, detector, label):
         translate = pipeline(
             'translation',
             model=model,
+            device_map="auto",
+            load_in_8bit=True,
+            revision="fp16",
+            torch_dtype=torch.float16,
             tokenizer=tokenizer,
             src_lang=text_lang_flores,
             tgt_lang=target_lang_flores,

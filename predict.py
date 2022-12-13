@@ -80,6 +80,10 @@ class Predictor(BasePredictor):
         self.translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
         self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(
             TRANSLATOR_MODEL_ID,
+            device_map="auto",
+            load_in_8bit=True,
+            revision="fp16",
+            torch_dtype=torch.float16,
             cache_dir=TRANSLATOR_MODEL_CACHE
         )
         print("Loaded translator...")
