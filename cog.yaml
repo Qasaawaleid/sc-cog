@@ -8,7 +8,7 @@ build:
     - "libgl1-mesa-glx"
     - "libglib2.0-0"
   python_packages:
-    - "diffusers==0.10.2"
+    - "diffusers==0.11.1"
     - "safetensors==0.2.7"
     - "torch==1.13.0"
     - "ftfy==6.1.1"
