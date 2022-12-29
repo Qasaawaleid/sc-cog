@@ -27,7 +27,7 @@ async def translate_text(text, flores_200_code, text_2, flores_200_code_2, trans
 
     if text_lang_flores != target_lang_flores or text_lang_flores_2 != target_lang_flores:
         res = requests.post(
-            translator_url,
+            f"{translator_url}/predictions",
             json={
                 "text": text,
                 "text_lang": text_lang_flores,
