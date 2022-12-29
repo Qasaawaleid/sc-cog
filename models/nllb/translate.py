@@ -7,7 +7,7 @@ target_lang_score_max = 0.9
 target_lang = Language.ENGLISH
 target_lang_flores = LANG_TO_FLORES[target_lang.name]
 
-async def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_url, detector, label):
+def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_url, detector, label):
     print(f"-- {label} - Translator url is: '{translator_url}' --")
     
     if text == "" and text_2 == "":
