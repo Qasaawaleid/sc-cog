@@ -4,7 +4,6 @@ import os
 import sys
 import torch
 from diffusers import StableDiffusionPipeline
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 SD_MODEL_CACHE = "diffusers-cache"
 
@@ -14,10 +13,6 @@ SD_MODEL_ID_RD = "nitrosocke/redshift-diffusion"
 SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
 SD_MODEL_ID_GH = "nitrosocke/Ghibli-Diffusion"
 SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
-
-TRANSLATOR_MODEL_ID = "facebook/nllb-200-distilled-1.3B"
-TRANSLATOR_MODEL_CACHE = "translator-model-cache"
-TRANSLATOR_TOKENIZER_CACHE = "translator-tokenizer-cache"
 
 # For Stable Diffusion
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
@@ -58,14 +53,6 @@ pipe_md = StableDiffusionPipeline.from_pretrained(
     SD_MODEL_ID_MD,
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
-)
-
-# For the translator
-print("Downloading translation models...")
-translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID,  cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-translate_model = AutoModelForSeq2SeqLM.from_pretrained(
-    TRANSLATOR_MODEL_ID,
-    cache_dir=TRANSLATOR_MODEL_CACHE
 )
 
 # For the upscaler

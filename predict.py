@@ -1,4 +1,5 @@
 import time
+import os
 from typing import List
 
 import torch
@@ -7,12 +8,9 @@ from diffusers import (
 )
 from cog import BasePredictor, Input, Path
 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
 from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD
-from models.nllb.constants import TRANSLATOR_MODEL_CACHE, TRANSLATOR_TOKENIZER_CACHE, TRANSLATOR_MODEL_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
@@ -21,7 +19,6 @@ from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
-        """Load the model into memory to make running multiple predictions efficient"""
         print("Loading Stable Diffusion v1.5 pipelines...")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
@@ -76,17 +73,13 @@ class Predictor(BasePredictor):
         
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
-        
-        self.translate_tokenizer = AutoTokenizer.from_pretrained(TRANSLATOR_MODEL_ID, cache_dir=TRANSLATOR_TOKENIZER_CACHE)
-        self.translate_model = AutoModelForSeq2SeqLM.from_pretrained(
-            TRANSLATOR_MODEL_ID,
-            cache_dir=TRANSLATOR_MODEL_CACHE
-        )
-        print("Loaded translator...")
+        print("Loaded language detector...")
         
         self.swinir_args = get_args_swinir()
         self.device = torch.device('cuda')
-        print("Loaded upscaler...")
+        print("Loaded upscaler!")
+        
+        print("Setup is done!")
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -172,27 +165,30 @@ class Predictor(BasePredictor):
             choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         ),
+        translator_cog_url: str = Input(
+            description="URL of the translator cog. If it's blank, TRANSLATOR_COG_URL environment variable will be used (if it exists).",
+            default=None
+        ),
     ) -> List[Path]:
         output_paths = []
         if process_type == "generate" or process_type == "generate-and-upscale":
             startTime = time.time()
-            t_prompt = translate_text(
-                prompt,
-                prompt_flores_200_code,
-                self.translate_model,
-                self.translate_tokenizer,
-                self.detect_language,
-                "Prompt"
-            )
-            t_negative_prompt = translate_text(
-                negative_prompt,
-                negative_prompt_flores_200_code,
-                self.translate_model,
-                self.translate_tokenizer,
-                self.detect_language,
-                "Negative prompt"
-            )
             
+            if translator_cog_url is None:
+                translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
+            
+            t_prompt = prompt
+            t_negative_prompt = negative_prompt
+            if translator_cog_url is not None:
+                [t_prompt, t_negative_prompt] = translate_text(
+                    prompt,
+                    prompt_flores_200_code,
+                    negative_prompt,
+                    negative_prompt_flores_200_code,
+                    translator_cog_url,
+                    self.detect_language,
+                    "Prompt & Negative Prompt"
+                )
             txt2img_pipe = None
             revision = None
             if model != "Stable Diffusion v1.5":
