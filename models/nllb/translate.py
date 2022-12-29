@@ -26,18 +26,22 @@ def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_
     text_lang_flores_2 = get_flores_200_code(text_2, flores_200_code_2, target_lang_flores, detector, f"{label} - #2")
 
     if text_lang_flores != target_lang_flores or text_lang_flores_2 != target_lang_flores:
-        res = requests.post(
-            f"{translator_url}/predictions",
-            json={
+        jsonData = {
+            "input": {
                 "text": text,
                 "text_lang": text_lang_flores,
+                "target_lang": target_lang_flores,
                 "text_2": text_2,
                 "text_lang_2": text_lang_flores_2,
-                "target_lang": target_lang_flores,
                 "target_lang_2": target_lang_flores,
             }
+        }
+        res = requests.post(
+            f"{translator_url}/predictions",
+            json=jsonData,
+            headers={'Content-Type': 'application/json'}
         )
-        if res.status_code == 200: 
+        if res.status_code != 200: 
             raise Exception(f"Translation failed with status code: {res.status_code}")
         resJson = res.json()
         [translated_text, translated_text_2] = resJson["output"]
