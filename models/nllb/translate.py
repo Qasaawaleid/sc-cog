@@ -12,7 +12,7 @@ def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_
     
     if text == "" and text_2 == "":
         print(f"-- {label} - No text to translate, skipping --")
-        return ""
+        return ["",""]
     
     startTimeTranslation = time.time()
     
