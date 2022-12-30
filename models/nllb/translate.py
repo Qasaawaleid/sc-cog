@@ -60,6 +60,8 @@ def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_
     return [translated_text, translated_text_2]
 
 def get_flores_200_code(text, defined_flores_code, target_lang_flores, detector, label):
+    if text == "":
+        return target_lang_flores
     if defined_flores_code is not None:
         print(f'-- {label} - FLORES-200 code is given, skipping language auto-detection: "{defined_flores_code}" --')
         return defined_flores_code
