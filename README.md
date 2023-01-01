@@ -6,7 +6,7 @@ The Docker image built using this repo can be found at: [yekta/sc](https://hub.d
 
 First, download the pre-trained weights [with your Hugging Face auth token](https://huggingface.co/settings/tokens):
 
-    cog run scripts/download-weights <your-hugging-face-auth-token>
+    cog run models/download <your-hugging-face-auth-token>
 
 Then, you can run predictions:
 
