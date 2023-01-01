@@ -2,7 +2,7 @@
 
 import os
 import sys
-from stable_diffusion.constants import SD_MODELS, SD_MODEL_CACHE
+from models.stable_diffusion.constants import SD_MODELS, SD_MODEL_CACHE
 from diffusers import StableDiffusionPipeline
 
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
