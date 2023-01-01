@@ -2,7 +2,6 @@
 
 import os
 import sys
-import torch
 from models.stable_diffusion.constants import SD_MODELS, SD_MODEL_CACHE
 from diffusers import StableDiffusionPipeline
 
