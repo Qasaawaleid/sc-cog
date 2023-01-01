@@ -1,17 +1,31 @@
+import torch
 SD_MODEL_CACHE = "diffusers-cache"
 
-SD_MODEL_ID= "runwayml/stable-diffusion-v1-5"
-SD_MODEL_ID_OJ = "prompthero/openjourney"
-SD_MODEL_ID_RD = "nitrosocke/redshift-diffusion"
-SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
-SD_MODEL_ID_GH = "nitrosocke/Ghibli-Diffusion"
-SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
-
-SD_MODEL_TO_ID = {
-  "Stable Diffusion v1.5": SD_MODEL_ID,
-  "Openjourney": SD_MODEL_ID_OJ,
-  "Redshift Diffusion": SD_MODEL_ID_RD,
-  "Arcane Diffusion": SD_MODEL_ID_AR,
-  "Ghibli Diffusion": SD_MODEL_ID_GH,
-  "Mo-Di Diffusion": SD_MODEL_ID_MD,
+SD_MODELS = {
+  "Stable Diffusion v1.5": {
+    "id": "runwayml/stable-diffusion-v1-5",
+    "revision": "fp16",
+    "torch_dtype": torch.float16
+  },
+  "Openjourney": {
+    "id": "prompthero/openjourney"
+  },
+  "Redshift Diffusion": {
+    "id": "nitrosocke/redshift-diffusion"
+  },
+  "Arcane Diffusion": {
+    "id": "nitrosocke/Arcane-Diffusion"
+  },
+  "Ghibli Diffusion": {
+    "id": "nitrosocke/Ghibli-Diffusion"
+  },
+  "Mo-Di Diffusion": {
+    "id": "nitrosocke/mo-di-diffusion"
+  },
+  "Waifu Diffusion v1.4": {
+    "id": "hakurei/waifu-diffusion"
+  },
 }
+
+SD_MODEL_CHOICES = list(SD_MODELS.keys())
+SD_MODEL_DEFAULT = SD_MODEL_CHOICES[0]

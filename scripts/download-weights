@@ -7,56 +7,47 @@ from diffusers import StableDiffusionPipeline
 
 SD_MODEL_CACHE = "diffusers-cache"
 
-SD_MODEL_ID = "runwayml/stable-diffusion-v1-5"
-SD_MODEL_ID_OJ = "prompthero/openjourney"
-SD_MODEL_ID_RD = "nitrosocke/redshift-diffusion"
-SD_MODEL_ID_AR = "nitrosocke/Arcane-Diffusion"
-SD_MODEL_ID_GH = "nitrosocke/Ghibli-Diffusion"
-SD_MODEL_ID_MD = "nitrosocke/mo-di-diffusion"
-
-# For Stable Diffusion
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
-print("Downloading SD...")
-pipe = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID,
-    revision="fp16",
-    torch_dtype=torch.float16,
+
+SD_MODELS = {
+  "Stable Diffusion v1.5": {
+    "id": "runwayml/stable-diffusion-v1-5",
+    "revision": "fp16",
+    "torch_dtype": torch.float16
+  },
+  "Openjourney": {
+    "id": "prompthero/openjourney"
+  },
+  "Redshift Diffusion": {
+    "id": "nitrosocke/redshift-diffusion"
+  },
+  "Arcane Diffusion": {
+    "id": "nitrosocke/Arcane-Diffusion"
+  },
+  "Ghibli Diffusion": {
+    "id": "nitrosocke/Ghibli-Diffusion"
+  },
+  "Mo-Di Diffusion": {
+    "id": "nitrosocke/mo-di-diffusion"
+  },
+  "Waifu Diffusion v1.4": {
+    "id": "hakurei/waifu-diffusion"
+  },
+}
+
+for key in SD_MODELS:
+  print(f"⏳ Downloading {key}...")
+  pipe = StableDiffusionPipeline.from_pretrained(
+    SD_MODELS[key]["id"],
+    revision=SD_MODELS[key].get("revision", None),
+    torch_dtype=SD_MODELS[key].get("torch_dtype", None),
     cache_dir=SD_MODEL_CACHE,
     use_auth_token=sys.argv[1],
-)
-print("Downloading SD_OJ...")
-pipe_oj = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_OJ,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
-print("Downloading SD_RD...")
-pipe_rd = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_RD,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
-print("Downloading SD_AR...")
-pipe_ar = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_AR,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
-print("Downloading SD_GH...")
-pipe_gh = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_GH,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
-print("Downloading SD_MD...")
-pipe_md = StableDiffusionPipeline.from_pretrained(
-    SD_MODEL_ID_MD,
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-)
+  )
+  print(f"✅ Downloaded: {key}")
 
 # For the upscaler
-print("Downloading SwinIR Models...")
+print("⏳ Downloading SwinIR models...")
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/004_grayDN_DFWB_s128w8_SwinIR-M_noise15.pth -P experiments/pretrained_models')
@@ -69,5 +60,5 @@ os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/00
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg20.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg30.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg40.pth -P experiments/pretrained_models')
-
+print("✅ Downloaded SwinIR models")
         

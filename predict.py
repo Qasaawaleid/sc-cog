@@ -10,7 +10,7 @@ from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CACHE, SD_MODEL_ID, SD_MODEL_ID_AR, SD_MODEL_ID_MD, SD_MODEL_ID_OJ, SD_MODEL_ID_GH, SD_MODEL_ID_RD
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
@@ -19,67 +19,43 @@ from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
-        print("Loading Stable Diffusion v1.5 pipelines...")
+        print("⏳ Loading Stable Diffusion v1.5 pipelines...")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID,
+            SD_MODELS["Stable Diffusion v1.5"]["id"],
             cache_dir=SD_MODEL_CACHE,
-            revision="fp16",
-            torch_dtype=torch.float16,
+            revision=SD_MODELS["Stable Diffusion v1.5"]["revision"],
+            torch_dtype=SD_MODELS["Stable Diffusion v1.5"]["torch_dtype"],
             local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"Loaded txt2img...")
+        print(f"✅ Loaded txt2img")
         
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
         self.txt2img_alt_name = None
-                
-        self.txt2img_oj = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_OJ,
-            cache_dir=SD_MODEL_CACHE,
-            local_files_only=True,
-        )
-        print("Loaded SD_OJ...")
         
-        self.txt2img_rd = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_RD,
-            cache_dir=SD_MODEL_CACHE,
-            local_files_only=True,
-        )
-        print("Loaded SD_RD...")
-        
-        self.txt2img_ar = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_AR,
-            cache_dir=SD_MODEL_CACHE,
-            local_files_only=True,
-        )
-        print("Loaded SD_AR...")
-        
-        self.txt2img_gh = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_GH,
-            cache_dir=SD_MODEL_CACHE,
-            local_files_only=True,
-        )
-        print("Loaded SD_GH...")
-         
-        self.txt2img_md = StableDiffusionPipeline.from_pretrained(
-            SD_MODEL_ID_MD,
-            cache_dir=SD_MODEL_CACHE,
-            local_files_only=True,
-        )
-        print("Loaded SD_MD...")
+        self.txt2img_alts = {}
+        for key in SD_MODELS:
+            if key != SD_MODEL_DEFAULT:
+                print(f"⏳ Loading model: {key}...")
+                self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+                    SD_MODELS[key]["id"],
+                    cache_dir=SD_MODEL_CACHE,
+                    local_files_only=True,
+                )
+                print(f"✅ Loaded model: {key}")
         
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
-        print("Loaded language detector...")
+        print("✅ Loaded language detector")
         
         self.swinir_args = get_args_swinir()
         self.device = torch.device('cuda')
-        print("Loaded upscaler!")
+        print("✅ Loaded upscaler")
         
-        print("Setup is done!")
+        print("✅ Setup is done!")
 
     @torch.inference_mode()
     @torch.cuda.amp.autocast()
@@ -117,15 +93,8 @@ class Predictor(BasePredictor):
             description="Choose a scheduler.",
         ),
         model: str = Input(
-            default="Stable Diffusion v1.5",
-            choices=[
-                "Stable Diffusion v1.5",
-                "Openjourney",
-                "Redshift Diffusion",
-                "Arcane Diffusion",
-                "Mo-Di Diffusion",
-                "Ghibli Diffusion"
-            ],
+            default=SD_MODEL_DEFAULT,
+            choices=SD_MODEL_CHOICES,
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
         seed: int = Input(
@@ -191,21 +160,11 @@ class Predictor(BasePredictor):
                 )
             txt2img_pipe = None
             revision = None
-            if model != "Stable Diffusion v1.5":
+            if model != SD_MODEL_DEFAULT:
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
-                    
-                if model == "Openjourney" and self.txt2img_alt_name != model:
-                    self.txt2img_alt = self.txt2img_oj
-                elif model == "Redshift Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt = self.txt2img_rd
-                elif model == "Arcane Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt = self.txt2img_ar
-                elif model == "Ghibli Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt = self.txt2img_gh
-                elif model == "Mo-Di Diffusion" and self.txt2img_alt_name != model:
-                    self.txt2img_alt = self.txt2img_md
-                    
+                
+                self.txt2img_alt = self.txt2img_alts[model]                     
                 self.txt2img_alt_name = model
                 txt2img_pipe = self.txt2img_alt.to("cuda")
                 txt2img_pipe.enable_xformers_memory_efficient_attention()
