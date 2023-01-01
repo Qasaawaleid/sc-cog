@@ -3,37 +3,10 @@
 import os
 import sys
 import torch
+from models.stable_diffusion.constants import SD_MODELS, SD_MODEL_CACHE
 from diffusers import StableDiffusionPipeline
 
-SD_MODEL_CACHE = "diffusers-cache"
-
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
-
-SD_MODELS = {
-  "Stable Diffusion v1.5": {
-    "id": "runwayml/stable-diffusion-v1-5",
-    "revision": "fp16",
-    "torch_dtype": torch.float16
-  },
-  "Openjourney": {
-    "id": "prompthero/openjourney"
-  },
-  "Redshift Diffusion": {
-    "id": "nitrosocke/redshift-diffusion"
-  },
-  "Arcane Diffusion": {
-    "id": "nitrosocke/Arcane-Diffusion"
-  },
-  "Ghibli Diffusion": {
-    "id": "nitrosocke/Ghibli-Diffusion"
-  },
-  "Mo-Di Diffusion": {
-    "id": "nitrosocke/mo-di-diffusion"
-  },
-  "Waifu Diffusion v1.4": {
-    "id": "hakurei/waifu-diffusion"
-  },
-}
 
 for key in SD_MODELS:
   print(f"⏳ Downloading {key}...")
