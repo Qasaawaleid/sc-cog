@@ -1,6 +1,7 @@
 import os
 import torch
 from .helpers import make_scheduler
+from .constants import SD_MODELS
 from cog import Path
 import cv2
 
@@ -25,19 +26,12 @@ def generate(
     
     extra_kwargs = {}
     
-    if model == "Openjourney":
-        prompt = f"mdjrny-v4 style {prompt}"
-    elif model == "Redshift Diffusion":
-        prompt = f"redshift style {prompt}"
-    elif model == "Arcane Diffusion":
-        prompt = f"arcane style {prompt}"
-    elif model == "Ghibli Diffusion":
-        prompt = f"ghibli style {prompt}"
-    elif model == "Mo-Di Diffusion":
-        prompt = f"modern disney style {prompt}"
+    prompt_prefix = SD_MODELS[model].get("prompt_prefix", None)
+    if prompt_prefix is not None:
+        prompt = f"{prompt_prefix} {prompt}"
    
     pipe = txt2img_pipe     
-    pipe.scheduler = make_scheduler(scheduler, model, revision)
+    pipe.scheduler = make_scheduler(scheduler, pipe.scheduler.config)
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,

@@ -10,7 +10,7 @@ from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
@@ -88,8 +88,8 @@ class Predictor(BasePredictor):
             description="Scale for classifier-free guidance", ge=1, le=20, default=7.5
         ),
         scheduler: str = Input(
-            default="K_LMS",
-            choices=["DDIM", "K_LMS", "PNDM", "K_EULER", "K_EULER_ANCESTRAL"],
+            default=SD_SCHEDULER_DEFAULT,
+            choices=SD_SCHEDULER_CHOICES,
             description="Choose a scheduler.",
         ),
         model: str = Input(
