@@ -39,6 +39,10 @@ SD_MODELS = {
   "Waifu Diffusion v1.4": {
     "id": "hakurei/waifu-diffusion"
   },
+  "22h Diffusion v0.1": {
+    "id": "22h/vintedois-diffusion-v0-1",
+    "prompt_prefix": "estilovintedois"
+  },
 }
 
 SD_MODEL_CHOICES = list(SD_MODELS.keys())
