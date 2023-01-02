@@ -37,7 +37,9 @@ SD_MODELS = {
     "prompt_prefix": "modern disney style"
   },
   "Waifu Diffusion v1.4": {
-    "id": "hakurei/waifu-diffusion"
+    "id": "hakurei/waifu-diffusion",
+    "prompt_prefix": "masterpiece, best quality, high quality",
+    "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw"
   },
   "22h Diffusion v0.1": {
     "id": "22h/vintedois-diffusion-v0-1",

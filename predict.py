@@ -159,7 +159,6 @@ class Predictor(BasePredictor):
                     "Prompt & Negative Prompt"
                 )
             txt2img_pipe = None
-            revision = None
             if model != SD_MODEL_DEFAULT:
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
@@ -170,7 +169,6 @@ class Predictor(BasePredictor):
                 txt2img_pipe.enable_xformers_memory_efficient_attention()
             else:
                 txt2img_pipe = self.txt2img_pipe
-                revision = "fp16"
                 
             print(f'-- Generating with "{model}"... --')
             generate_output_paths = generate(
@@ -184,8 +182,7 @@ class Predictor(BasePredictor):
                 seed,
                 output_image_ext,
                 model,
-                txt2img_pipe,
-                revision
+                txt2img_pipe
             ) 
             output_paths = generate_output_paths
             endTime = time.time()

@@ -17,8 +17,7 @@ def generate(
   seed,
   output_image_ext,
   model,
-  txt2img_pipe,
-  revision
+  txt2img_pipe
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -29,6 +28,13 @@ def generate(
     prompt_prefix = SD_MODELS[model].get("prompt_prefix", None)
     if prompt_prefix is not None:
         prompt = f"{prompt_prefix} {prompt}"
+        
+    negative_prompt_prefix = SD_MODELS[model].get("negative_prompt_prefix", None)
+    if negative_prompt_prefix is not None:
+        if negative_prompt is None or negative_prompt == "":
+            negative_prompt = negative_prompt_prefix
+        else:
+            negative_prompt = f"{negative_prompt_prefix} {negative_prompt}"
    
     pipe = txt2img_pipe     
     pipe.scheduler = make_scheduler(scheduler, pipe.scheduler.config)
