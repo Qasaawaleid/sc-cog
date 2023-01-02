@@ -8,7 +8,7 @@ from diffusers import StableDiffusionPipeline
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
 
 for key in SD_MODELS:
-  print(f"⏳ Downloading {key}...")
+  print(f"⏳ Downloading: {key}")
   pipe = StableDiffusionPipeline.from_pretrained(
     SD_MODELS[key]["id"],
     revision=SD_MODELS[key].get("revision", None),

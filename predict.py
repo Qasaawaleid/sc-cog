@@ -39,7 +39,7 @@ class Predictor(BasePredictor):
         self.txt2img_alts = {}
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT:
-                print(f"⏳ Loading model: {key}...")
+                print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
                     cache_dir=SD_MODEL_CACHE,
