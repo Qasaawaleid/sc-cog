@@ -5,7 +5,9 @@ from diffusers import (
     DDIMScheduler,
     EulerDiscreteScheduler,
     EulerAncestralDiscreteScheduler,
-    HeunDiscreteScheduler
+    HeunDiscreteScheduler,
+    DPMSolverSinglestepScheduler,
+    DPMSolverMultistepScheduler
 )
 
 SD_MODEL_CACHE = "diffusers-cache"
@@ -68,6 +70,12 @@ SD_SCHEDULERS = {
   },
   "HEUN": {
     "from_config": HeunDiscreteScheduler.from_config
+  },
+  "DPM": {
+    "from_config": DPMSolverMultistepScheduler.from_config
+  },
+  "DPM_SINGLESTEP": {
+    "from_config": DPMSolverSinglestepScheduler.from_config
   }
 }
 
