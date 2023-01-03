@@ -70,8 +70,8 @@ for model_env in models_from_env_list:
         }
 
 SD_MODEL_CHOICES = list(SD_MODELS.keys())
-SD_MODEL_DEFAULT = SD_MODELS[0]
 SD_MODEL_DEFAULT_KEY = SD_MODEL_CHOICES[0]
+SD_MODEL_DEFAULT = SD_MODELS[SD_MODEL_DEFAULT_KEY]
 
 SD_SCHEDULERS = {
     "K_LMS": {
