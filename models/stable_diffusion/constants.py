@@ -15,7 +15,6 @@ SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_FULL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
-        "revision": "fp16",
         "torch_dtype": torch.float16
     },
     "Openjourney": {
