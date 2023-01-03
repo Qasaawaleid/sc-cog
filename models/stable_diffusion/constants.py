@@ -15,7 +15,8 @@ SD_MODEL_CACHE = "diffusers-cache"
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5,Openjourney")
+    "MODELS", "Stable Diffusion v1.5,Openjourney"
+)
 models_from_env_list = models_from_env.split(",")
 for model_env in models_from_env_list:
     if model_env == "Stable Diffusion v1.5":
