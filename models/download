@@ -2,21 +2,21 @@
 
 import os
 import sys
-from stable_diffusion.constants import SD_MODELS, SD_MODEL_CACHE
+from stable_diffusion.constants import SD_MODELS_FULL, SD_MODEL_CACHE
 from diffusers import StableDiffusionPipeline
 
 os.makedirs(SD_MODEL_CACHE, exist_ok=True)
 
-for key in SD_MODELS:
-  print(f"⏳ Downloading: {key}")
-  pipe = StableDiffusionPipeline.from_pretrained(
-    SD_MODELS[key]["id"],
-    revision=SD_MODELS[key].get("revision", None),
-    torch_dtype=SD_MODELS[key].get("torch_dtype", None),
-    cache_dir=SD_MODEL_CACHE,
-    use_auth_token=sys.argv[1],
-  )
-  print(f"✅ Downloaded: {key}")
+for key in SD_MODELS_FULL:
+    print(f"⏳ Downloading: {key}")
+    pipe = StableDiffusionPipeline.from_pretrained(
+        SD_MODELS_FULL[key]["id"],
+        revision=SD_MODELS_FULL[key].get("revision", None),
+        torch_dtype=SD_MODELS_FULL[key].get("torch_dtype", None),
+        cache_dir=SD_MODEL_CACHE,
+        use_auth_token=sys.argv[1],
+    )
+    print(f"✅ Downloaded: {key}")
 
 # For the upscaler
 print("⏳ Downloading SwinIR models...")
