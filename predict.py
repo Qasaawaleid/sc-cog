@@ -19,14 +19,14 @@ from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
-        default_model = SD_MODELS[0]["id"]
-        print(f"⏳ Loading the default pipeline: {default_model}")
+        default_model_id = SD_MODEL_DEFAULT["id"]
+        print(f"⏳ Loading the default pipeline: {default_model_id}")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
-            SD_MODELS[0]["id"],
+            SD_MODEL_DEFAULT["id"],
             cache_dir=SD_MODEL_CACHE,
-            revision=SD_MODELS[0].get("revision", None),
-            torch_dtype=SD_MODELS[0]["torch_dtype"],
+            revision=SD_MODEL_DEFAULT.get("revision", None),
+            torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
             local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
