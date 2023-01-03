@@ -31,11 +31,11 @@ class Predictor(BasePredictor):
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"✅ Loaded txt2img")
-        
+
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
         self.txt2img_alt_name = None
-        
+
         self.txt2img_alts = {}
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT:
@@ -46,15 +46,16 @@ class Predictor(BasePredictor):
                     local_files_only=True,
                 )
                 print(f"✅ Loaded model: {key}")
-        
+
         # For translation
-        self.detect_language = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
+        self.detect_language = LanguageDetectorBuilder.from_all_languages(
+        ).with_preloaded_language_models().build()
         print("✅ Loaded language detector")
-        
+
         self.swinir_args = get_args_swinir()
         self.device = torch.device('cuda')
         print("✅ Loaded upscaler")
-        
+
         print("✅ Setup is done!")
 
     @torch.inference_mode()
@@ -62,17 +63,22 @@ class Predictor(BasePredictor):
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
-        negative_prompt: str = Input(description="Input negative prompt.", default=""),
-        prompt_flores_200_code: str = Input(description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
-        negative_prompt_flores_200_code: str = Input(description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        negative_prompt: str = Input(
+            description="Input negative prompt.", default=""),
+        prompt_flores_200_code: str = Input(
+            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        negative_prompt_flores_200_code: str = Input(
+            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
         width: int = Input(
             description="Width of output image.",
-            choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
+            choices=[128, 256, 384, 448, 512, 576,
+                     640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         height: int = Input(
             description="Height of output image.",
-            choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
+            choices=[128, 256, 384, 448, 512, 576,
+                     640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         num_outputs: int = Input(
@@ -142,10 +148,10 @@ class Predictor(BasePredictor):
         output_paths = []
         if process_type == "generate" or process_type == "generate-and-upscale":
             startTime = time.time()
-            
+
             if translator_cog_url is None:
                 translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
-            
+
             t_prompt = prompt
             t_negative_prompt = negative_prompt
             if translator_cog_url is not None:
@@ -162,14 +168,14 @@ class Predictor(BasePredictor):
             if model != SD_MODEL_DEFAULT:
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
-                
-                self.txt2img_alt = self.txt2img_alts[model]                     
+
+                self.txt2img_alt = self.txt2img_alts[model]
                 self.txt2img_alt_name = model
                 txt2img_pipe = self.txt2img_alt.to("cuda")
                 txt2img_pipe.enable_xformers_memory_efficient_attention()
             else:
                 txt2img_pipe = self.txt2img_pipe
-                
+
             print(f'-- Generating with "{model}"... --')
             generate_output_paths = generate(
                 t_prompt,
@@ -183,15 +189,17 @@ class Predictor(BasePredictor):
                 output_image_ext,
                 model,
                 txt2img_pipe
-            ) 
+            )
             output_paths = generate_output_paths
             endTime = time.time()
-            print(f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
-        
+            print(
+                f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
+
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
             if process_type == 'upscale':
-                upscale_output_path = upscale(self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
+                upscale_output_path = upscale(
+                    self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
                 output_paths = [upscale_output_path]
             else:
                 upscale_output_paths = []

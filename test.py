@@ -1,15 +1,5 @@
 import os
 import torch
-from diffusers import (
-    PNDMScheduler,
-    LMSDiscreteScheduler,
-    DDIMScheduler,
-    EulerDiscreteScheduler,
-    EulerAncestralDiscreteScheduler,
-    HeunDiscreteScheduler,
-    DPMSolverSinglestepScheduler,
-    DPMSolverMultistepScheduler
-)
 
 SD_MODEL_CACHE = "diffusers-cache"
 
@@ -64,32 +54,6 @@ for model_env in models_from_env_list:
 SD_MODEL_CHOICES = list(SD_MODELS.keys())
 SD_MODEL_DEFAULT = SD_MODEL_CHOICES[0]
 
-SD_SCHEDULERS = {
-    "K_LMS": {
-        "from_config": LMSDiscreteScheduler.from_config
-    },
-    "PNDM": {
-        "from_config": PNDMScheduler.from_config
-    },
-    "DDIM": {
-        "from_config": DDIMScheduler.from_config
-    },
-    "K_EULER": {
-        "from_config": EulerDiscreteScheduler.from_config
-    },
-    "K_EULER_ANCESTRAL": {
-        "from_config": EulerAncestralDiscreteScheduler.from_config
-    },
-    "HEUN": {
-        "from_config": HeunDiscreteScheduler.from_config
-    },
-    "DPM": {
-        "from_config": DPMSolverMultistepScheduler.from_config
-    },
-    "DPM_SINGLESTEP": {
-        "from_config": DPMSolverSinglestepScheduler.from_config
-    }
-}
-
-SD_SCHEDULER_CHOICES = list(SD_SCHEDULERS.keys())
-SD_SCHEDULER_DEFAULT = SD_SCHEDULER_CHOICES[0]
+print(SD_MODELS)
+print(SD_MODEL_CHOICES)
+print(SD_MODEL_DEFAULT)
