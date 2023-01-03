@@ -10,7 +10,7 @@ from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
@@ -100,7 +100,7 @@ class Predictor(BasePredictor):
             description="Choose a scheduler.",
         ),
         model: str = Input(
-            default=SD_MODEL_DEFAULT,
+            default=SD_MODEL_DEFAULT_KEY,
             choices=SD_MODEL_CHOICES,
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
@@ -166,7 +166,7 @@ class Predictor(BasePredictor):
                     "Prompt & Negative Prompt"
                 )
             txt2img_pipe = None
-            if model != SD_MODEL_DEFAULT:
+            if model != SD_MODEL_DEFAULT_KEY:
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
                     self.txt2img_alt.to("cpu")
 
