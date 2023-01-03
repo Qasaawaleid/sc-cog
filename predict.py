@@ -30,7 +30,7 @@ class Predictor(BasePredictor):
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded txt2img")
+        print(f"✅ Loaded txt2img\n")
 
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
@@ -45,7 +45,7 @@ class Predictor(BasePredictor):
                     cache_dir=SD_MODEL_CACHE,
                     local_files_only=True,
                 )
-                print(f"✅ Loaded model: {key}")
+                print(f"✅ Loaded model: {key}\n")
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
@@ -176,7 +176,7 @@ class Predictor(BasePredictor):
             else:
                 txt2img_pipe = self.txt2img_pipe
 
-            print(f'-- Generating with "{model}"... --')
+            print(f'-- Generating with "{model}" --')
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
@@ -193,7 +193,7 @@ class Predictor(BasePredictor):
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
+                f'-- Generated with "{model}" in: {endTime - startTime} sec. --\n')
 
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
@@ -215,6 +215,6 @@ class Predictor(BasePredictor):
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
-            print(f"-- Upscaled in: {endTime - startTime} sec. --")
+            print(f"-- Upscaled in: {endTime - startTime} sec. --\n")
 
         return output_paths
