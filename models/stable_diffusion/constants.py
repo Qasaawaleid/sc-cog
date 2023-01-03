@@ -10,7 +10,6 @@ from diffusers import (
     DPMSolverSinglestepScheduler,
     DPMSolverMultistepScheduler
 )
-from .helpers import clean_prefix_or_suffix_space
 
 SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_FULL = {
@@ -99,3 +98,11 @@ SD_SCHEDULERS = {
 
 SD_SCHEDULER_CHOICES = [*SD_SCHEDULERS.keys()]
 SD_SCHEDULER_DEFAULT = SD_SCHEDULER_CHOICES[0]
+
+
+def clean_prefix_or_suffix_space(text: str):
+    if text.startswith(" "):
+        text = text[1:]
+    if text.endswith(" "):
+        text = text[:-1]
+    return text
