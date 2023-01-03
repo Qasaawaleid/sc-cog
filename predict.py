@@ -19,9 +19,8 @@ from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
-        print(
-            f"⏳ Loading the default pipeline: {SD_MODELS[0]['id']}"
-        )
+        default_model = SD_MODELS[0]["id"]
+        print(f"⏳ Loading the default pipeline: {default_model}")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODELS[0]["id"],
