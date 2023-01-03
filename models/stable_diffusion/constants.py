@@ -10,6 +10,7 @@ from diffusers import (
     DPMSolverSinglestepScheduler,
     DPMSolverMultistepScheduler
 )
+from .helpers import clean_prefix_or_suffix_space
 
 SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_FULL = {
@@ -57,9 +58,10 @@ SD_MODELS_FULL = {
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5,Openjourney"
+    "MODELS", "Stable Diffusion v1.5, Openjourney"
 )
-models_from_env_list = models_from_env.split(",")
+models_from_env_list = map(
+    lambda x: clean_prefix_or_suffix_space(x), models_from_env.split(","))
 for model_env in models_from_env_list:
     if model_env in SD_MODELS_FULL:
         SD_MODELS[model_env] = SD_MODELS_FULL[model_env]
@@ -95,5 +97,5 @@ SD_SCHEDULERS = {
     }
 }
 
-SD_SCHEDULER_CHOICES = list(SD_SCHEDULERS.keys())
+SD_SCHEDULER_CHOICES = [*SD_SCHEDULERS.keys()]
 SD_SCHEDULER_DEFAULT = SD_SCHEDULER_CHOICES[0]
