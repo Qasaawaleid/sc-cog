@@ -29,4 +29,4 @@ os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/00
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg20.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg30.pth -P experiments/pretrained_models')
 os.system('wget https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/006_CAR_DFWB_s126w7_SwinIR-M_jpeg40.pth -P experiments/pretrained_models')
-print("✅ Downloaded SwinIR models")
+print("✅ Downloaded SwinIR models\n")
