@@ -25,7 +25,6 @@ class Predictor(BasePredictor):
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             cache_dir=SD_MODEL_CACHE,
-            revision=SD_MODEL_DEFAULT.get("revision", None),
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
             local_files_only=True,
         )
