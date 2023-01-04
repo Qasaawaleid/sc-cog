@@ -21,7 +21,7 @@ def clean_prefix_or_suffix_space(text: str):
 
 
 SD_MODEL_CACHE = "diffusers-cache"
-SD_MODELS_FULL = {
+SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
@@ -68,11 +68,15 @@ SD_MODELS = {}
 models_from_env = os.environ.get(
     "MODELS", "Stable Diffusion v1.5, Openjourney"
 )
-models_from_env_list = map(
-    lambda x: clean_prefix_or_suffix_space(x), models_from_env.split(","))
-for model_env in models_from_env_list:
-    if model_env in SD_MODELS_FULL:
-        SD_MODELS[model_env] = SD_MODELS_FULL[model_env]
+if models_from_env == "all":
+    SD_MODELS = SD_MODELS_ALL
+else:
+    models_from_env_list = map(
+        lambda x: clean_prefix_or_suffix_space(x), models_from_env.split(",")
+    )
+    for model_env in models_from_env_list:
+        if model_env in SD_MODELS_ALL:
+            SD_MODELS[model_env] = SD_MODELS_ALL[model_env]
 
 SD_MODEL_CHOICES = list(SD_MODELS.keys())
 SD_MODEL_DEFAULT_KEY = SD_MODEL_CHOICES[0]
