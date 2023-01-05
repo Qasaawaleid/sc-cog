@@ -164,6 +164,9 @@ class Predictor(BasePredictor):
                     self.detect_language,
                     "Prompt & Negative Prompt"
                 )
+            else:
+                print("-- Translator cog URL is not set. Skipping translation. --")
+
             txt2img_pipe = None
             if model != SD_MODEL_DEFAULT_KEY:
                 if self.txt2img_alt is not None and self.txt2img_alt_name != model:
