@@ -62,11 +62,6 @@ def generate(
         if not nsfw_flag
     ]
 
-    """ if len(samples_filtered) == 0:
-        raise Exception(
-            f"NSFW content detected. Try running it again, or try a different prompt."
-        ) """
-
     if num_outputs > len(samples_filtered):
         print(
             f"NSFW content detected in {num_outputs - len(samples_filtered)} outputs, showing the rest {len(samples_filtered)} images..."
