@@ -182,7 +182,9 @@ class Predictor(BasePredictor):
             else:
                 txt2img_pipe = self.txt2img_pipe
 
-            print(f'-- Generating with "{model}" --')
+            print(
+                f'-- Generating with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} --'
+            )
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
