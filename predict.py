@@ -226,5 +226,7 @@ class Predictor(BasePredictor):
             print(f"-- Upscaled in: {endTime - startTime} sec. --\n")
 
         processEnd = time.time()
-        print(f"✅ Process ended in: {processEnd - processStart} sec. ✅\n\n")
+        print(
+            f"✅ Process completed in: {processEnd - processStart} sec. ✅\n\n"
+        )
         return output_paths
