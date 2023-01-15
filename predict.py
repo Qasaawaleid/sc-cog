@@ -145,7 +145,10 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
+        processStart = time.time()
+        print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
+
         if process_type == "generate" or process_type == "generate-and-upscale":
             startTime = time.time()
 
@@ -196,7 +199,7 @@ class Predictor(BasePredictor):
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'-- Generated with "{model}" in: {endTime - startTime} sec. --\n')
+                f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
 
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
@@ -220,4 +223,6 @@ class Predictor(BasePredictor):
             endTime = time.time()
             print(f"-- Upscaled in: {endTime - startTime} sec. --\n")
 
+        processEnd = time.time()
+        print(f"✅ Process ended in: {processEnd - processStart} sec. ✅\n\n")
         return output_paths
