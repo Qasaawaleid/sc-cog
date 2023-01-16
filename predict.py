@@ -32,11 +32,8 @@ class Predictor(BasePredictor):
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"✅ Loaded txt2img")
 
-        self.txt2img_alt = None
-        self.txt2img_alt_pipe = None
-        self.txt2img_alt_name = None
-
         self.txt2img_alts = {}
+        self.txt2img_alt_pipes = {}
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
                 print(f"⏳ Loading model: {key}")
@@ -44,6 +41,9 @@ class Predictor(BasePredictor):
                     SD_MODELS[key]["id"],
                     cache_dir=SD_MODEL_CACHE,
                     local_files_only=True,
+                )
+                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to('cuda')
+                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
                 )
                 print(f"✅ Loaded model: {key}")
 
@@ -177,13 +177,7 @@ class Predictor(BasePredictor):
 
             txt2img_pipe = None
             if model != SD_MODEL_DEFAULT_KEY:
-                if self.txt2img_alt is not None and self.txt2img_alt_name != model:
-                    self.txt2img_alt.to("cpu")
-
-                self.txt2img_alt = self.txt2img_alts[model]
-                self.txt2img_alt_name = model
-                txt2img_pipe = self.txt2img_alt.to("cuda")
-                txt2img_pipe.enable_xformers_memory_efficient_attention()
+                txt2img_pipe = self.txt2img_alt_pipes[model]
             else:
                 txt2img_pipe = self.txt2img_pipe
 
