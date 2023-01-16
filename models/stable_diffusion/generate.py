@@ -62,7 +62,6 @@ def generate(
 
     for i, nsfw_flag in enumerate(output.nsfw_content_detected):
         if nsfw_flag:
-            output_paths.append("error_nsfw")
             nsfw_count += 1
         else:
             output_path = f"/tmp/out-{i}.png"
