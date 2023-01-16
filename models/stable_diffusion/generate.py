@@ -8,7 +8,7 @@ import io
 from PIL import Image
 import base64
 
-black_pixel_str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
+black_pixel_str = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
 black_pixel_data = base64.b64decode(black_pixel_str)
 black_pixel_image = Image.open(io.BytesIO(black_pixel_data))
 
