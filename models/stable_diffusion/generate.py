@@ -59,10 +59,12 @@ def generate(
 
     output_paths = []
     nsfw_count = 0
+    black_pixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
 
     for i, nsfw_flag in enumerate(output.nsfw_content_detected):
         if nsfw_flag:
             nsfw_count += 1
+            output_paths.append(Path(black_pixel))
         else:
             output_path = f"/tmp/out-{i}.png"
             output.images[i].save(output_path)
