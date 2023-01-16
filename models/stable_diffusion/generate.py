@@ -4,6 +4,13 @@ from .helpers import make_scheduler
 from .constants import SD_MODELS
 from cog import Path
 import cv2
+import io
+from PIL import Image
+import base64
+
+black_pixel_str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
+black_pixel_data = base64.b64decode(black_pixel_str)
+black_pixel_image = Image.open(io.BytesIO(black_pixel_data))
 
 
 def generate(
@@ -59,14 +66,13 @@ def generate(
 
     output_paths = []
     nsfw_count = 0
-    black_pixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
 
     for i, nsfw_flag in enumerate(output.nsfw_content_detected):
+        output_path = f"/tmp/out-{i}.png"
         if nsfw_flag:
             nsfw_count += 1
-            output_paths.append(Path(black_pixel))
+            black_pixel_image.save(output_path)
         else:
-            output_path = f"/tmp/out-{i}.png"
             output.images[i].save(output_path)
             if output_image_ext == "jpg" or output_image_ext == "webp":
                 output_path_converted = f"/tmp/out-{i}.{output_image_ext}"
@@ -79,7 +85,7 @@ def generate(
                     [int(quality_type), output_image_quality]
                 )
                 output_path = output_path_converted
-            output_paths.append(Path(output_path))
+        output_paths.append(Path(output_path))
 
     if nsfw_count > 0:
         print(
