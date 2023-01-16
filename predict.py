@@ -30,7 +30,7 @@ class Predictor(BasePredictor):
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded txt2img\n")
+        print(f"✅ Loaded txt2img")
 
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
@@ -45,7 +45,7 @@ class Predictor(BasePredictor):
                     cache_dir=SD_MODEL_CACHE,
                     local_files_only=True,
                 )
-                print(f"✅ Loaded model: {key}\n")
+                print(f"✅ Loaded model: {key}")
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
@@ -146,6 +146,7 @@ class Predictor(BasePredictor):
         ),
     ) -> List[Path]:
         processStart = time.time()
+        print("--------------------------------------------------------------")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
@@ -223,10 +224,11 @@ class Predictor(BasePredictor):
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
-            print(f"-- Upscaled in: {endTime - startTime} sec. --\n")
+            print(f"-- Upscaled in: {endTime - startTime} sec. --")
 
         processEnd = time.time()
         print(
-            f"✅ Process completed in: {processEnd - processStart} sec. ✅\n\n"
+            f"✅ Process completed in: {processEnd - processStart} sec. ✅"
         )
+        print("--------------------------------------------------------------")
         return output_paths
