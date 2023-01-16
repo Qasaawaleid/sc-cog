@@ -17,6 +17,7 @@ def generate(
     scheduler,
     seed,
     output_image_ext,
+    output_image_quality,
     model,
     txt2img_pipe
 ):
@@ -56,27 +57,32 @@ def generate(
         **extra_kwargs,
     )
 
-    samples_filtered = [
-        output.images[i]
-        for i, nsfw_flag in enumerate(output.nsfw_content_detected)
-        if not nsfw_flag
-    ]
+    output_paths = []
+    nsfw_count = 0
 
-    if num_outputs > len(samples_filtered):
+    for i, nsfw_flag in enumerate(output.nsfw_content_detected):
+        if nsfw_flag:
+            output_paths.append("error_nsfw")
+            nsfw_count += 1
+        else:
+            output_path = f"/tmp/out-{i}.png"
+            output.images[i].save(output_path)
+            if output_image_ext == "jpg" or output_image_ext == "webp":
+                output_path_converted = f"/tmp/out-{i}.{output_image_ext}"
+                pngMat = cv2.imread(output_path)
+                quality_type = cv2.IMWRITE_JPEG_QUALITY
+                if output_image_ext == "webp":
+                    quality_type = cv2.IMWRITE_WEBP_QUALITY
+                cv2.imwrite(
+                    output_path_converted, pngMat,
+                    [int(quality_type), output_image_quality]
+                )
+                output_path = output_path_converted
+            output_paths.append(Path(output_path))
+
+    if nsfw_count > 0:
         print(
-            f"NSFW content detected in {num_outputs - len(samples_filtered)} outputs, showing the rest {len(samples_filtered)} images..."
+            f"NSFW content detected in {nsfw_count}/{len(output_paths)} of the outputs."
         )
 
-    samples = output.images
-    output_paths = []
-    for i, sample in enumerate(samples):
-        output_path = f"/tmp/out-{i}.png"
-        sample.save(output_path)
-        if output_image_ext == "jpg":
-            output_path_jpg = f"/tmp/out-{i}.jpg"
-            pngMat = cv2.imread(output_path)
-            cv2.imwrite(output_path_jpg, pngMat, [
-                        int(cv2.IMWRITE_JPEG_QUALITY), 90])
-            output_path = output_path_jpg
-        output_paths.append(Path(output_path))
     return output_paths

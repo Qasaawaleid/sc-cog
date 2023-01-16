@@ -108,8 +108,12 @@ class Predictor(BasePredictor):
         ),
         output_image_ext: str = Input(
             description="Output type of the image. Can be 'png' or 'jpg'.",
-            choices=["jpg", "png"],
+            choices=["jpg", "png", "webp"],
             default="png",
+        ),
+        output_image_quality: int = Input(
+            description="Output quality of the image. Can be 1-100.",
+            default=90
         ),
         image_u: Path = Input(
             description="Input image for the upscaler (Swinir).", default=None
@@ -196,6 +200,7 @@ class Predictor(BasePredictor):
                 scheduler,
                 seed,
                 output_image_ext,
+                output_image_quality,
                 model,
                 txt2img_pipe
             )
