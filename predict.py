@@ -40,6 +40,7 @@ class Predictor(BasePredictor):
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
                     cache_dir=SD_MODEL_CACHE,
+                    torch_dtype=SD_MODELS[key]["torch_dtype"],
                     local_files_only=True,
                 )
                 self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to('cuda')
