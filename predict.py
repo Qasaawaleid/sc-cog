@@ -155,8 +155,6 @@ class Predictor(BasePredictor):
         output_paths = []
 
         if process_type == "generate" or process_type == "generate-and-upscale":
-            startTime = time.time()
-
             if translator_cog_url is None:
                 translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
 
@@ -190,6 +188,7 @@ class Predictor(BasePredictor):
             print(
                 f'-- Generating with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} --'
             )
+            startTime = time.time()
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
