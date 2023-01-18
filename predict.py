@@ -206,7 +206,8 @@ class Predictor(BasePredictor):
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'-- Generated with "{model}" in: {endTime - startTime} sec. --')
+                f'-- Generated with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} --'
+            )
 
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
