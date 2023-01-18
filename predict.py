@@ -180,7 +180,7 @@ class Predictor(BasePredictor):
                 txt2img_pipe = self.txt2img_pipe
 
             print(
-                f'-- Generating with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} --'
+                f'-- Generating with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} --'
             )
             startTime = time.time()
             generate_output_paths = generate(
