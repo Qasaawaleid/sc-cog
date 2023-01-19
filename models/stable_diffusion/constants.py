@@ -81,10 +81,10 @@ SD_SCHEDULERS = {
     "HEUN": {
         "from_config": HeunDiscreteScheduler.from_config
     },
-    "DPM++": {
+    "DPM++_2M": {
         "from_config": DPMSolverMultistepScheduler.from_config
     },
-    "DPM_SINGLESTEP": {
+    "DPM++_2S": {
         "from_config": DPMSolverSinglestepScheduler.from_config
     }
 }
