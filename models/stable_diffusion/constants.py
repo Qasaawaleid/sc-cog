@@ -27,26 +27,16 @@ SD_MODELS_ALL = {
         "prompt_prefix": "mdjrny-v4 style",
         "torch_dtype": torch.float16
     },
-    "Arcane Diffusion": {
-        "id": "nitrosocke/Arcane-Diffusion",
-        "prompt_prefix": "arcane style",
-        "torch_dtype": torch.float16
-    },
     "Ghibli Diffusion": {
         "id": "nitrosocke/Ghibli-Diffusion",
         "prompt_prefix": "ghibli style",
         "torch_dtype": torch.float16
     },
-    "Mo-Di Diffusion": {
-        "id": "nitrosocke/mo-di-diffusion",
-        "prompt_prefix": "modern disney style",
-        "torch_dtype": torch.float16
-    }
 }
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Openjourney, Arcane Diffusion, Ghibli Diffusion, Mo-Di Diffusion"
+    "MODELS", "Openjourney, Ghibli Diffusion, "
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
