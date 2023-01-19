@@ -229,11 +229,12 @@ class Predictor(BasePredictor):
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
-            print(f"-- Upscaled in: {endTime - startTime} sec. --")
+            print(
+                f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
         processEnd = time.time()
         print(
-            f"✅ Process completed in: {processEnd - processStart} sec. ✅"
+            f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
         print("--------------------------------------------------------------")
         return output_paths

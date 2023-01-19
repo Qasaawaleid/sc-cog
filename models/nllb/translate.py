@@ -63,7 +63,7 @@ def translate_text(text, flores_200_code, text_2, flores_200_code_2, translator_
         print(f'-- {label} - #2 - Text is: "{translated_text_2}" --')
 
     endTimeTranslation = time.time()
-    print(f"-- {label} - Translation completed in: {round((endTimeTranslation - startTimeTranslation), 2)} sec. --")
+    print(f"-- {label} - Translation completed in: {round((endTimeTranslation - startTimeTranslation) * 1000)} ms --")
 
     return [translated_text, translated_text_2]
 
