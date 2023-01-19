@@ -26,16 +26,11 @@ SD_MODELS_ALL = {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
     },
-    "Openjourney": {
-        "id": "prompthero/openjourney",
-        "prompt_prefix": "mdjrny-v4 style",
-        "torch_dtype": torch.float16
-    },
 }
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5, Openjourney"
+    "MODELS", "Stable Diffusion v1.5"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
