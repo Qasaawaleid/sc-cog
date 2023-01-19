@@ -46,7 +46,7 @@ SD_MODELS_ALL = {
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5, Redshift Diffusion, Waifu Diffusion v1.4, 22h Diffusion v0.1"
+    "MODELS", "Stable Diffusion v1.5, Redshift Diffusion, Waifu Diffusion v1.4, 22h Diffusion v0.1 "
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
