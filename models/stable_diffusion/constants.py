@@ -22,18 +22,9 @@ def clean_prefix_or_suffix_space(text: str):
 
 SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_ALL = {
-    "Stable Diffusion v1.5": {
-        "id": "runwayml/stable-diffusion-v1-5",
-        "torch_dtype": torch.float16
-    },
     "Openjourney": {
         "id": "prompthero/openjourney",
         "prompt_prefix": "mdjrny-v4 style",
-        "torch_dtype": torch.float16
-    },
-    "Redshift Diffusion": {
-        "id": "nitrosocke/redshift-diffusion",
-        "prompt_prefix": "redshift style",
         "torch_dtype": torch.float16
     },
     "Arcane Diffusion": {
@@ -50,23 +41,12 @@ SD_MODELS_ALL = {
         "id": "nitrosocke/mo-di-diffusion",
         "prompt_prefix": "modern disney style",
         "torch_dtype": torch.float16
-    },
-    "Waifu Diffusion v1.4": {
-        "id": "hakurei/waifu-diffusion",
-        "prompt_prefix": "masterpiece, best quality, high quality",
-        "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw",
-        "torch_dtype": torch.float32
-    },
-    "22h Diffusion v0.1": {
-        "id": "22h/vintedois-diffusion-v0-1",
-        "prompt_prefix": "estilovintedois",
-        "torch_dtype": torch.float16
     }
 }
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5, Openjourney"
+    "MODELS", "Openjourney, Arcane Diffusion, Ghibli Diffusion, Mo-Di Diffusion"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
