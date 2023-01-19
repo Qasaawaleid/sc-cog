@@ -7,6 +7,7 @@ import cv2
 import io
 from PIL import Image
 import base64
+from torch.amp.autocast_mode import autocast
 
 black_pixel_str = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
 black_pixel_data = base64.b64decode(black_pixel_str)
@@ -52,17 +53,26 @@ def generate(
     pipe = txt2img_pipe
     pipe.scheduler = make_scheduler(scheduler, pipe.scheduler.config)
     generator = torch.Generator("cuda").manual_seed(seed)
-    output = pipe(
-        prompt=[prompt] * num_outputs if prompt is not None else None,
-        negative_prompt=[negative_prompt] *
-        num_outputs if negative_prompt is not None else None,
-        width=width,
-        height=height,
-        guidance_scale=guidance_scale,
-        generator=generator,
-        num_inference_steps=num_inference_steps,
-        **extra_kwargs,
-    )
+    output = None
+
+    def get_output():
+        return pipe(
+            prompt=[prompt] * num_outputs if prompt is not None else None,
+            negative_prompt=[negative_prompt] *
+            num_outputs if negative_prompt is not None else None,
+            width=width,
+            height=height,
+            guidance_scale=guidance_scale,
+            generator=generator,
+            num_inference_steps=num_inference_steps,
+            **extra_kwargs,
+        )
+
+    if SD_MODELS[model].get("torch_dtype", None) == torch.float32:
+        with autocast("cuda"):
+            output = get_output()
+    else:
+        output = get_output()
 
     output_paths = []
     nsfw_count = 0
