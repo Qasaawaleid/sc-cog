@@ -25,7 +25,7 @@ SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
-    },
+    }
 }
 
 SD_MODELS = {}
