@@ -27,6 +27,11 @@ SD_MODELS_ALL = {
         "prompt_prefix": "mdjrny-v4 style",
         "torch_dtype": torch.float16
     },
+    "Redshift Diffusion": {
+        "id": "nitrosocke/redshift-diffusion",
+        "prompt_prefix": "redshift style",
+        "torch_dtype": torch.float16
+    },
     "Ghibli Diffusion": {
         "id": "nitrosocke/Ghibli-Diffusion",
         "prompt_prefix": "ghibli style",
@@ -36,7 +41,7 @@ SD_MODELS_ALL = {
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Openjourney, Ghibli Diffusion, "
+    "MODELS", "Openjourney, Redshift Diffusion, Ghibli Diffusion"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
