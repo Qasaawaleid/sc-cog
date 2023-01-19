@@ -55,7 +55,7 @@ SD_MODELS_ALL = {
         "id": "hakurei/waifu-diffusion",
         "prompt_prefix": "masterpiece, best quality, high quality",
         "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw",
-        "torch_dtype": torch.float32
+        "torch_dtype": torch.float16
     },
     "22h Diffusion v0.1": {
         "id": "22h/vintedois-diffusion-v0-1",
