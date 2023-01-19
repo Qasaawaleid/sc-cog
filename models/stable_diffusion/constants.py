@@ -26,29 +26,9 @@ SD_MODELS_ALL = {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
     },
-    "Openjourney": {
-        "id": "prompthero/openjourney",
-        "prompt_prefix": "mdjrny-v4 style",
-        "torch_dtype": torch.float16
-    },
     "Redshift Diffusion": {
         "id": "nitrosocke/redshift-diffusion",
         "prompt_prefix": "redshift style",
-        "torch_dtype": torch.float16
-    },
-    "Arcane Diffusion": {
-        "id": "nitrosocke/Arcane-Diffusion",
-        "prompt_prefix": "arcane style",
-        "torch_dtype": torch.float16
-    },
-    "Ghibli Diffusion": {
-        "id": "nitrosocke/Ghibli-Diffusion",
-        "prompt_prefix": "ghibli style",
-        "torch_dtype": torch.float16
-    },
-    "Mo-Di Diffusion": {
-        "id": "nitrosocke/mo-di-diffusion",
-        "prompt_prefix": "modern disney style",
         "torch_dtype": torch.float16
     },
     "Waifu Diffusion v1.4": {
@@ -66,7 +46,7 @@ SD_MODELS_ALL = {
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5, Openjourney"
+    "MODELS", "Stable Diffusion v1.5, Redshift Diffusion, Waifu Diffusion v1.4, 22h Diffusion v0.1"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
