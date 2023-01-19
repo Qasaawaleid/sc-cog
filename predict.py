@@ -186,7 +186,7 @@ class Predictor(BasePredictor):
                 txt2img_pipe = self.txt2img_pipe
 
             print(
-                f'🖥️ Generating with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
+                f'🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
             startTime = time.time()
             generate_output_paths = generate(
@@ -206,7 +206,7 @@ class Predictor(BasePredictor):
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'🖥️ Generated with "{model}" - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
+                f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
 
         if process_type == 'upscale' or process_type == 'generate-and-upscale':
