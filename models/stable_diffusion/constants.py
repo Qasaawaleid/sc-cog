@@ -26,11 +26,6 @@ SD_MODELS_ALL = {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
     },
-    "Redshift Diffusion": {
-        "id": "nitrosocke/redshift-diffusion",
-        "prompt_prefix": "redshift style",
-        "torch_dtype": torch.float16
-    },
     "Waifu Diffusion v1.4": {
         "id": "hakurei/waifu-diffusion",
         "prompt_prefix": "masterpiece, best quality, high quality",
@@ -46,7 +41,7 @@ SD_MODELS_ALL = {
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "Stable Diffusion v1.5, Redshift Diffusion, Waifu Diffusion v1.4, 22h Diffusion v0.1"
+    "MODELS", "Stable Diffusion v1.5, Waifu Diffusion v1.4, 22h Diffusion v0.1"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
