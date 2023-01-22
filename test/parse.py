@@ -37,5 +37,5 @@ def write_to_csv(data):
 
 
 data = parse_logs("test/logs.txt")
-data.sort(key=itemgetter(0, 2, 3))
+data.sort(key=itemgetter(4, 0, 1))
 write_to_csv(data)
