@@ -15,10 +15,15 @@ def add_combinations_to_queue(
     outputs,
     redis_connection_string,
     redis_queue_name,
-    webhook_url
+    webhook_url,
+    flush_all=False
 ):
     # Connect to Redis
     r = redis.from_url(redis_connection_string)
+
+    if flush_all:
+        r.flushall()
+        print('Flushed all keys from Redis')
 
     # Create the queue if it doesn't exist
     if not r.exists(redis_queue_name):
@@ -35,32 +40,45 @@ def add_combinations_to_queue(
         models, widths, heights, steps_list, outputs
     ))
 
+    # Add a primer to the queue
+    model, width, height, steps, output = combinations[0]
+    data = get_data(model, width, height, steps, output, webhook_url)
+    r.xadd(redis_queue_name, data)
+    print(
+        f'Primed queue with {model}, {width}, {height}, {steps}, {output}'
+    )
+
     # Iterate through the combinations and add them to the Redis queue
     for model, width, height, steps, output in combinations:
-        input_id = f'test-{str(uuid.uuid4())}'
-        val = {
-            'webhook_events_filter': ["start", "completed"],
-            'webhook': str(webhook_url),
-            'input': {
-                'id': str(input_id),
-                'prompt': 'Portrait of a cat by Van Gogh',
-                'width': str(width),
-                'height': str(height),
-                'num_inference_steps': str(steps),
-                'model': str(model),
-                'num_outputs': str(output),
-            },
-            'response_queue': 'output-queue'
-        }
-        # convert value to string
-        val = encoder.encode(val)
-        data = {
-            'value': val
-        }
+        data = get_data(model, width, height, steps, output, webhook_url)
         r.xadd(redis_queue_name, data)
         print(
             f'Added {model}, {width}, {height}, {steps}, {output} to queue'
         )
+
+
+def get_data(model, width, height, steps, output, webhook_url):
+    input_id = f'test-{str(uuid.uuid4())}'
+    val = {
+        'webhook_events_filter': ["start", "completed"],
+        'webhook': str(webhook_url),
+        'input': {
+            'id': str(input_id),
+            'prompt': 'Portrait of a cat by Van Gogh',
+            'width': str(width),
+            'height': str(height),
+            'num_inference_steps': str(steps),
+            'model': str(model),
+            'num_outputs': str(output),
+        },
+        'response_queue': 'output-queue'
+    }
+    # convert value to string
+    val = encoder.encode(val)
+    data = {
+        'value': val
+    }
+    return data
 
 
 if __name__ == '__main__':
@@ -80,8 +98,10 @@ if __name__ == '__main__':
     parser.add_argument('--redis-queue-name', required=True,
                         help='Redis queue name')
     parser.add_argument('--webhook-url', required=True, help='Webhook url')
+    parser.add_argument('--flush-all', action='store_true')
     args = parser.parse_args()
     add_combinations_to_queue(
         args.models, args.widths, args.heights, args.steps_list, args.outputs,
-        args.redis_connection_string, args.redis_queue_name, args.webhook_url
+        args.redis_connection_string, args.redis_queue_name, args.webhook_url,
+        args.flush_all
     )

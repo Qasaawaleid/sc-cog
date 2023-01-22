@@ -8,6 +8,7 @@ def parse_logs(file_name):
     with open(file_name, "r") as f:
         log_block = f.read()
         log_lines = log_block.strip().split("\n")
+
         for line in log_lines:
             match = re.search(
                 r"🖥️ Generated in (\d+) ms - Model: (.+?) - Width: (.+?) - Height: (.+?) - Steps: (.+?) - Outputs: (.+?) 🖥️", line)
@@ -28,7 +29,10 @@ def parse_logs(file_name):
 def write_to_csv(data):
     with open("test/logs.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        for row in data:
+        for index, row in enumerate(data):
+            # Skip the primer row
+            if index == 0:
+                continue
             writer.writerow(row)
 
 
