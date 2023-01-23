@@ -5,3 +5,5 @@ diffusers-cache/
 .env.*
 !.env.example
 .DS_Store
+logs.txt
+logs.csv
