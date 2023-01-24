@@ -17,6 +17,8 @@ black_pixel_image = Image.open(io.BytesIO(black_pixel_data))
 def generate(
     prompt,
     negative_prompt,
+    prompt_prefix,
+    negative_prompt_prefix,
     width,
     height,
     num_outputs,
@@ -35,17 +37,27 @@ def generate(
 
     extra_kwargs = {}
 
-    prompt_prefix = SD_MODELS[model].get("prompt_prefix", None)
     if prompt_prefix is not None:
         prompt = f"{prompt_prefix} {prompt}"
+    else:
+        default_prompt_prefix = SD_MODELS[model].get("prompt_prefix", None)
+        if default_prompt_prefix is not None:
+            prompt = f"{default_prompt_prefix} {prompt}"
 
-    negative_prompt_prefix = SD_MODELS[model].get(
-        "negative_prompt_prefix", None)
     if negative_prompt_prefix is not None:
         if negative_prompt is None or negative_prompt == "":
             negative_prompt = negative_prompt_prefix
         else:
             negative_prompt = f"{negative_prompt_prefix} {negative_prompt}"
+    else:
+        default_negative_prompt_prefix = SD_MODELS[model].get(
+            "negative_prompt_prefix", None
+        )
+        if default_negative_prompt_prefix is not None:
+            if negative_prompt is None or negative_prompt == "":
+                negative_prompt = default_negative_prompt_prefix
+            else:
+                negative_prompt = f"{default_negative_prompt_prefix} {negative_prompt}"
 
     print(f"-- Prompt: {prompt} --")
     print(f"-- Negative Prompt: {negative_prompt} --")
