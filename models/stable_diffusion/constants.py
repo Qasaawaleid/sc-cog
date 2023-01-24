@@ -36,6 +36,10 @@ SD_MODELS_ALL = {
         "id": "nitrosocke/Ghibli-Diffusion",
         "prompt_prefix": "ghibli style",
         "torch_dtype": torch.float16
+    },
+    "DreamShaper v3.3": {
+        "id": "jzli/DreamShaper-3.3",
+        "torch_dtype": torch.float16
     }
 }
 
