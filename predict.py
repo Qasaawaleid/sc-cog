@@ -69,6 +69,10 @@ class Predictor(BasePredictor):
             description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
         negative_prompt_flores_200_code: str = Input(
             description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        prompt_prefix: str = Input(description="Prompt prefix.", default=None),
+        negative_prompt_prefix: str = Input(
+            description="Negative prompt prefix.", default=None
+        ),
         width: int = Input(
             description="Width of output image.",
             choices=[128, 256, 384, 448, 512, 576,
@@ -192,6 +196,8 @@ class Predictor(BasePredictor):
             generate_output_paths = generate(
                 t_prompt,
                 t_negative_prompt,
+                prompt_prefix,
+                negative_prompt_prefix,
                 width, height,
                 num_outputs,
                 num_inference_steps,
