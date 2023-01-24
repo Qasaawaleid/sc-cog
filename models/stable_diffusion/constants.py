@@ -61,6 +61,10 @@ SD_MODELS_ALL = {
         "id": "22h/vintedois-diffusion-v0-1",
         "prompt_prefix": "estilovintedois",
         "torch_dtype": torch.float16
+    },
+    "DreamShaper v3.3": {
+        "id": "jzli/DreamShaper-3.3",
+        "torch_dtype": torch.float16
     }
 }
 
