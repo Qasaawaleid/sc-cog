@@ -40,9 +40,9 @@ def generate(
     if prompt_prefix is not None:
         prompt = f"{prompt_prefix} {prompt}"
     else:
-        prompt_prefix_from_models = SD_MODELS[model].get("prompt_prefix", None)
-        if prompt_prefix_from_models is not None:
-            prompt = f"{prompt_prefix_from_models} {prompt}"
+        default_prompt_prefix = SD_MODELS[model].get("prompt_prefix", None)
+        if default_prompt_prefix is not None:
+            prompt = f"{default_prompt_prefix} {prompt}"
 
     if negative_prompt_prefix is not None:
         if negative_prompt is None or negative_prompt == "":
@@ -50,14 +50,14 @@ def generate(
         else:
             negative_prompt = f"{negative_prompt_prefix} {negative_prompt}"
     else:
-        negative_prompt_prefix_from_models = SD_MODELS[model].get(
+        default_negative_prompt_prefix = SD_MODELS[model].get(
             "negative_prompt_prefix", None
         )
-        if negative_prompt_prefix_from_models is not None:
+        if default_negative_prompt_prefix is not None:
             if negative_prompt is None or negative_prompt == "":
-                negative_prompt = negative_prompt_prefix_from_models
+                negative_prompt = default_negative_prompt_prefix
             else:
-                negative_prompt = f"{negative_prompt_prefix_from_models} {negative_prompt}"
+                negative_prompt = f"{default_negative_prompt_prefix} {negative_prompt}"
 
     print(f"-- Prompt: {prompt} --")
     print(f"-- Negative Prompt: {negative_prompt} --")
