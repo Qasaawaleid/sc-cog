@@ -17,6 +17,8 @@ black_pixel_image = Image.open(io.BytesIO(black_pixel_data))
 def generate(
     prompt,
     negative_prompt,
+    prompt_prefix,
+    negative_prompt_prefix,
     width,
     height,
     num_outputs,
