@@ -65,14 +65,6 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="Input prompt.", default=""),
         negative_prompt: str = Input(
             description="Input negative prompt.", default=""),
-        prompt_flores_200_code: str = Input(
-            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
-        negative_prompt_flores_200_code: str = Input(
-            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
-        prompt_prefix: str = Input(description="Prompt prefix.", default=None),
-        negative_prompt_prefix: str = Input(
-            description="Negative prompt prefix.", default=None
-        ),
         width: int = Input(
             description="Width of output image.",
             choices=[128, 256, 384, 448, 512, 576,
@@ -109,6 +101,14 @@ class Predictor(BasePredictor):
         ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed.", default=None
+        ),
+        prompt_flores_200_code: str = Input(
+            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        negative_prompt_flores_200_code: str = Input(
+            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        prompt_prefix: str = Input(description="Prompt prefix.", default=None),
+        negative_prompt_prefix: str = Input(
+            description="Negative prompt prefix.", default=None
         ),
         output_image_ext: str = Input(
             description="Output type of the image. Can be 'png' or 'jpg'.",
