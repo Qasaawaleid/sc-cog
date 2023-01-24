@@ -37,8 +37,8 @@ SD_MODELS_ALL = {
         "prompt_prefix": "ghibli style",
         "torch_dtype": torch.float16
     },
-    "DreamShaper v3.3": {
-        "id": "jzli/DreamShaper-3.3",
+    "DreamShaper": {
+        "id": "Lykon/DreamShaper",
         "torch_dtype": torch.float16
     }
 }
