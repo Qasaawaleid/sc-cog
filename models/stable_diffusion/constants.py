@@ -22,15 +22,15 @@ def clean_prefix_or_suffix_space(text: str):
 
 SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_ALL = {
-    "DreamShaper 3.3": {
-        "id": "jzli/DreamShaper-3.3",
+    "DreamShaper": {
+        "id": "Lykon/DreamShaper",
         "torch_dtype": torch.float16
     }
 }
 
 SD_MODELS = {}
 models_from_env = os.environ.get(
-    "MODELS", "DreamShaper 3.3"
+    "MODELS", "DreamShaper"
 )
 if models_from_env == "all":
     SD_MODELS = SD_MODELS_ALL
