@@ -65,10 +65,6 @@ class Predictor(BasePredictor):
         prompt: str = Input(description="Input prompt.", default=""),
         negative_prompt: str = Input(
             description="Input negative prompt.", default=""),
-        prompt_flores_200_code: str = Input(
-            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
-        negative_prompt_flores_200_code: str = Input(
-            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
         width: int = Input(
             description="Width of output image.",
             choices=[128, 256, 384, 448, 512, 576,
@@ -103,6 +99,10 @@ class Predictor(BasePredictor):
             choices=SD_MODEL_CHOICES,
             description="Choose a model. Defaults to 'Stable Diffusion v1.5'.",
         ),
+        prompt_flores_200_code: str = Input(
+            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+        negative_prompt_flores_200_code: str = Input(
+            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed.", default=None
         ),
