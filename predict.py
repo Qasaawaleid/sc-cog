@@ -32,6 +32,16 @@ class Predictor(BasePredictor):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
+
+        # Download all models concurrently
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                tasks.append(executor.submit(self.download_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                task.result()
+
         print(f"⏳ Loading the default pipeline: {default_model_id}")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
@@ -40,7 +50,7 @@ class Predictor(BasePredictor):
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded txt2img")
+        print(f"✅ Loaded default pipeline: {default_model_id}")
 
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
@@ -49,17 +59,9 @@ class Predictor(BasePredictor):
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
 
-        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
-            tasks = []
-            for key in SD_MODELS:
-                if key != SD_MODEL_DEFAULT_KEY:
-                    tasks.append(executor.submit(self.download_model, key))
-            # Call result of every task and put in array
-            for task in tasks:
-                task.result()
-
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
+                print(f"⏳ Loading the pipeline: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"]
                 )
@@ -68,6 +70,7 @@ class Predictor(BasePredictor):
                 )
                 self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
                 )
+                print(f"✅ Loaded pipeline: {key}")
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
