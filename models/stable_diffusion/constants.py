@@ -8,7 +8,8 @@ from diffusers import (
     EulerAncestralDiscreteScheduler,
     HeunDiscreteScheduler,
     DPMSolverSinglestepScheduler,
-    DPMSolverMultistepScheduler
+    DPMSolverMultistepScheduler,
+    DEISMultistepScheduler
 )
 
 
@@ -106,6 +107,9 @@ SD_SCHEDULERS = {
     },
     "DPM++_2S": {
         "from_config": DPMSolverSinglestepScheduler.from_config
+    },
+    "DEIS": {
+        "from_config": DEISMultistepScheduler.from_config
     }
 }
 
