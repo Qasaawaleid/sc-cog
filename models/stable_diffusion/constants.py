@@ -32,6 +32,10 @@ SD_MODELS_ALL = {
         "prompt_prefix": "mdjrny-v4 style",
         "torch_dtype": torch.float16
     },
+    "Openjourney v2": {
+        "id": "prompthero/openjourney-v2",
+        "torch_dtype": torch.float16
+    },
     "Redshift Diffusion": {
         "id": "nitrosocke/redshift-diffusion",
         "prompt_prefix": "redshift style",
@@ -61,6 +65,11 @@ SD_MODELS_ALL = {
     "Mo-Di Diffusion": {
         "id": "nitrosocke/mo-di-diffusion",
         "prompt_prefix": "modern disney style",
+        "torch_dtype": torch.float16
+    },
+    "Analog Diffusion": {
+        "id": "wavymulder/Analog-Diffusion",
+        "prompt_prefix": "analog style",
         "torch_dtype": torch.float16
     }
 }
