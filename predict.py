@@ -2,6 +2,7 @@ import time
 import os
 from huggingface_hub._login import login
 from typing import List
+import asyncio
 
 import torch
 from diffusers import (
@@ -19,7 +20,7 @@ from lingua import LanguageDetectorBuilder
 
 
 class Predictor(BasePredictor):
-    def setup(self):
+    async def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
@@ -38,13 +39,21 @@ class Predictor(BasePredictor):
         self.txt2img_alt_name = None
 
         self.txt2img_alts = {}
+
+        async def get_and_set_model(self, key):
+            print(f"⏳ Loading model: {key}")
+            self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+                SD_MODELS[key]["id"],
+            )
+            print(f"✅ Loaded model: {key}")
+            return key
+
+        tasks = []
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
-                print(f"⏳ Loading model: {key}")
-                self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
-                    SD_MODELS[key]["id"],
-                )
-                print(f"✅ Loaded model: {key}")
+                tasks.append(get_and_set_model(self, key))
+
+        await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
