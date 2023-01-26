@@ -20,7 +20,28 @@ from lingua import LanguageDetectorBuilder
 
 
 class Predictor(BasePredictor):
-    async def setup(self):
+    async def get_model(self, key):
+        print(f"⏳ Loading model: {key}")
+        self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+            SD_MODELS[key]["id"],
+        )
+        print(f"✅ Loaded model: {key}")
+        return key
+
+    async def get_all_models(self, keys):
+        tasks = []
+        for key in keys:
+            tasks.append(self.get_model(key))
+        ret = []
+        while len(tasks):
+            done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                result = task.result()
+                if result is not None:
+                    ret.append(task.result())
+        return ret
+
+    def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
@@ -40,20 +61,7 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
 
-        async def get_and_set_model(self, key):
-            print(f"⏳ Loading model: {key}")
-            self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
-                SD_MODELS[key]["id"],
-            )
-            print(f"✅ Loaded model: {key}")
-            return key
-
-        tasks = []
-        for key in SD_MODELS:
-            if key != SD_MODEL_DEFAULT_KEY:
-                tasks.append(get_and_set_model(self, key))
-
-        await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+        models = asyncio.run(get_all_models(self, SD_MODELS))
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
