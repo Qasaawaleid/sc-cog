@@ -37,7 +37,23 @@ class Predictor(BasePredictor):
         print(f"✅ Loaded model: {key}")
         return key
 
-    async def setup(self):
+    async def load_all_models(self):
+        tasks = []
+        models = []
+        for key in SD_MODELS:
+            if key != SD_MODEL_DEFAULT_KEY:
+                tasks.append(self.get_and_set_model(key))
+
+        while len(tasks):
+            done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                result = task.result()
+                if result is not None:
+                    models.append(task.result())
+
+        print(f"✅ Loaded {len(models)} models: {models}")
+
+    def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
@@ -57,18 +73,7 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
 
-        tasks = []
-        models = []
-        for key in SD_MODELS:
-            if key != SD_MODEL_DEFAULT_KEY:
-                tasks.append(self.get_and_set_model(key))
-
-        while len(tasks):
-            done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-            for task in done:
-                result = task.result()
-                if result is not None:
-                    models.append(task.result())
+        asyncio.run(self.load_all_models())
 
         print(f"✅ Loaded {len(models)} models: {models}")
         # For translation
