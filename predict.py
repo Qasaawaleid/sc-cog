@@ -76,7 +76,6 @@ class Predictor(BasePredictor):
 
         asyncio.run(self.load_all_models())
 
-        print(f"✅ Loaded {len(models)} models: {models}")
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
         ).with_preloaded_language_models().build()
