@@ -61,7 +61,7 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
 
-        models = asyncio.run(self.get_all_models(SD_MODELS))
+        m = asyncio.run(self.get_all_models(SD_MODELS))
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
