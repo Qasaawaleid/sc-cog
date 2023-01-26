@@ -2,7 +2,6 @@ import time
 import os
 from huggingface_hub._login import login
 from typing import List
-import asyncio
 
 import torch
 from diffusers import (
@@ -22,30 +21,15 @@ from concurrent.futures import ThreadPoolExecutor
 
 _executor = ThreadPoolExecutor(10)
 
-
-async def in_thread(func):
-    """Run a function in a thread and return the result, needed to call non-asyncio functions from asyncio methods"""
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(_executor, func)
-
 class Predictor(BasePredictor):
-    async def get_and_set_model(self, key):
+    def load_model(self, key):
         print(f"⏳ Loading model: {key}")
-        self.txt2img_alts[key] = await in_thread(StableDiffusionPipeline.from_pretrained(
-            SD_MODELS[key]["id"],
-        ))
+        model = StableDiffusionPipeline.from_pretrained(SD_MODELS[key]["id"])
         print(f"✅ Loaded model: {key}")
-        return key
-
-    async def load_all_models(self):
-        tasks = []
-        for key in SD_MODELS:
-            if key != SD_MODEL_DEFAULT_KEY:
-                tasks.append(self.get_and_set_model(key))
-
-        await asyncio.gather(*tasks)
-
-        print(f"✅ Loaded all models")
+        return {
+            "key": key,
+            "model": model
+        }
 
     def setup(self):
         # Login to Hugging Face
@@ -67,7 +51,15 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
 
-        asyncio.run(self.load_all_models())
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                if key != SD_MODEL_DEFAULT_KEY:
+                    tasks.append(executor.submit(self.load_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                model = task.result()
+                self.txt2img_alts[model["key"]] = model["model"]
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
