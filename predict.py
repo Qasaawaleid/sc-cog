@@ -19,8 +19,6 @@ from lingua import LanguageDetectorBuilder
 
 from concurrent.futures import ThreadPoolExecutor
 
-_executor = ThreadPoolExecutor(10)
-
 
 class Predictor(BasePredictor):
     def load_model(self, key):
@@ -53,7 +51,7 @@ class Predictor(BasePredictor):
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
 
-        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             tasks = []
             for key in SD_MODELS:
                 if key != SD_MODEL_DEFAULT_KEY:
