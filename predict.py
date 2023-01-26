@@ -60,10 +60,12 @@ class Predictor(BasePredictor):
             for task in tasks:
                 model = task.result()
                 self.txt2img_alts[model["key"]] = model["model"]
-                self.txt2img_alt_pipes[model["key"]
-                                       ] = self.txt2img_alts[model["key"]].to('cuda')
-                self.txt2img_alt_pipes[model["key"]].enable_xformers_memory_efficient_attention(
-                )
+
+        for key in self.txt2img_alts:
+            self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to(
+                'cuda')
+            self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
+            )
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
