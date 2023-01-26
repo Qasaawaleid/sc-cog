@@ -16,7 +16,8 @@ from models.stable_diffusion.constants import (
     SD_MODEL_DEFAULT,
     SD_SCHEDULER_DEFAULT,
     SD_SCHEDULER_CHOICES,
-    SD_MODEL_DEFAULT_KEY
+    SD_MODEL_DEFAULT_KEY,
+    SD_MODEL_DEFAULT_ID
 )
 from models.stable_diffusion.helpers import download_model
 from models.nllb.translate import translate_text
@@ -41,16 +42,14 @@ class Predictor(BasePredictor):
             for task in tasks:
                 task.result()
 
-        default_model_id = SD_MODEL_DEFAULT["id"]
-        print(f"⏳ Loading the default pipeline: {default_model_id}")
-
+        print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded txt2img")
+        print(f"✅ Loaded the default pipeline: {SD_MODEL_DEFAULT_ID}")
 
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
