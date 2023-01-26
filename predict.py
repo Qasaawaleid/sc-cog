@@ -23,6 +23,15 @@ _executor = ThreadPoolExecutor(10)
 
 
 class Predictor(BasePredictor):
+    def load_model(self, key):
+        print(f"⏳ Loading model: {key}")
+        model = StableDiffusionPipeline.from_pretrained(SD_MODELS[key]["id"])
+        print(f"✅ Loaded model: {key}")
+        return {
+            "key": key,
+            "model": model
+        }
+
     def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
