@@ -17,6 +17,10 @@ from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
 
+from concurrent.futures import ThreadPoolExecutor
+
+_executor = ThreadPoolExecutor(10)
+
 
 class Predictor(BasePredictor):
     def setup(self):
