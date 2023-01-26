@@ -17,19 +17,8 @@ from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
 
-from concurrent.futures import ThreadPoolExecutor
-
 
 class Predictor(BasePredictor):
-    def load_model(self, key):
-        print(f"⏳ Loading model: {key}")
-        model = StableDiffusionPipeline.from_pretrained(SD_MODELS[key]["id"])
-        print(f"✅ Loaded model: {key}")
-        return {
-            "key": key,
-            "model": model
-        }
-
     def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
@@ -51,21 +40,16 @@ class Predictor(BasePredictor):
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
-            tasks = []
-            for key in SD_MODELS:
-                if key != SD_MODEL_DEFAULT_KEY:
-                    tasks.append(executor.submit(self.load_model, key))
-            # Call result of every task and put in array
-            for task in tasks:
-                model = task.result()
-                self.txt2img_alts[model["key"]] = model["model"]
-
-        for key in self.txt2img_alts:
-            self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to(
-                'cuda')
-            self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
-            )
+        for key in SD_MODELS:
+            if key != SD_MODEL_DEFAULT_KEY:
+                self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+                    SD_MODEL_CHOICES[key]["id"]
+                )
+                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to(
+                    'cuda'
+                )
+                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
+                )
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
