@@ -20,6 +20,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class Predictor(BasePredictor):
+    def download_model(self, key):
+        print(f"⏳ Downloading model: {key}")
+        StableDiffusionPipeline.from_pretrained(SD_MODELS[key]["id"])
+        print(f"✅ Downloaded model: {key}")
+        return {
+            "key": key
+        }
+
     def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
