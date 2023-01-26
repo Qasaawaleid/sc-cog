@@ -52,16 +52,20 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
-        for key in SD_MODELS:
-            if key != SD_MODEL_DEFAULT_KEY:
-                print(f"⏳ Loading model: {key}")
-                self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
-                    SD_MODELS[key]["id"],
+
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                if key != SD_MODEL_DEFAULT_KEY:
+                    tasks.append(executor.submit(self.load_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                model = task.result()
+                self.txt2img_alts[model["key"]] = model["model"]
+                self.txt2img_alt_pipes[model["key"]
+                                       ] = self.txt2img_alts[model["key"]].to('cuda')
+                self.txt2img_alt_pipes[model["key"]].enable_xformers_memory_efficient_attention(
                 )
-                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to('cuda')
-                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
-                )
-                print(f"✅ Loaded model: {key}")
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
