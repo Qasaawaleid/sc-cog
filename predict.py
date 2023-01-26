@@ -1,5 +1,6 @@
 import time
 import os
+from huggingface_hub._login import login
 from typing import List
 
 import torch
@@ -7,7 +8,6 @@ from diffusers import (
     StableDiffusionPipeline,
 )
 from cog import BasePredictor, Input, Path
-from huggingface_hub._login import login
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
@@ -20,6 +20,7 @@ from lingua import LanguageDetectorBuilder
 
 class Predictor(BasePredictor):
     def setup(self):
+        # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
