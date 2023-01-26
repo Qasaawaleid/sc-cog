@@ -49,6 +49,15 @@ class Predictor(BasePredictor):
         self.txt2img_alts = {}
         self.txt2img_alt_pipes = {}
 
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                if key != SD_MODEL_DEFAULT_KEY:
+                    tasks.append(executor.submit(self.download_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                task.result()
+
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
