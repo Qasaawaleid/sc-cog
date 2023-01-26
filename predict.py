@@ -18,30 +18,27 @@ from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
 
+from concurrent.futures import ThreadPoolExecutor
+
+_executor = ThreadPoolExecutor(10)
+
+
+async def in_thread(func):
+    """Run a function in a thread and return the result, needed to call non-asyncio functions from asyncio methods"""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(_executor, func)
+
 
 class Predictor(BasePredictor):
-    async def get_model(self, key):
+    async def get_and_set_model(self, key):
         print(f"⏳ Loading model: {key}")
-        self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+        self.txt2img_alts[key] = await in_thread(StableDiffusionPipeline.from_pretrained(
             SD_MODELS[key]["id"],
-        )
+        ))
         print(f"✅ Loaded model: {key}")
         return key
 
-    async def get_all_models(self, keys):
-        tasks = []
-        for key in keys:
-            tasks.append(self.get_model(key))
-        ret = []
-        while len(tasks):
-            done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-            for task in done:
-                result = task.result()
-                if result is not None:
-                    ret.append(task.result())
-        return ret
-
-    def setup(self):
+    async def setup(self):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
@@ -61,8 +58,20 @@ class Predictor(BasePredictor):
 
         self.txt2img_alts = {}
 
-        m = asyncio.run(self.get_all_models(SD_MODELS))
+        tasks = []
+        models = []
+        for key in SD_MODELS:
+            if key != SD_MODEL_DEFAULT_KEY:
+                tasks.append(self.get_and_set_model(key))
 
+        while len(tasks):
+            done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                result = task.result()
+                if result is not None:
+                    models.append(task.result())
+
+        print(f"✅ Loaded {len(models)} models: {models}")
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
         ).with_preloaded_language_models().build()
