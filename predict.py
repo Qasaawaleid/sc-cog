@@ -15,6 +15,7 @@ from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Predictor(BasePredictor):
