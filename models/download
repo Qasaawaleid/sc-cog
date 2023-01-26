@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 import os
-import sys
-from stable_diffusion.constants import SD_MODELS_ALL, SD_MODEL_CACHE
-from diffusers import StableDiffusionPipeline
 
-for key in SD_MODELS_ALL:
+""" for key in SD_MODELS_ALL:
     print(f"⏳ Downloading: {key}")
     pipe = StableDiffusionPipeline.from_pretrained(
         SD_MODELS_ALL[key]["id"],
@@ -13,7 +10,7 @@ for key in SD_MODELS_ALL:
         cache_dir=SD_MODEL_CACHE,
         use_auth_token=sys.argv[1],
     )
-    print(f"✅ Downloaded: {key}")
+    print(f"✅ Downloaded: {key}") """
 
 # For the upscaler
 print("⏳ Downloading SwinIR models...")
