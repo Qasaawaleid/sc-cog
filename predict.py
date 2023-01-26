@@ -10,23 +10,43 @@ from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
+from models.stable_diffusion.constants import (
+    SD_MODEL_CHOICES,
+    SD_MODELS,
+    SD_MODEL_DEFAULT,
+    SD_SCHEDULER_DEFAULT,
+    SD_SCHEDULER_CHOICES,
+    SD_MODEL_DEFAULT_KEY
+)
+from models.stable_diffusion.helpers import download_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
+from concurrent.futures import ThreadPoolExecutor
+from huggingface_hub._login import login
 
 
 class Predictor(BasePredictor):
     def setup(self):
+        # Login to Hugging Face
+        login(token=os.environ.get("HUGGINGFACE_TOKEN"))
+
+        # Download all models concurrently
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                tasks.append(executor.submit(download_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                task.result()
+
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
-            cache_dir=SD_MODEL_CACHE,
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
-            local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
@@ -39,9 +59,7 @@ class Predictor(BasePredictor):
                 print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
-                    cache_dir=SD_MODEL_CACHE,
                     torch_dtype=SD_MODELS[key]["torch_dtype"],
-                    local_files_only=True,
                 )
                 self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to('cuda')
                 self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
