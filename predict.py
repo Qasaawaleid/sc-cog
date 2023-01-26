@@ -43,7 +43,6 @@ class Predictor(BasePredictor):
                 task.result()
 
         print(f"⏳ Loading the default pipeline: {default_model_id}")
-
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
