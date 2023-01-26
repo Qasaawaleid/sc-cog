@@ -20,6 +20,7 @@ from models.stable_diffusion.constants import (
     SD_MODEL_DEFAULT_KEY,
     SD_MODEL_DEFAULT_ID
 )
+from models.stable_diffusion.helpers import download_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
@@ -30,7 +31,17 @@ from huggingface_hub._login import login
 
 class Predictor(BasePredictor):
     def setup(self):
+        # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
+
+        # Download all models concurrently
+        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                tasks.append(executor.submit(download_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                task.result()
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
