@@ -1,14 +1,13 @@
 import time
 import os
-from huggingface_hub._login import login
 from typing import List
-import asyncio
 
 import torch
 from diffusers import (
     StableDiffusionPipeline,
 )
 from cog import BasePredictor, Input, Path
+from huggingface_hub._login import login
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
@@ -18,38 +17,9 @@ from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
 
-from concurrent.futures import ThreadPoolExecutor
-
-_executor = ThreadPoolExecutor(10)
-
-
-async def in_thread(func):
-    """Run a function in a thread and return the result, needed to call non-asyncio functions from asyncio methods"""
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(_executor, func)
-
 
 class Predictor(BasePredictor):
-    async def get_and_set_model(self, key):
-        print(f"⏳ Loading model: {key}")
-        self.txt2img_alts[key] = await in_thread(StableDiffusionPipeline.from_pretrained(
-            SD_MODELS[key]["id"],
-        ))
-        print(f"✅ Loaded model: {key}")
-        return key
-
-    async def load_all_models(self):
-        tasks = []
-        for key in SD_MODELS:
-            if key != SD_MODEL_DEFAULT_KEY:
-                tasks.append(self.get_and_set_model(key))
-
-        await asyncio.gather(*tasks)
-
-        print(f"✅ Loaded all models")
-
     def setup(self):
-        # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
@@ -67,8 +37,13 @@ class Predictor(BasePredictor):
         self.txt2img_alt_name = None
 
         self.txt2img_alts = {}
-
-        asyncio.run(self.load_all_models())
+        for key in SD_MODELS:
+            if key != SD_MODEL_DEFAULT_KEY:
+                print(f"⏳ Loading model: {key}")
+                self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
+                    SD_MODELS[key]["id"],
+                )
+                print(f"✅ Loaded model: {key}")
 
         # For translation
         self.detect_language = LanguageDetectorBuilder.from_all_languages(
@@ -81,8 +56,8 @@ class Predictor(BasePredictor):
 
         print("✅ Setup is done!")
 
-    @torch.inference_mode()
-    @torch.cuda.amp.autocast()
+    @ torch.inference_mode()
+    @ torch.cuda.amp.autocast()
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
