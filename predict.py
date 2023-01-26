@@ -43,7 +43,7 @@ class Predictor(BasePredictor):
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
-                    SD_MODEL_CHOICES[key]["id"]
+                    SD_MODELS[key]["id"]
                 )
                 self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to(
                     'cuda'
