@@ -18,7 +18,8 @@ from models.stable_diffusion.constants import (
     SD_SCHEDULER_DEFAULT,
     SD_SCHEDULER_CHOICES,
     SD_MODEL_DEFAULT_KEY,
-    SD_MODEL_DEFAULT_ID
+    SD_MODEL_DEFAULT_ID,
+    SD_MODEL_CACHE
 )
 from models.stable_diffusion.helpers import download_sd_model
 from models.nllb.translate import translate_text
@@ -52,6 +53,7 @@ class Predictor(BasePredictor):
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
+            cache_dir=SD_MODEL_CACHE
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
@@ -67,6 +69,7 @@ class Predictor(BasePredictor):
                 print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
+                    cache_dir=SD_MODEL_CACHE
                 )
                 print(f"✅ Loaded model: {key}")
 
