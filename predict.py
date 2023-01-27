@@ -38,7 +38,6 @@ class Predictor(BasePredictor):
             tasks = []
             for key in SD_MODELS:
                 tasks.append(executor.submit(download_model, key))
-            # Call result of every task and put in array
             for task in tasks:
                 task.result()
 
