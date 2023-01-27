@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "*vram*"
+
+concurrency:
+  group: limit-one
+  cancel-in-progress: false
+
 jobs:
   setup_runner:
     name: Setup Runner
@@ -67,8 +72,16 @@ jobs:
         shell: bash
         run: docker push stb.sh/sc:vram
 
-      - name: Stop Instance
-        if: always()
+  destroy_runner:
+    name: Stop instance
+    runs-on: ubuntu-latest
+    if: always()
+    needs: build_and_publish_cog
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Stop VM
         run: ./scripts/stop_vm.sh
         env:
           TOKEN: ${{ secrets.COREWEAVE_TOKEN }}
