@@ -36,7 +36,7 @@ class Predictor(BasePredictor):
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
         # Download all models concurrently
-        with ThreadPoolExecutor(5) as executor:
+        with ThreadPoolExecutor(8) as executor:
             tasks = []
             for url in SWINIR_MODEL_URLS:
                 tasks.append(
