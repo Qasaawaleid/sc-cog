@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master, vram]
+    branches: [vram]
 
 jobs:
   build_and_publish_cog:
@@ -28,14 +28,20 @@ jobs:
         shell: bash
         run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
 
-      - name: Build
+      - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build
+        run: cog build; docker tag cog-stable-diffusion-cog:latest stb.sh/sc:${{ env.BRANCH_NAME }};
 
       - name: Login to registry
         if: success()
         uses: docker/login-action@v2
         with:
+          registry: stb.sh
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push to registry
+        if: success()
+        shell: bash
+        run: docker push stb.sh/sc:${{ env.BRANCH_NAME }}
