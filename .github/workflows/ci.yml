@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, vram]
 
 jobs:
   setup_runner:
@@ -59,6 +59,11 @@ jobs:
           registry: stb.sh
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get tag name
+        if: success()
+        shell: bash
+        run: echo "if [ "$BRANCH_NAME" == "main" ]; then TAG_NAME="latest" else TAG_NAME=$(echo $BRANCH_NAME | tr / -) fi" >> $GITHUB_ENV
 
       - name: Push to registry
         if: success()
