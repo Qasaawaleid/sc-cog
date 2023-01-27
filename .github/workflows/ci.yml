@@ -54,6 +54,11 @@ jobs:
           rename-to: cog
           chmod: 0755
 
+      - name: Download Weights
+        if: success()
+        shell: bash
+        run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
+
       - name: Build & Tag
         if: success()
         shell: bash
