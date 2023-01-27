@@ -19,9 +19,10 @@ from models.stable_diffusion.constants import (
     SD_MODEL_DEFAULT_KEY,
     SD_MODEL_DEFAULT_ID
 )
-from models.stable_diffusion.helpers import download_model
+from models.stable_diffusion.helpers import download_sd_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
+from models.swinir.constants import SWINIR_MODEL_URLS
 
 from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
@@ -34,10 +35,15 @@ class Predictor(BasePredictor):
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
         # Download all models concurrently
-        with ThreadPoolExecutor(max_workers=len(SD_MODELS)) as executor:
+        with ThreadPoolExecutor(5) as executor:
             tasks = []
+            for url in SWINIR_MODEL_URLS:
+                tasks.append(
+                    executor.submit(download_swinir_model, url)
+                )
             for key in SD_MODELS:
-                tasks.append(executor.submit(download_model, key))
+                tasks.append(executor.submit(download_sd_model, key))
+            # Call result of every task and put in array
             for task in tasks:
                 task.result()
 
