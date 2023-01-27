@@ -31,7 +31,7 @@ jobs:
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build; docker tag cog-stable-diffusion-cog:latest stb.sh/sc:${{ env.BRANCH_NAME }};
+        run: cog build -t stb.sh/sc:${{ env.BRANCH_NAME }}
 
       - name: Login to registry
         if: success()
