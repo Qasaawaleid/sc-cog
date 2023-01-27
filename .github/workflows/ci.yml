@@ -13,10 +13,10 @@ jobs:
       - uses: actions/checkout@master
 
       - name: Start Instance
+        run: ./scripts/start_vm.sh
         env:
           TOKEN: ${{ secrets.COREWEAVE-TOKEN }}
           NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
-        run: ./scripts/start_vm.sh
 
   build_and_publish_cog:
     name: Build and Publish Cog
@@ -67,7 +67,7 @@ jobs:
 
       - name: Stop Instance
         if: always()
+        run: ./scripts/stop_vm.sh
         env:
           TOKEN: ${{ secrets.COREWEAVE-TOKEN }}
           NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
-        run: ./scripts/stop_vm.sh
