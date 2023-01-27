@@ -3,7 +3,7 @@ name: Build Main
 on:
   push:
     tags:
-      - '*main*'
+      - "*main*"
 
 concurrency:
   group: limit-one
@@ -53,6 +53,11 @@ jobs:
           extension-matching: disable
           rename-to: cog
           chmod: 0755
+
+      - name: Download Weights
+        if: success()
+        shell: bash
+        run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
 
       - name: Build & Tag
         if: success()
