@@ -21,6 +21,7 @@ def clean_prefix_or_suffix_space(text: str):
     return text
 
 
+SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
