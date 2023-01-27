@@ -1,0 +1,40 @@
+apiVersion: serving.kubeflow.org/v1beta1
+kind: InferenceService
+metadata:
+  name: github-runner
+spec:
+  predictor:
+    containerConcurrency: 1
+    minReplicas: 1
+    maxReplicas: 1
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: gpu.nvidia.com/class
+                  operator: In
+                  values:
+                    - RTX_A4000
+    containers:
+      - name: runner-container
+        image: appditto/github-runner:latest
+        env:
+          - name: GH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: token
+          - name: GH_OWNER
+            value: stablecog
+          - name: GH_REPOSITORY
+            value: stable-diffusion-cog
+        resources:
+          requests:
+            cpu: 4
+            memory: 8Gi
+            nvidia.com/gpu: 1
+          limits:
+            cpu: 4
+            memory: 8Gi
+            nvidia.com/gpu: 1
