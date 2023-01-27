@@ -24,6 +24,7 @@ jobs:
     needs: setup_runner
     env:
       GITHUB_RUN_ID: ${{ github.run_id }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@master
 
@@ -42,10 +43,14 @@ jobs:
         shell: bash
         run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
 
-      - name: Update cog CLI
+      - name: Install custom cog
         if: success()
-        shell: bash
-        run: build_cog.sh
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with:
+          repo: stablecog/cog
+          extension-matching: disable
+          rename-to: cog
+          chmod: 0755
 
       - name: Build & Tag
         if: success()
