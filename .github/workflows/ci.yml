@@ -23,11 +23,6 @@ jobs:
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
 
-      - name: Install Cog
-        if: success()
-        shell: bash
-        run: curl -o /usr/local/bin/cog -L "https://r2.stablecog.com/cog/v0_7"; sudo chmod +x /usr/local/bin/cog
-
       - name: Download Weights
         if: success()
         shell: bash
