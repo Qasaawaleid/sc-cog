@@ -52,10 +52,15 @@ jobs:
         shell: bash
         run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
 
+      - name: Get tag name
+        if: success()
+        shell: bash
+        run: echo "TAG_NAME=${BRANCH_NAME=="main"?"latest":$(echo $BRANCH_NAME | tr / -)}" >> $GITHUB_ENV
+
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t stb.sh/sc:latest
+        run: cog build -t stb.sh/sc:$TAG_NAME
 
       - name: Login to registry
         if: success()
@@ -64,11 +69,6 @@ jobs:
           registry: stb.sh
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Get tag name
-        if: success()
-        shell: bash
-        run: echo "TAG_NAME=${BRANCH_NAME=="main"?"latest":$(echo $BRANCH_NAME | tr / -)}" >> $GITHUB_ENV
 
       - name: Push to registry
         if: success()
