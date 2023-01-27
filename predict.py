@@ -9,7 +9,6 @@ from diffusers import (
 from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
-from models.swinir.constants import SWINIR_MODEL_URLS
 from models.stable_diffusion.generate import generate
 from models.stable_diffusion.constants import (
     SD_MODEL_CHOICES,
@@ -24,7 +23,6 @@ from models.stable_diffusion.constants import (
 from models.stable_diffusion.helpers import download_sd_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
-from models.swinir.download import download_swinir_model
 
 from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
@@ -39,10 +37,6 @@ class Predictor(BasePredictor):
         # Download all models concurrently
         with ThreadPoolExecutor(8) as executor:
             tasks = []
-            for url in SWINIR_MODEL_URLS:
-                tasks.append(
-                    executor.submit(download_swinir_model, url)
-                )
             for key in SD_MODELS:
                 tasks.append(executor.submit(download_sd_model, key))
             # Call result of every task and put in array
