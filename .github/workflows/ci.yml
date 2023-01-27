@@ -15,7 +15,7 @@ jobs:
       - name: Start Instance
         run: ./scripts/start_vm.sh
         env:
-          TOKEN: ${{ secrets.COREWEAVE-TOKEN }}
+          TOKEN: ${{ secrets.COREWEAVE_TOKEN }}
           NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
 
   build_and_publish_cog:
@@ -69,5 +69,5 @@ jobs:
         if: always()
         run: ./scripts/stop_vm.sh
         env:
-          TOKEN: ${{ secrets.COREWEAVE-TOKEN }}
+          TOKEN: ${{ secrets.COREWEAVE_TOKEN }}
           NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
