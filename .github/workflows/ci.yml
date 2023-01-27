@@ -1,9 +1,9 @@
-name: CI
+name: Build Main
 
 on:
   push:
-    branches: [main, vram]
-
+    tags:
+      - '*main*'
 jobs:
   setup_runner:
     name: Setup Runner
@@ -27,6 +27,8 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@master
+        with:
+          ref: main
 
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
@@ -52,15 +54,10 @@ jobs:
         shell: bash
         run: chmod u+x models/download; cog run models/download ${{ secrets.HUGGINGFACE_TOKEN }}
 
-      - name: Get tag name
-        if: success()
-        shell: bash
-        run: echo "TAG_NAME=${BRANCH_NAME=="main"?"latest":$(echo $BRANCH_NAME | tr / -)}" >> $GITHUB_ENV
-
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t stb.sh/sc:$TAG_NAME
+        run: cog build -t stb.sh/sc:latest
 
       - name: Login to registry
         if: success()
@@ -73,7 +70,7 @@ jobs:
       - name: Push to registry
         if: success()
         shell: bash
-        run: docker push stb.sh/sc:$TAG_NAME
+        run: docker push stb.sh/sc:latest
 
       - name: Stop Instance
         if: always()
