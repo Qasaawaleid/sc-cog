@@ -40,7 +40,7 @@ jobs:
 
       - name: Install custom cog
         if: success()
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.9.0
         with:
           repo: stablecog/cog
           extension-matching: disable
