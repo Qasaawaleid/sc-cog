@@ -73,7 +73,7 @@ jobs:
       - name: Push to registry
         if: success()
         shell: bash
-        run: docker push stb.sh/sc:latest
+        run: docker push stb.sh/sc:$TAG_NAME
 
       - name: Stop Instance
         if: always()
