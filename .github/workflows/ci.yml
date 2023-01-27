@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
         with:
-          ref: main
+          ref: vram
 
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
