@@ -23,6 +23,7 @@ from models.stable_diffusion.helpers import download_sd_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 from models.swinir.constants import SWINIR_MODEL_URLS
+from models.swinir.download import download_swinir_model
 
 from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
