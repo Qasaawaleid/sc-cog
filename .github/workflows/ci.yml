@@ -1,0 +1,75 @@
+name: Build VRAM
+
+on:
+  push:
+    tags:
+      - "*vram*"
+jobs:
+  setup_runner:
+    name: Setup Runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Start Instance
+        run: ./scripts/start_vm.sh
+        env:
+          TOKEN: ${{ secrets.COREWEAVE_TOKEN }}
+          NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
+
+  build_and_publish_cog:
+    name: Build and Publish Cog
+    runs-on: self-hosted
+    needs: setup_runner
+    env:
+      GITHUB_RUN_ID: ${{ github.run_id }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@master
+        with:
+          ref: main
+
+      - name: Get branch name (merge)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+
+      - name: Get branch name (pull request)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+
+      - name: Install custom cog
+        if: success()
+        uses: jaxxstorm/action-install-gh-release@v1.9.0
+        with:
+          repo: stablecog/cog
+          extension-matching: disable
+          rename-to: cog
+          chmod: 0755
+
+      - name: Build & Tag
+        if: success()
+        shell: bash
+        run: cog build -t stb.sh/sc:vram
+
+      - name: Login to registry
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          registry: stb.sh
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push to registry
+        if: success()
+        shell: bash
+        run: docker push stb.sh/sc:vram
+
+      - name: Stop Instance
+        if: always()
+        run: ./scripts/stop_vm.sh
+        env:
+          TOKEN: ${{ secrets.COREWEAVE_TOKEN }}
+          NAMESPACE: ${{ secrets.COREWEAVE_NAMESPACE }}
