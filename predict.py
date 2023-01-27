@@ -35,7 +35,6 @@ class Predictor(BasePredictor):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
-        #
         # Download all models concurrently
         with ThreadPoolExecutor(5) as executor:
             tasks = []
