@@ -16,8 +16,8 @@ from torch.amp.autocast_mode import autocast
 
 
 def upscale(args, device, task, image, noise, jpeg):
-    with autocast("cuda"):
-        return _upscale(args, device, task, image, noise, jpeg)
+    """  with autocast("cuda"): """
+    return _upscale(args, device, task, image, noise, jpeg)
 
 
 def _upscale(args, device, task, image, noise, jpeg):
