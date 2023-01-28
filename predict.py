@@ -174,7 +174,7 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
-        processStart = time.time()
+        process_start = time.time()
         print("--------------------------------------------------------------")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
@@ -273,9 +273,9 @@ class Predictor(BasePredictor):
             f'-- Converted to "{output_image_extention}" in: {round((conversion_end - conversion_start) *1000)} ms --'
         )
 
-        processEnd = time.time()
+        process_end = time.time()
         print(
-            f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
+            f"✅ Process completed in: {round((process_end - process_start) * 1000)} ms ✅"
         )
         print("--------------------------------------------------------------")
         return output_paths
