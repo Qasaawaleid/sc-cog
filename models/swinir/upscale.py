@@ -12,15 +12,9 @@ from common.helpers import clean_folder
 from cog import Path
 from .constants import MODELS_SWINIR, TASKS_SWINIR
 from .helpers import define_model, get_image_pair, setup
-from torch.amp.autocast_mode import autocast
 
 
 def upscale(args, device, task, image, noise, jpeg):
-    """  with autocast("cuda"): """
-    return _upscale(args, device, task, image, noise, jpeg)
-
-
-def _upscale(args, device, task, image, noise, jpeg):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
