@@ -165,8 +165,8 @@ class Predictor(BasePredictor):
             default=40,
         ),
         process_type: str = Input(
-            description="Choose a process type. Can be 'generate', 'upscale' or 'generate-and-upscale'. Defaults to 'generate'",
-            choices=["generate", "upscale", "generate-and-upscale"],
+            description="Choose a process type. Can be 'generate', 'upscale' or 'generate_and_upscale'. Defaults to 'generate'",
+            choices=["generate", "upscale", "generate_and_upscale"],
             default="generate",
         ),
         translator_cog_url: str = Input(
@@ -179,7 +179,7 @@ class Predictor(BasePredictor):
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
-        if process_type == "generate" or process_type == "generate-and-upscale":
+        if process_type == "generate" or process_type == "generate_and_upscale":
             if translator_cog_url is None:
                 translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
 
@@ -228,7 +228,7 @@ class Predictor(BasePredictor):
                 f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
 
-        if process_type == 'upscale' or process_type == 'generate-and-upscale':
+        if process_type == 'upscale' or process_type == 'generate_and_upscale':
             startTime = time.time()
             if process_type == 'upscale':
                 upscale_output_path = upscale(
