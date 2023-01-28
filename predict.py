@@ -175,7 +175,7 @@ class Predictor(BasePredictor):
         ),
     ) -> List[Path]:
         process_start = time.time()
-        print("--------------------------------------------------------------")
+        print("////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
@@ -276,5 +276,5 @@ class Predictor(BasePredictor):
         print(
             f"✅ Process completed in: {round((process_end - process_start) * 1000)} ms ✅"
         )
-        print("--------------------------------------------------------------")
+        print("////////////////////////////////////////////////////")
         return output_paths
