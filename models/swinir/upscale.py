@@ -54,7 +54,7 @@ def _upscale(args, device, task, image, noise, jpeg):
 
         model = define_model(args)
         model.eval()
-        model = model.to(device)
+        model = model.to(device=device, dtype=torch.float16)
 
         # setup folder and path
         folder, save_dir, border, window_size = setup(args)
