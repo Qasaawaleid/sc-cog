@@ -261,9 +261,9 @@ class Predictor(BasePredictor):
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
             for i, path in enumerate(output_paths):
                 output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
-                pngMat = cv2.imread(str(path))
+                mat = cv2.imread(str(path))
                 cv2.imwrite(
-                    output_path_converted, pngMat,
+                    output_path_converted, mat,
                     [int(quality_type), output_image_quality]
                 )
                 output_paths[i] = Path(output_path_converted)
