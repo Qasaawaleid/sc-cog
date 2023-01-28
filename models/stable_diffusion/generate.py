@@ -25,7 +25,7 @@ def generate(
     guidance_scale,
     scheduler,
     seed,
-    output_image_ext,
+    output_image_extention,
     output_image_quality,
     model,
     txt2img_pipe
@@ -86,11 +86,11 @@ def generate(
             black_pixel_image.save(output_path)
         else:
             output.images[i].save(output_path)
-            if output_image_ext == "jpg" or output_image_ext == "webp":
-                output_path_converted = f"/tmp/out-{i}.{output_image_ext}"
+            if output_image_extention == "jpg" or output_image_extention == "webp":
+                output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
                 pngMat = cv2.imread(output_path)
                 quality_type = cv2.IMWRITE_JPEG_QUALITY
-                if output_image_ext == "webp":
+                if output_image_extention == "webp":
                     quality_type = cv2.IMWRITE_WEBP_QUALITY
                 cv2.imwrite(
                     output_path_converted, pngMat,
