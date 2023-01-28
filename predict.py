@@ -81,6 +81,7 @@ class Predictor(BasePredictor):
         print("✅ Setup is done!")
 
     @torch.inference_mode()
+    @torch.cuda.amp.autocast()
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
