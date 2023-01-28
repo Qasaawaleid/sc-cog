@@ -60,14 +60,16 @@ def upscale(args, device, task, image, noise, jpeg):
         test_results['ssim_y'] = []
         test_results['psnr_b'] = []
         # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-        out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
+        out_path = Path(tempfile.mkdtemp()) / "out.png"
 
         for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
             # read image
-            imgname, img_lq, img_gt = get_image_pair(args, path)  # image to HWC-BGR, float32
+            imgname, img_lq, img_gt = get_image_pair(
+                args, path)  # image to HWC-BGR, float32
             img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]],
-                                (2, 0, 1))  # HCW-BGR to CHW-RGB
-            img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(device)  # CHW-RGB to NCHW-RGB
+                                  (2, 0, 1))  # HCW-BGR to CHW-RGB
+            img_lq = torch.from_numpy(img_lq).float().unsqueeze(
+                0).to(device)  # CHW-RGB to NCHW-RGB
 
             # inference
             with torch.no_grad():
@@ -75,17 +77,21 @@ def upscale(args, device, task, image, noise, jpeg):
                 _, _, h_old, w_old = img_lq.size()
                 h_pad = (h_old // window_size + 1) * window_size - h_old
                 w_pad = (w_old // window_size + 1) * window_size - w_old
-                img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[:, :, :h_old + h_pad, :]
-                img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, :w_old + w_pad]
+                img_lq = torch.cat([img_lq, torch.flip(img_lq, [2])], 2)[
+                    :, :, :h_old + h_pad, :]
+                img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[
+                    :, :, :, :w_old + w_pad]
                 output = model(img_lq)
                 output = output[..., :h_old * args.scale, :w_old * args.scale]
 
             # save image
             output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
             if output.ndim == 3:
-                output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
-            output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
-            cv2.imwrite(str(out_path), output, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+                # CHW-RGB to HCW-BGR
+                output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+            # float32 to uint8
+            output = (output * 255.0).round().astype(np.uint8)
+            cv2.imwrite(str(out_path), output)
     finally:
         clean_folder(input_dir)
     return out_path
