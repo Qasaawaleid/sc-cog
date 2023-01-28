@@ -257,11 +257,11 @@ class Predictor(BasePredictor):
             print(
                 f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
-        # Convert to output images to the desired format
-        conversion_start = time.time()
-        print(f'-- Converting to "{output_image_extention}" --')
-
         if output_image_extention != "png":
+            conversion_start = time.time()
+            print(
+                f'-- Converting - {output_image_extention} - {output_image_quality} --'
+            )
             quality_type = cv2.IMWRITE_JPEG_QUALITY
             if output_image_extention == "webp":
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
@@ -273,11 +273,10 @@ class Predictor(BasePredictor):
                     [int(quality_type), output_image_quality]
                 )
                 output_paths[i] = Path(output_path_converted)
-
-        conversion_end = time.time()
-        print(
-            f'-- Converted to "{output_image_extention}" in: {round((conversion_end - conversion_start) *1000)} ms --'
-        )
+            conversion_end = time.time()
+            print(
+                f'-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --'
+            )
 
         process_end = time.time()
         print(
