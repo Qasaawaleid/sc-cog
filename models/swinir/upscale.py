@@ -49,8 +49,8 @@ def upscale(image):
         test_results['ssim_y'] = []
         test_results['psnr_b'] = []
         # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-        out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
 
+        out_path = Path(tempfile.mkdtemp()) / "out.png"
         for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
             # read image
             imgname, img_lq, img_gt = get_image_pair(
@@ -76,12 +76,10 @@ def upscale(image):
             # save image
             output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
             if output.ndim == 3:
-                # CHW-RGB to HCW-BGR
                 output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
             # float32 to uint8
             output = (output * 255.0).round().astype(np.uint8)
-            cv2.imwrite(str(out_path), output, [
-                        int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            cv2.imwrite(str(out_path), output)
     finally:
         clean_folder(input_dir)
     return out_path
