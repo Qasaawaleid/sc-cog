@@ -11,15 +11,14 @@ from cog import BasePredictor, Input, Path
 from models.stable_diffusion.generate import generate
 from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
 from models.nllb.translate import translate_text
-from models.stable_diffusion.helpers import download_sd_model
+from models.stable_diffusion.helpers import download_sd_models_concurrently
 from models.swinir.upscale import upscale
 from huggingface_hub._login import login
-from concurrent.futures import ThreadPoolExecutor
 
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.0.6"
+version = "0.0.7"
 
 
 class Predictor(BasePredictor):
@@ -30,13 +29,7 @@ class Predictor(BasePredictor):
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
         # Download all models concurrently
-        """ with ThreadPoolExecutor(8) as executor:
-            tasks = []
-            for key in SD_MODELS:
-                tasks.append(executor.submit(download_sd_model, key))
-            # Call result of every task and put in array
-            for task in tasks:
-                task.result() """
+        download_sd_models_concurrently(SD_MODELS.keys())
 
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
