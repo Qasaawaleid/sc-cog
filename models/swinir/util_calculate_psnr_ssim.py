@@ -18,9 +18,11 @@ def calculate_psnr(img1, img2, crop_border, input_order='HWC', test_y_channel=Fa
         float: psnr result.
     """
 
-    assert img1.shape == img2.shape, (f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
+    assert img1.shape == img2.shape, (
+        f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
     if input_order not in ['HWC', 'CHW']:
-        raise ValueError(f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
+        raise ValueError(
+            f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
     img1 = reorder_image(img1, input_order=input_order)
     img2 = reorder_image(img2, input_order=input_order)
     img1 = img1.astype(np.float64)
@@ -67,7 +69,8 @@ def _ssim(img1, img2):
     sigma2_sq = cv2.filter2D(img2 ** 2, -1, window)[5:-5, 5:-5] - mu2_sq
     sigma12 = cv2.filter2D(img1 * img2, -1, window)[5:-5, 5:-5] - mu1_mu2
 
-    ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
+    ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / \
+        ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
     return ssim_map.mean()
 
 
@@ -91,9 +94,11 @@ def calculate_ssim(img1, img2, crop_border, input_order='HWC', test_y_channel=Fa
         float: ssim result.
     """
 
-    assert img1.shape == img2.shape, (f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
+    assert img1.shape == img2.shape, (
+        f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
     if input_order not in ['HWC', 'CHW']:
-        raise ValueError(f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
+        raise ValueError(
+            f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
     img1 = reorder_image(img1, input_order=input_order)
     img2 = reorder_image(img2, input_order=input_order)
     img1 = img1.astype(np.float64)
@@ -120,31 +125,33 @@ def _blocking_effect_factor(im):
     block_vertical_positions = torch.arange(7, im.shape[2] - 1, 8)
 
     horizontal_block_difference = (
-                (im[:, :, :, block_horizontal_positions] - im[:, :, :, block_horizontal_positions + 1]) ** 2).sum(
+        (im[:, :, :, block_horizontal_positions] - im[:, :, :, block_horizontal_positions + 1]) ** 2).sum(
         3).sum(2).sum(1)
     vertical_block_difference = (
-                (im[:, :, block_vertical_positions, :] - im[:, :, block_vertical_positions + 1, :]) ** 2).sum(3).sum(
+        (im[:, :, block_vertical_positions, :] - im[:, :, block_vertical_positions + 1, :]) ** 2).sum(3).sum(
         2).sum(1)
 
-    nonblock_horizontal_positions = np.setdiff1d(torch.arange(0, im.shape[3] - 1), block_horizontal_positions)
-    nonblock_vertical_positions = np.setdiff1d(torch.arange(0, im.shape[2] - 1), block_vertical_positions)
+    nonblock_horizontal_positions = np.setdiff1d(
+        torch.arange(0, im.shape[3] - 1), block_horizontal_positions)
+    nonblock_vertical_positions = np.setdiff1d(
+        torch.arange(0, im.shape[2] - 1), block_vertical_positions)
 
     horizontal_nonblock_difference = (
-                (im[:, :, :, nonblock_horizontal_positions] - im[:, :, :, nonblock_horizontal_positions + 1]) ** 2).sum(
+        (im[:, :, :, nonblock_horizontal_positions] - im[:, :, :, nonblock_horizontal_positions + 1]) ** 2).sum(
         3).sum(2).sum(1)
     vertical_nonblock_difference = (
-                (im[:, :, nonblock_vertical_positions, :] - im[:, :, nonblock_vertical_positions + 1, :]) ** 2).sum(
+        (im[:, :, nonblock_vertical_positions, :] - im[:, :, nonblock_vertical_positions + 1, :]) ** 2).sum(
         3).sum(2).sum(1)
 
     n_boundary_horiz = im.shape[2] * (im.shape[3] // block_size - 1)
     n_boundary_vert = im.shape[3] * (im.shape[2] // block_size - 1)
     boundary_difference = (horizontal_block_difference + vertical_block_difference) / (
-                n_boundary_horiz + n_boundary_vert)
+        n_boundary_horiz + n_boundary_vert)
 
     n_nonboundary_horiz = im.shape[2] * (im.shape[3] - 1) - n_boundary_horiz
     n_nonboundary_vert = im.shape[3] * (im.shape[2] - 1) - n_boundary_vert
     nonboundary_difference = (horizontal_nonblock_difference + vertical_nonblock_difference) / (
-                n_nonboundary_horiz + n_nonboundary_vert)
+        n_nonboundary_horiz + n_nonboundary_vert)
 
     scaler = np.log2(block_size) / np.log2(min([im.shape[2], im.shape[3]]))
     bef = scaler * (boundary_difference - nonboundary_difference)
@@ -169,9 +176,11 @@ def calculate_psnrb(img1, img2, crop_border, input_order='HWC', test_y_channel=F
         float: psnr result.
     """
 
-    assert img1.shape == img2.shape, (f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
+    assert img1.shape == img2.shape, (
+        f'Image shapes are differnet: {img1.shape}, {img2.shape}.')
     if input_order not in ['HWC', 'CHW']:
-        raise ValueError(f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
+        raise ValueError(
+            f'Wrong input_order {input_order}. Supported input_orders are ' '"HWC" and "CHW"')
     img1 = reorder_image(img1, input_order=input_order)
     img2 = reorder_image(img2, input_order=input_order)
     img1 = img1.astype(np.float64)
@@ -191,7 +200,8 @@ def calculate_psnrb(img1, img2, crop_border, input_order='HWC', test_y_channel=F
 
     total = 0
     for c in range(img1.shape[1]):
-        mse = torch.nn.functional.mse_loss(img1[:, c:c + 1, :, :], img2[:, c:c + 1, :, :], reduction='none')
+        mse = torch.nn.functional.mse_loss(
+            img1[:, c:c + 1, :, :], img2[:, c:c + 1, :, :], reduction='none')
         bef = _blocking_effect_factor(img1[:, c:c + 1, :, :])
 
         mse = mse.view(mse.shape[0], -1).mean(1)
@@ -215,7 +225,8 @@ def reorder_image(img, input_order='HWC'):
     """
 
     if input_order not in ['HWC', 'CHW']:
-        raise ValueError(f'Wrong input_order {input_order}. Supported input_orders are ' "'HWC' and 'CHW'")
+        raise ValueError(
+            f'Wrong input_order {input_order}. Supported input_orders are ' "'HWC' and 'CHW'")
     if len(img.shape) == 2:
         img = img[..., None]
     if input_order == 'CHW':
@@ -257,7 +268,8 @@ def _convert_input_type_range(img):
     elif img_type == np.uint8:
         img /= 255.
     else:
-        raise TypeError('The img type should be np.float32 or np.uint8, ' f'but got {img_type}')
+        raise TypeError(
+            'The img type should be np.float32 or np.uint8, ' f'but got {img_type}')
     return img
 
 
@@ -280,7 +292,8 @@ def _convert_output_type_range(img, dst_type):
         (ndarray): The converted image with desired type and range.
     """
     if dst_type not in (np.uint8, np.float32):
-        raise TypeError('The dst_type should be np.float32 or np.uint8, ' f'but got {dst_type}')
+        raise TypeError(
+            'The dst_type should be np.float32 or np.uint8, ' f'but got {dst_type}')
     if dst_type == np.uint8:
         img = img.round()
     else:
