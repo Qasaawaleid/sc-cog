@@ -16,6 +16,7 @@ from .helpers import define_model, get_image_pair, setup, get_args_swinir
 device = torch.device('cuda')
 
 
+@torch.cuda.amp.autocast()
 def upscale(image):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
