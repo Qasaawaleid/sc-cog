@@ -4,13 +4,6 @@ from .helpers import make_scheduler
 from .constants import SD_MODELS
 from cog import Path
 import cv2
-import io
-from PIL import Image
-import base64
-
-black_pixel_str = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACklEQVR4AWNkAAAABAACGr4IAwAAAABJRU5ErkJggg=="
-black_pixel_data = base64.b64decode(black_pixel_str)
-black_pixel_image = Image.open(io.BytesIO(black_pixel_data))
 
 
 def generate(
@@ -83,21 +76,12 @@ def generate(
         output_path = f"/tmp/out-{i}.png"
         if nsfw_flag:
             nsfw_count += 1
-            black_pixel_image.save(output_path)
         else:
             output.images[i].save(output_path)
-            if output_image_ext == "jpg" or output_image_ext == "webp":
-                output_path_converted = f"/tmp/out-{i}.{output_image_ext}"
-                pngMat = cv2.imread(output_path)
-                quality_type = cv2.IMWRITE_JPEG_QUALITY
-                if output_image_ext == "webp":
-                    quality_type = cv2.IMWRITE_WEBP_QUALITY
-                cv2.imwrite(
-                    output_path_converted, pngMat,
-                    [int(quality_type), output_image_quality]
-                )
-                output_path = output_path_converted
         output_paths.append(Path(output_path))
+
+    if len(output_paths) == 0:
+        raise Exception("All outputs are NSFW.")
 
     if nsfw_count > 0:
         print(
