@@ -225,7 +225,9 @@ class Predictor(BasePredictor):
                 scheduler,
                 seed,
                 model,
-                txt2img_pipe
+                txt2img_pipe,
+                output_image_extention,
+                output_image_quality
             )
             output_paths = generate_output_paths
             endTime = time.time()
