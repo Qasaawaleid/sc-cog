@@ -80,11 +80,10 @@ def generate(
     nsfw_count = 0
 
     for i, nsfw_flag in enumerate(output.nsfw_content_detected):
-        output_path = f"/tmp/out-{i}.png"
         if nsfw_flag:
             nsfw_count += 1
-            black_pixel_image.save(output_path)
         else:
+            output_path = f"/tmp/out-{i}.png"
             output.images[i].save(output_path)
             if output_image_extention == "jpg" or output_image_extention == "webp":
                 print(
@@ -100,7 +99,10 @@ def generate(
                     [int(quality_type), output_image_quality]
                 )
                 output_path = output_path_converted
-        output_paths.append(Path(output_path))
+            output_paths.append(Path(output_path))
+
+    if len(output_paths) == 0:
+        raise Exception("All outputs are NSFW.")
 
     if nsfw_count > 0:
         print(
