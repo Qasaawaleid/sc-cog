@@ -9,7 +9,7 @@ from diffusers import (
 from cog import BasePredictor, Input, Path
 
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY, SD_MODEL_DEFAULT_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 from huggingface_hub._login import login
@@ -27,8 +27,7 @@ class Predictor(BasePredictor):
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
-        default_model_id = SD_MODEL_DEFAULT["id"]
-        print(f"⏳ Loading the default pipeline: {default_model_id}")
+        print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
