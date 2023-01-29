@@ -3,7 +3,6 @@ import torch
 from .helpers import make_scheduler
 from .constants import SD_MODELS
 from cog import Path
-import cv2
 
 
 def generate(

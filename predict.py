@@ -50,10 +50,6 @@ class Predictor(BasePredictor):
         ).with_preloaded_language_models().build()
         print("✅ Loaded language detector")
 
-        self.swinir_args = get_args_swinir()
-        self.device = torch.device('cuda')
-        print("✅ Loaded upscaler")
-
         print("✅ Setup is done!")
 
     @torch.inference_mode()
@@ -193,20 +189,12 @@ class Predictor(BasePredictor):
         if process_type == 'upscale' or process_type == 'generate_and_upscale':
             startTime = time.time()
             if process_type == 'upscale':
-                upscale_output_path = upscale(
-                    self.swinir_args,
-                    self.device,
-                    image_to_upscale
-                )
+                upscale_output_path = upscale(image_to_upscale)
                 output_paths = [upscale_output_path]
             else:
                 upscale_output_paths = []
                 for path in output_paths:
-                    upscale_output_path = upscale(
-                        self.swinir_args,
-                        self.device,
-                        path
-                    )
+                    upscale_output_path = upscale(path)
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()

@@ -11,13 +11,16 @@ import tempfile
 from common.helpers import clean_folder
 from cog import Path
 from .constants import MODELS_SWINIR, TASKS_SWINIR
-from .helpers import define_model, get_image_pair, setup
+from .helpers import define_model, get_image_pair, setup, get_args_swinir
+
+device = torch.device('cuda')
 
 
-def upscale(args, device, image):
+def upscale(image):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
+    args = get_args_swinir()
     args.task = TASKS_SWINIR["Real-World Image Super-Resolution-Large"]
     args.scale = 4
     args.model_path = MODELS_SWINIR["real_sr"]["large"]
