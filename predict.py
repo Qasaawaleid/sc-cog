@@ -28,8 +28,6 @@ from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
 from huggingface_hub._login import login
 
-version = "main-1.989"
-
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -141,8 +139,29 @@ class Predictor(BasePredictor):
             description="Output quality of the image. Can be 1-100.",
             default=90
         ),
-        image_to_upscale: Path = Input(
+        image_u: Path = Input(
             description="Input image for the upscaler (Swinir).", default=None
+        ),
+        task_u: str = Input(
+            default="Real-World Image Super-Resolution-Large",
+            choices=[
+                'Real-World Image Super-Resolution-Large',
+                'Real-World Image Super-Resolution-Medium',
+                'Grayscale Image Denoising',
+                'Color Image Denoising',
+                'JPEG Compression Artifact Reduction'
+            ],
+            description="Task type for the upscaler (Swinir).",
+        ),
+        noise_u: int = Input(
+            description='Noise level, activated for Grayscale Image Denoising and Color Image Denoising. It is for the upscaler (Swinir). Leave it as default or arbitrary if other tasks are selected.',
+            choices=[15, 25, 50],
+            default=15,
+        ),
+        jpeg_u: int = Input(
+            description='Scale factor, activated for JPEG Compression Artifact Reduction. It is for the upscaler (Swinir). Leave it as default or arbitrary if other tasks are selected.',
+            choices=[10, 20, 30, 40],
+            default=40,
         ),
         process_type: str = Input(
             description="Choose a process type. Can be 'generate', 'upscale' or 'generate_and_upscale'. Defaults to 'generate'",
@@ -156,7 +175,7 @@ class Predictor(BasePredictor):
     ) -> List[Path]:
         processStart = time.time()
         print("--------------------------------------------------------------")
-        print(f'⏳ Process started: {process_type} - Version: {version} ⏳')
+        print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
         if process_type == "generate" or process_type == "generate_and_upscale":
@@ -220,7 +239,7 @@ class Predictor(BasePredictor):
             startTime = time.time()
             if process_type == 'upscale':
                 upscale_output_path = upscale(
-                    self.swinir_args, self.device, image_to_upscale)
+                    self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
                 output_paths = [upscale_output_path]
             else:
                 upscale_output_paths = []
@@ -228,7 +247,10 @@ class Predictor(BasePredictor):
                     upscale_output_path = upscale(
                         self.swinir_args,
                         self.device,
+                        task_u,
                         path,
+                        noise_u,
+                        jpeg_u
                     )
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
