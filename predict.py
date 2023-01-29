@@ -25,9 +25,9 @@ from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
+import cv2
 from concurrent.futures import ThreadPoolExecutor
 from huggingface_hub._login import login
-import cv2
 
 
 class Predictor(BasePredictor):
