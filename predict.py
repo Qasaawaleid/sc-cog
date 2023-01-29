@@ -108,9 +108,9 @@ class Predictor(BasePredictor):
         negative_prompt_prefix: str = Input(
             description="Negative prompt prefix.", default=None
         ),
-        output_image_ext: str = Input(
-            description="Output type of the image. Can be 'png' or 'jpg'.",
-            choices=["jpg", "png", "webp"],
+        output_image_extention: str = Input(
+            description="Output type of the image. Can be 'png' or 'jpeg' or 'webp'.",
+            choices=["png", "jpeg", "webp"],
             default="png",
         ),
         output_image_quality: int = Input(
@@ -202,8 +202,6 @@ class Predictor(BasePredictor):
                 guidance_scale,
                 scheduler,
                 seed,
-                output_image_ext,
-                output_image_quality,
                 model,
                 txt2img_pipe
             )

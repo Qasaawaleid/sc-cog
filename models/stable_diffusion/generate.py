@@ -18,8 +18,6 @@ def generate(
     guidance_scale,
     scheduler,
     seed,
-    output_image_ext,
-    output_image_quality,
     model,
     txt2img_pipe
 ):
@@ -85,7 +83,7 @@ def generate(
 
     if nsfw_count > 0:
         print(
-            f"NSFW content detected in {nsfw_count}/{len(output_paths)} of the outputs."
+            f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs."
         )
 
     return output_paths
