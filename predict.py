@@ -28,7 +28,7 @@ from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
 from huggingface_hub._login import login
 
-version = "main-1.987"
+version = "main-1.988"
 
 
 class Predictor(BasePredictor):
