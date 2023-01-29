@@ -19,7 +19,9 @@ def generate(
     scheduler,
     seed,
     model,
-    txt2img_pipe
+    txt2img_pipe,
+    output_image_extention,
+    output_image_quality,
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -76,7 +78,21 @@ def generate(
             nsfw_count += 1
         else:
             output.images[i].save(output_path)
-            output_paths.append(Path(output_path))
+            if output_image_extention == "jpg" or output_image_extention == "webp":
+                print(
+                    f'Converting output {i} to "{output_image_extention}"...'
+                )
+                output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
+                pngMat = cv2.imread(output_path)
+                quality_type = cv2.IMWRITE_JPEG_QUALITY
+                if output_image_extention == "webp":
+                    quality_type = cv2.IMWRITE_WEBP_QUALITY
+                cv2.imwrite(
+                    output_path_converted, pngMat,
+                    [int(quality_type), output_image_quality]
+                )
+                output_path = output_path_converted
+        output_paths.append(Path(output_path))
 
     if len(output_paths) == 0:
         raise Exception(
