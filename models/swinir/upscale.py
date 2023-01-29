@@ -15,6 +15,7 @@ from .helpers import define_model, get_image_pair, setup
 
 
 def upscale(args, device, image):
+    print("Upscale called")
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
@@ -33,8 +34,10 @@ def upscale(args, device, image):
         args.folder_lq = input_dir
 
         model = define_model(args)
+        print("Model defined")
         model.eval()
-        model = model.to(device)
+        print("Model evaluated")
+        model = model.to("cuda")
 
         # setup folder and path
         folder, save_dir, border, window_size = setup(args)
