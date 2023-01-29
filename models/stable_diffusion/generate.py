@@ -87,6 +87,9 @@ def generate(
         else:
             output.images[i].save(output_path)
             if output_image_extention == "jpg" or output_image_extention == "webp":
+                print(
+                    f'Converting output {i} to "{output_image_extention}"...'
+                )
                 output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
                 pngMat = cv2.imread(output_path)
                 quality_type = cv2.IMWRITE_JPEG_QUALITY
