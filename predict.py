@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.0.5"
+version = "0.0.6"
 
 
 class Predictor(BasePredictor):
