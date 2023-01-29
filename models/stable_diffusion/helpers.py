@@ -3,6 +3,7 @@ from .constants import SD_MODELS, SD_MODEL_CACHE
 from diffusers import (
     StableDiffusionPipeline,
 )
+import concurrent.futures
 
 
 def make_scheduler(name, config):
@@ -19,3 +20,13 @@ def download_sd_model(key):
     return {
         "key": key
     }
+
+
+def download_sd_models_concurrently(keys):
+    with concurrent.futures.ThreadPoolExecutor(6) as executor:
+        # Start the download tasks
+        download_tasks = [executor.submit(
+            download_sd_model, key) for key in keys]
+        # Wait for all tasks to complete
+        results = [task.result()
+                   for task in concurrent.futures.as_completed(download_tasks)]
