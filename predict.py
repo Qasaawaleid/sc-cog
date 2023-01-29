@@ -26,7 +26,6 @@ class Predictor(BasePredictor):
             SD_MODEL_DEFAULT["id"],
             cache_dir=SD_MODEL_CACHE,
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
-            local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
@@ -43,7 +42,6 @@ class Predictor(BasePredictor):
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
                     cache_dir=SD_MODEL_CACHE,
-                    local_files_only=True,
                 )
                 print(f"✅ Loaded model: {key}")
 
