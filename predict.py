@@ -28,6 +28,8 @@ from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
 from huggingface_hub._login import login
 
+version = "main-1.983"
+
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -173,7 +175,6 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
-        version = "main-1.982"
         processStart = time.time()
         print("--------------------------------------------------------------")
         print(f'⏳ Process started: {process_type} - Version: "{version}" ⏳')
