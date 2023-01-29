@@ -91,11 +91,8 @@ def upscale(args, device, task, image, noise, jpeg):
                 output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
             # float32 to uint8
             output = (output * 255.0).round().astype(np.uint8)
-            cv2.imwrite(
-                str(out_path),
-                output,
-                [int(cv2.IMWRITE_JPEG_QUALITY), 100]
-            )
+            cv2.imwrite(str(out_path), output, [
+                        int(cv2.IMWRITE_JPEG_QUALITY), 90])
     finally:
         clean_folder(input_dir)
     return out_path
