@@ -26,6 +26,37 @@ SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16
+    },
+    "Openjourney": {
+        "id": "prompthero/openjourney",
+        "prompt_prefix": "mdjrny-v4 style",
+        "torch_dtype": torch.float16
+    },
+    "Redshift Diffusion": {
+        "id": "nitrosocke/redshift-diffusion",
+        "prompt_prefix": "redshift style",
+        "torch_dtype": torch.float16
+    },
+    "Arcane Diffusion": {
+        "id": "nitrosocke/Arcane-Diffusion",
+        "prompt_prefix": "arcane style",
+        "torch_dtype": torch.float16
+    },
+    "Ghibli Diffusion": {
+        "id": "nitrosocke/Ghibli-Diffusion",
+        "prompt_prefix": "ghibli style",
+        "torch_dtype": torch.float16
+    },
+    "Waifu Diffusion v1.4": {
+        "id": "hakurei/waifu-diffusion",
+        "prompt_prefix": "masterpiece, best quality, high quality",
+        "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw",
+        "torch_dtype": torch.float32
+    },
+    "22h Diffusion v0.1": {
+        "id": "22h/vintedois-diffusion-v0-1",
+        "prompt_prefix": "estilovintedois",
+        "torch_dtype": torch.float16
     }
 }
 
