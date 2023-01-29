@@ -28,7 +28,6 @@ class Predictor(BasePredictor):
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
-
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
