@@ -224,8 +224,6 @@ class Predictor(BasePredictor):
                 guidance_scale,
                 scheduler,
                 seed,
-                output_image_extention,
-                output_image_quality,
                 model,
                 txt2img_pipe
             )
