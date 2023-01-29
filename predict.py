@@ -173,9 +173,10 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
+        version = "main-1.982"
         processStart = time.time()
         print("--------------------------------------------------------------")
-        print(f"⏳ Process started: {process_type} ⏳")
+        print(f'⏳ Process started: {process_type} - Version: "{version}" ⏳')
         output_paths = []
 
         if process_type == "generate" or process_type == "generate_and_upscale":
