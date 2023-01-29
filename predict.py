@@ -14,8 +14,9 @@ from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
+import cv2
 
-version = "0.0.2"
+version = "0.0.3"
 
 
 class Predictor(BasePredictor):
@@ -110,7 +111,7 @@ class Predictor(BasePredictor):
         output_image_extention: str = Input(
             description="Output type of the image. Can be 'png' or 'jpeg' or 'webp'.",
             choices=["png", "jpeg", "webp"],
-            default="png",
+            default="jpeg",
         ),
         output_image_quality: int = Input(
             description="Output quality of the image. Can be 1-100.",
@@ -203,6 +204,28 @@ class Predictor(BasePredictor):
             endTime = time.time()
             print(
                 f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
+
+        # Convert to output images to the desired format
+        conversion_start = time.time()
+        print(f'-- Converting to "{output_image_extention}" --')
+
+        if output_image_extention != "png":
+            quality_type = cv2.IMWRITE_JPEG_QUALITY
+            if output_image_extention == "webp":
+                quality_type = cv2.IMWRITE_WEBP_QUALITY
+            for i, path in enumerate(output_paths):
+                output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
+                pngMat = cv2.imread(str(path))
+                cv2.imwrite(
+                    output_path_converted, pngMat,
+                    [int(quality_type), output_image_quality]
+                )
+                output_paths[i] = Path(output_path_converted)
+
+        conversion_end = time.time()
+        print(
+            f'-- Converted to "{output_image_extention}" in: {round((conversion_end - conversion_start) *1000)} ms --'
+        )
 
         processEnd = time.time()
         print(
