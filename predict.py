@@ -23,7 +23,6 @@ from models.stable_diffusion.constants import (
 from models.stable_diffusion.helpers import download_sd_model
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
-import cv2
 
 from lingua import LanguageDetectorBuilder
 from concurrent.futures import ThreadPoolExecutor
@@ -132,8 +131,8 @@ class Predictor(BasePredictor):
             description="Negative prompt prefix.", default=None
         ),
         output_image_extention: str = Input(
-            description="Output type of the image. Can be 'png', 'jpeg' or 'webp'.",
-            choices=["png", "jpeg", "webp"],
+            description="Output type of the image. Can be 'png', 'jpg' or 'webp'.",
+            choices=["jpg", "png", "webp"],
             default="png",
         ),
         output_image_quality: int = Input(
@@ -165,8 +164,8 @@ class Predictor(BasePredictor):
             default=40,
         ),
         process_type: str = Input(
-            description="Choose a process type. Can be 'generate', 'upscale' or 'generate_and_upscale'. Defaults to 'generate'",
-            choices=["generate", "upscale", "generate_and_upscale"],
+            description="Choose a process type. Can be 'generate', 'upscale' or 'generate-and-upscale'. Defaults to 'generate'",
+            choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         ),
         translator_cog_url: str = Input(
@@ -174,12 +173,12 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
-        process_start = time.time()
-        print("////////////////////////////////////////////////////")
+        processStart = time.time()
+        print("--------------------------------------------------------------")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
-        if process_type == "generate" or process_type == "generate_and_upscale":
+        if process_type == "generate" or process_type == "generate-and-upscale":
             if translator_cog_url is None:
                 translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
 
@@ -225,6 +224,8 @@ class Predictor(BasePredictor):
                 guidance_scale,
                 scheduler,
                 seed,
+                output_image_extention,
+                output_image_quality,
                 model,
                 txt2img_pipe
             )
@@ -234,7 +235,7 @@ class Predictor(BasePredictor):
                 f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
 
-        if process_type == 'upscale' or process_type == 'generate_and_upscale':
+        if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
             if process_type == 'upscale':
                 upscale_output_path = upscale(
@@ -257,30 +258,9 @@ class Predictor(BasePredictor):
             print(
                 f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
-        if output_image_extention != "png":
-            conversion_start = time.time()
-            print(
-                f'-- Converting - {output_image_extention} - {output_image_quality} --'
-            )
-            quality_type = cv2.IMWRITE_JPEG_QUALITY
-            if output_image_extention == "webp":
-                quality_type = cv2.IMWRITE_WEBP_QUALITY
-            for i, path in enumerate(output_paths):
-                output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
-                mat = cv2.imread(str(path))
-                cv2.imwrite(
-                    output_path_converted, mat,
-                    [int(quality_type), output_image_quality]
-                )
-                output_paths[i] = Path(output_path_converted)
-            conversion_end = time.time()
-            print(
-                f'-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --'
-            )
-
-        process_end = time.time()
+        processEnd = time.time()
         print(
-            f"✅ Process completed in: {round((process_end - process_start) * 1000)} ms ✅"
+            f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
-        print("////////////////////////////////////////////////////")
+        print("--------------------------------------------------------------")
         return output_paths
