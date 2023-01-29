@@ -16,9 +16,13 @@ from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
 
+version = "0.0.1"
+
 
 class Predictor(BasePredictor):
     def setup(self):
+        print(f"⏳ Setup is started - Version: {version}")
+
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
 
