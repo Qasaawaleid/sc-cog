@@ -10,48 +10,27 @@ from cog import BasePredictor, Input, Path
 
 from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import (
-    SD_MODEL_CHOICES,
-    SD_MODELS,
-    SD_MODEL_DEFAULT,
-    SD_SCHEDULER_DEFAULT,
-    SD_SCHEDULER_CHOICES,
-    SD_MODEL_DEFAULT_KEY,
-    SD_MODEL_DEFAULT_ID,
-    SD_MODEL_CACHE
-)
-from models.stable_diffusion.helpers import download_sd_model
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
-from concurrent.futures import ThreadPoolExecutor
-from huggingface_hub._login import login
 
 
 class Predictor(BasePredictor):
     def setup(self):
-        # Login to Hugging Face
-        login(token=os.environ.get("HUGGINGFACE_TOKEN"))
+        default_model_id = SD_MODEL_DEFAULT["id"]
+        print(f"⏳ Loading the default pipeline: {default_model_id}")
 
-        # Download all models concurrently
-        with ThreadPoolExecutor(8) as executor:
-            tasks = []
-            for key in SD_MODELS:
-                tasks.append(executor.submit(download_sd_model, key))
-            # Call result of every task and put in array
-            for task in tasks:
-                task.result()
-
-        print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
+            cache_dir=SD_MODEL_CACHE,
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
-            cache_dir=SD_MODEL_CACHE
+            local_files_only=True,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded the default pipeline: {SD_MODEL_DEFAULT_ID}")
+        print(f"✅ Loaded txt2img")
 
         self.txt2img_alt = None
         self.txt2img_alt_pipe = None
@@ -63,7 +42,8 @@ class Predictor(BasePredictor):
                 print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
-                    cache_dir=SD_MODEL_CACHE
+                    cache_dir=SD_MODEL_CACHE,
+                    local_files_only=True,
                 )
                 print(f"✅ Loaded model: {key}")
 
@@ -130,9 +110,9 @@ class Predictor(BasePredictor):
         negative_prompt_prefix: str = Input(
             description="Negative prompt prefix.", default=None
         ),
-        output_image_extention: str = Input(
-            description="Output type of the image. Can be 'png', 'jpg' or 'webp'.",
-            choices=["png", "jpg", "webp"],
+        output_image_ext: str = Input(
+            description="Output type of the image. Can be 'png' or 'jpg'.",
+            choices=["jpg", "png", "webp"],
             default="png",
         ),
         output_image_quality: int = Input(
@@ -164,8 +144,8 @@ class Predictor(BasePredictor):
             default=40,
         ),
         process_type: str = Input(
-            description="Choose a process type. Can be 'generate', 'upscale' or 'generate_and_upscale'. Defaults to 'generate'",
-            choices=["generate", "upscale", "generate_and_upscale"],
+            description="Choose a process type. Can be 'generate', 'upscale' or 'generate-and-upscale'. Defaults to 'generate'",
+            choices=["generate", "upscale", "generate-and-upscale"],
             default="generate",
         ),
         translator_cog_url: str = Input(
@@ -178,7 +158,7 @@ class Predictor(BasePredictor):
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
-        if process_type == "generate" or process_type == "generate_and_upscale":
+        if process_type == "generate" or process_type == "generate-and-upscale":
             if translator_cog_url is None:
                 translator_cog_url = os.environ.get("TRANSLATOR_COG_URL", None)
 
@@ -224,10 +204,10 @@ class Predictor(BasePredictor):
                 guidance_scale,
                 scheduler,
                 seed,
+                output_image_ext,
+                output_image_quality,
                 model,
-                txt2img_pipe,
-                output_image_extention,
-                output_image_quality
+                txt2img_pipe
             )
             output_paths = generate_output_paths
             endTime = time.time()
@@ -235,7 +215,7 @@ class Predictor(BasePredictor):
                 f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
 
-        if process_type == 'upscale' or process_type == 'generate_and_upscale':
+        if process_type == 'upscale' or process_type == 'generate-and-upscale':
             startTime = time.time()
             if process_type == 'upscale':
                 upscale_output_path = upscale(
