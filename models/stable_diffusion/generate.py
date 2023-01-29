@@ -25,8 +25,6 @@ def generate(
     guidance_scale,
     scheduler,
     seed,
-    output_image_ext,
-    output_image_quality,
     model,
     txt2img_pipe
 ):
@@ -83,21 +81,12 @@ def generate(
         output_path = f"/tmp/out-{i}.png"
         if nsfw_flag:
             nsfw_count += 1
-            black_pixel_image.save(output_path)
         else:
             output.images[i].save(output_path)
-            if output_image_ext == "jpg" or output_image_ext == "webp":
-                output_path_converted = f"/tmp/out-{i}.{output_image_ext}"
-                pngMat = cv2.imread(output_path)
-                quality_type = cv2.IMWRITE_JPEG_QUALITY
-                if output_image_ext == "webp":
-                    quality_type = cv2.IMWRITE_WEBP_QUALITY
-                cv2.imwrite(
-                    output_path_converted, pngMat,
-                    [int(quality_type), output_image_quality]
-                )
-                output_path = output_path_converted
-        output_paths.append(Path(output_path))
+            output_paths.append(Path(output_path))
+
+    if len(output_paths) == 0:
+        raise Exception("All outputs are NSFW.")
 
     if nsfw_count > 0:
         print(
