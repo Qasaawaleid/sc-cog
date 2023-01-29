@@ -78,7 +78,7 @@ def generate(
             nsfw_count += 1
         else:
             output.images[i].save(output_path)
-        output_paths.append(Path(output_path))
+            output_paths.append(Path(output_path))
 
     if len(output_paths) == 0:
         raise Exception("All outputs are NSFW.")
