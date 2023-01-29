@@ -13,6 +13,7 @@ from cog import BasePredictor, Input, Path
 from models.stable_diffusion.generate import generate
 from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY
 from models.nllb.translate import translate_text
+from models.stable_diffusion.helpers import download_sd_model
 from models.swinir.upscale import upscale
 
 from lingua import LanguageDetectorBuilder
@@ -42,8 +43,8 @@ class Predictor(BasePredictor):
 
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
-            cache_dir=SD_MODEL_CACHE,
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
+            cache_dir=SD_MODEL_CACHE,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
