@@ -1,3 +1,5 @@
+from huggingface_hub._login import login
+from concurrent.futures import ThreadPoolExecutor
 import time
 import os
 from typing import List
@@ -22,6 +24,18 @@ version = "0.0.3"
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
+
+        # Login to Hugging Face
+        login(token=os.environ.get("HUGGINGFACE_TOKEN"))
+
+        # Download all models concurrently
+        with ThreadPoolExecutor(8) as executor:
+            tasks = []
+            for key in SD_MODELS:
+                tasks.append(executor.submit(download_sd_model, key))
+            # Call result of every task and put in array
+            for task in tasks:
+                task.result()
 
         default_model_id = SD_MODEL_DEFAULT["id"]
         print(f"⏳ Loading the default pipeline: {default_model_id}")
