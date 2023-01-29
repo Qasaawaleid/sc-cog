@@ -8,41 +8,24 @@ from diffusers import (
 )
 from cog import BasePredictor, Input, Path
 
-from models.swinir.helpers import get_args_swinir
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import (
-    SD_MODEL_CHOICES,
-    SD_MODELS,
-    SD_MODEL_DEFAULT,
-    SD_SCHEDULER_DEFAULT,
-    SD_SCHEDULER_CHOICES,
-    SD_MODEL_DEFAULT_KEY,
-    SD_MODEL_DEFAULT_ID,
-    SD_MODEL_CACHE
-)
-from models.stable_diffusion.helpers import download_sd_model
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY, SD_MODEL_DEFAULT_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
+from huggingface_hub._login import login
 
 from lingua import LanguageDetectorBuilder
 import cv2
-from concurrent.futures import ThreadPoolExecutor
-from huggingface_hub._login import login
+
+version = "0.0.8"
 
 
 class Predictor(BasePredictor):
     def setup(self):
+        print(f"⏳ Setup has started - Version: {version}")
+
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
-
-        # Download all models concurrently
-        with ThreadPoolExecutor(8) as executor:
-            tasks = []
-            for key in SD_MODELS:
-                tasks.append(executor.submit(download_sd_model, key))
-            # Call result of every task and put in array
-            for task in tasks:
-                task.result()
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
@@ -74,13 +57,10 @@ class Predictor(BasePredictor):
         ).with_preloaded_language_models().build()
         print("✅ Loaded language detector")
 
-        self.swinir_args = get_args_swinir()
-        self.device = torch.device('cuda')
-        print("✅ Loaded upscaler")
-
         print("✅ Setup is done!")
 
     @torch.inference_mode()
+    @torch.cuda.amp.autocast()
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
@@ -132,37 +112,16 @@ class Predictor(BasePredictor):
             description="Negative prompt prefix.", default=None
         ),
         output_image_extention: str = Input(
-            description="Output type of the image. Can be 'png', 'jpeg' or 'webp'.",
+            description="Output type of the image. Can be 'png' or 'jpeg' or 'webp'.",
             choices=["png", "jpeg", "webp"],
-            default="png",
+            default="jpeg",
         ),
         output_image_quality: int = Input(
             description="Output quality of the image. Can be 1-100.",
             default=90
         ),
-        image_u: Path = Input(
+        image_to_upscale: Path = Input(
             description="Input image for the upscaler (Swinir).", default=None
-        ),
-        task_u: str = Input(
-            default="Real-World Image Super-Resolution-Large",
-            choices=[
-                'Real-World Image Super-Resolution-Large',
-                'Real-World Image Super-Resolution-Medium',
-                'Grayscale Image Denoising',
-                'Color Image Denoising',
-                'JPEG Compression Artifact Reduction'
-            ],
-            description="Task type for the upscaler (Swinir).",
-        ),
-        noise_u: int = Input(
-            description='Noise level, activated for Grayscale Image Denoising and Color Image Denoising. It is for the upscaler (Swinir). Leave it as default or arbitrary if other tasks are selected.',
-            choices=[15, 25, 50],
-            default=15,
-        ),
-        jpeg_u: int = Input(
-            description='Scale factor, activated for JPEG Compression Artifact Reduction. It is for the upscaler (Swinir). Leave it as default or arbitrary if other tasks are selected.',
-            choices=[10, 20, 30, 40],
-            default=40,
         ),
         process_type: str = Input(
             description="Choose a process type. Can be 'generate', 'upscale' or 'generate_and_upscale'. Defaults to 'generate'",
@@ -174,8 +133,8 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
-        process_start = time.time()
-        print("////////////////////////////////////////////////////")
+        processStart = time.time()
+        print("--------------------------------------------------------------")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
@@ -200,7 +159,13 @@ class Predictor(BasePredictor):
 
             txt2img_pipe = None
             if model != SD_MODEL_DEFAULT_KEY:
-                txt2img_pipe = self.txt2img_alt_pipes[model]
+                if self.txt2img_alt is not None and self.txt2img_alt_name != model:
+                    self.txt2img_alt.to("cpu")
+
+                self.txt2img_alt = self.txt2img_alts[model]
+                self.txt2img_alt_name = model
+                txt2img_pipe = self.txt2img_alt.to("cuda")
+                txt2img_pipe.enable_xformers_memory_efficient_attention()
             else:
                 txt2img_pipe = self.txt2img_pipe
 
@@ -231,50 +196,41 @@ class Predictor(BasePredictor):
         if process_type == 'upscale' or process_type == 'generate_and_upscale':
             startTime = time.time()
             if process_type == 'upscale':
-                upscale_output_path = upscale(
-                    self.swinir_args, self.device, task_u, image_u, noise_u, jpeg_u)
+                upscale_output_path = upscale(image_to_upscale)
                 output_paths = [upscale_output_path]
             else:
                 upscale_output_paths = []
                 for path in output_paths:
-                    upscale_output_path = upscale(
-                        self.swinir_args,
-                        self.device,
-                        task_u,
-                        path,
-                        noise_u,
-                        jpeg_u
-                    )
+                    upscale_output_path = upscale(path)
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
             print(
                 f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
+        # Convert to output images to the desired format
         if output_image_extention != "png":
             conversion_start = time.time()
-            print(
-                f'-- Converting - {output_image_extention} - {output_image_quality} --'
-            )
+            print(f'-- Converting to "{output_image_extention}" --')
             quality_type = cv2.IMWRITE_JPEG_QUALITY
             if output_image_extention == "webp":
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
             for i, path in enumerate(output_paths):
                 output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
-                mat = cv2.imread(str(path))
+                pngMat = cv2.imread(str(path))
                 cv2.imwrite(
-                    output_path_converted, mat,
+                    output_path_converted, pngMat,
                     [int(quality_type), output_image_quality]
                 )
                 output_paths[i] = Path(output_path_converted)
             conversion_end = time.time()
             print(
-                f'-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --'
+                f'-- Converted to "{output_image_extention}" in: {round((conversion_end - conversion_start) *1000)} ms --'
             )
 
-        process_end = time.time()
+        processEnd = time.time()
         print(
-            f"✅ Process completed in: {round((process_end - process_start) * 1000)} ms ✅"
+            f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
-        print("////////////////////////////////////////////////////")
+        print("--------------------------------------------------------------")
         return output_paths
