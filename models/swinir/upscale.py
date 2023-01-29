@@ -14,26 +14,14 @@ from .constants import MODELS_SWINIR, TASKS_SWINIR
 from .helpers import define_model, get_image_pair, setup
 
 
-def upscale(args, device, task, image, noise, jpeg):
+def upscale(args, device, image):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
-    args.task = TASKS_SWINIR[task]
-    args.noise = noise
-    args.jpeg = jpeg
-
-    if args.task == "real_sr":
-        args.scale = 4
-        if task == "Real-World Image Super-Resolution-Large":
-            args.model_path = MODELS_SWINIR["real_sr"]["large"]
-            args.large_model = True
-        else:
-            args.model_path = MODELS_SWINIR["real_sr"]["medium"]
-            args.large_model = False
-    elif args.task in ["gray_dn", "color_dn"]:
-        args.model_path = MODELS_SWINIR[args.task][noise]
-    else:
-        args.model_path = MODELS_SWINIR[args.task][jpeg]
+    args.task = TASKS_SWINIR["Real-World Image Super-Resolution-Large"]
+    args.model_path = MODELS_SWINIR["real_sr"]["large"]
+    args.scale = 4
+    args.large_model = True
 
     try:
         # set input folder
@@ -41,10 +29,8 @@ def upscale(args, device, task, image, noise, jpeg):
         os.makedirs(input_dir, exist_ok=True)
         input_path = os.path.join(input_dir, os.path.basename(image))
         shutil.copy(str(image), input_path)
-        if args.task == 'real_sr':
-            args.folder_lq = input_dir
-        else:
-            args.folder_gt = input_dir
+
+        args.folder_lq = input_dir
 
         model = define_model(args)
         model.eval()

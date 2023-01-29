@@ -47,11 +47,6 @@ SD_MODELS_ALL = {
         "prompt_prefix": "ghibli style",
         "torch_dtype": torch.float16
     },
-    "Mo-Di Diffusion": {
-        "id": "nitrosocke/mo-di-diffusion",
-        "prompt_prefix": "modern disney style",
-        "torch_dtype": torch.float16
-    },
     "Waifu Diffusion v1.4": {
         "id": "hakurei/waifu-diffusion",
         "prompt_prefix": "masterpiece, best quality, high quality",
