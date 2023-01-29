@@ -38,6 +38,7 @@ def upscale(args, device, image):
         model.eval()
         print("Model evaluated")
         model = model.to("cuda")
+        print("Model to cuda")
 
         # setup folder and path
         folder, save_dir, border, window_size = setup(args)
