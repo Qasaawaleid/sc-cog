@@ -57,11 +57,6 @@ SD_MODELS_ALL = {
         "id": "22h/vintedois-diffusion-v0-1",
         "prompt_prefix": "estilovintedois",
         "torch_dtype": torch.float16
-    },
-    "Mo-Di Diffusion": {
-        "id": "nitrosocke/mo-di-diffusion",
-        "prompt_prefix": "modern disney style",
-        "torch_dtype": torch.float16
     }
 }
 
