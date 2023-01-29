@@ -11,20 +11,29 @@ import tempfile
 from common.helpers import clean_folder
 from cog import Path
 from .constants import MODELS_SWINIR, TASKS_SWINIR
-from .helpers import define_model, get_image_pair, setup, get_args_swinir
-
-device = torch.device('cuda')
+from .helpers import define_model, get_image_pair, setup
 
 
-def upscale(image):
+def upscale(args, device, task, image, noise, jpeg):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
-    args = get_args_swinir()
-    args.task = TASKS_SWINIR["Real-World Image Super-Resolution-Large"]
-    args.scale = 4
-    args.model_path = MODELS_SWINIR["real_sr"]["large"]
-    args.large_model = True
+    args.task = TASKS_SWINIR[task]
+    args.noise = noise
+    args.jpeg = jpeg
+
+    if args.task == "real_sr":
+        args.scale = 4
+        if task == "Real-World Image Super-Resolution-Large":
+            args.model_path = MODELS_SWINIR["real_sr"]["large"]
+            args.large_model = True
+        else:
+            args.model_path = MODELS_SWINIR["real_sr"]["medium"]
+            args.large_model = False
+    elif args.task in ["gray_dn", "color_dn"]:
+        args.model_path = MODELS_SWINIR[args.task][noise]
+    else:
+        args.model_path = MODELS_SWINIR[args.task][jpeg]
 
     try:
         # set input folder
@@ -32,8 +41,10 @@ def upscale(image):
         os.makedirs(input_dir, exist_ok=True)
         input_path = os.path.join(input_dir, os.path.basename(image))
         shutil.copy(str(image), input_path)
-
-        args.folder_lq = input_dir
+        if args.task == 'real_sr':
+            args.folder_lq = input_dir
+        else:
+            args.folder_gt = input_dir
 
         model = define_model(args)
         model.eval()
@@ -49,7 +60,7 @@ def upscale(image):
         test_results['ssim_y'] = []
         test_results['psnr_b'] = []
         # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-        out_path = Path(tempfile.mkdtemp()) / "out.png"
+        out_path = Path(tempfile.mkdtemp()) / "out.jpeg"
 
         for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
             # read image
@@ -80,7 +91,8 @@ def upscale(image):
                 output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
             # float32 to uint8
             output = (output * 255.0).round().astype(np.uint8)
-            cv2.imwrite(str(out_path), output)
+            cv2.imwrite(str(out_path), output, [
+                        int(cv2.IMWRITE_JPEG_QUALITY), 90])
     finally:
         clean_folder(input_dir)
     return out_path
