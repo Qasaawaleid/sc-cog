@@ -132,7 +132,7 @@ class Predictor(BasePredictor):
         ),
         output_image_extention: str = Input(
             description="Output type of the image. Can be 'png', 'jpg' or 'webp'.",
-            choices=["jpg", "png", "webp"],
+            choices=["png", "jpg", "webp"],
             default="png",
         ),
         output_image_quality: int = Input(
