@@ -63,8 +63,11 @@ def upload_to_s3(s3, repo_name, prefix, file):
 def main(models, prefix="", file_list=None):
     try:
         # Make a working directory and cd to it
-        os.mkdir("model_repos_dir")
-        os.chdir("model_repos_dir")
+        work_dir = "download_model_repos_dir"
+        if os.path.exists(work_dir):
+            shutil.rmtree(work_dir)
+        os.mkdir(work_dir)
+        os.chdir(work_dir)
         s3 = boto3.client('s3',
                           endpoint_url=os.environ['ENDPOINT_URL'],
                           aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
