@@ -15,12 +15,11 @@ s3 = boto3.resource('s3',
 bucket_name = os.environ.get('S3_BUCKET_NAME')
 
 
-def download_sd_model(key):
-    model_id = SD_MODELS[key]['id']
+def download_sd_model(model_id):
     print(f"⏳ Downloading model: {model_id}")
     s3_directory = model_id + '/'
     # Specify the local directory to sync to
-    local_directory = get_local_model_path(key) + '/'
+    local_directory = get_local_model_path(model_id) + '/'
     bucket = s3.Bucket(bucket_name)
     # Loop through all files in the S3 directory
     for object in bucket.objects.filter(Prefix=s3_directory):
@@ -36,26 +35,29 @@ def download_sd_model(key):
         local_directory_path = os.path.dirname(local_file_path)
         if not os.path.exists(local_directory_path):
             os.makedirs(local_directory_path)
-        print(f'Downloading "{key}" to "{local_file_path}"...')
+        print(f'Downloading to: {local_file_path}')
         bucket.download_file(key, local_file_path)
-    print(f"✅ Downloaded model: {key}")
+    print(f"✅ Downloaded model: {model_id}")
     return {
-        "key": key
+        "model_id": model_id
     }
 
 
 def download_sd_models_concurrently():
-    with concurrent.futures.ThreadPoolExecutor(6) as executor:
+    model_ids = []
+    for key in SD_MODELS:
+        model_ids.append(SD_MODELS[key]["id"])
+    with concurrent.futures.ThreadPoolExecutor(10) as executor:
         # Start the download tasks
         download_tasks = [executor.submit(
-            download_sd_model, key) for key in SD_MODELS]
+            download_sd_model, model_id) for model_id in model_ids]
         # Wait for all tasks to complete
         results = [task.result()
                    for task in concurrent.futures.as_completed(download_tasks)]
 
 
-def get_local_model_path(key):
-    return f"./{SD_MODEL_CACHE}/{SD_MODELS[key]['id']}"
+def get_local_model_path(model_id):
+    return f"./{SD_MODEL_CACHE}/{model_id}"
 
 
 def make_scheduler(name, config):
