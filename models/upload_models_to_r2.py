@@ -22,6 +22,9 @@ def clone_repo(repo_url, branch, repo_name):
 
 def clear_bucket(s3):
     bucket = os.environ['S3_BUCKET_NAME']
+    objects = s3.list_objects(Bucket=bucket)
+    if objects.get('Contents', None) is None:
+        return
     s3.delete_objects(
         Bucket=bucket,
         Delete={'Objects': [{'Key': k} for k in [
