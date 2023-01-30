@@ -9,7 +9,7 @@ s3 = boto3.resource('s3',
                     aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                     aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
                     )
-bucket_name = 'models'
+bucket_name = os.environ['S3_BUCKET_NAME']
 
 
 def download_sd_model(key):

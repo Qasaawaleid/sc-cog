@@ -18,7 +18,7 @@ from huggingface_hub._login import login
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.0.8"
+version = "0.0.9"
 
 
 class Predictor(BasePredictor):
