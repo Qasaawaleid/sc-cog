@@ -2,7 +2,7 @@ import os
 import subprocess
 import boto3
 from botocore.exceptions import NoCredentialsError
-from .constants import SD_MODELS_ALL
+from stable_diffusion.constants import SD_MODELS_ALL
 import shutil
 
 SD_MODEL_IDS = [model["id"] for model in SD_MODELS_ALL.values()]
