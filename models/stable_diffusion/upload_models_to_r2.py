@@ -3,6 +3,7 @@ import subprocess
 import boto3
 from botocore.exceptions import NoCredentialsError
 from .constants import SD_MODELS_ALL
+import shutil
 
 SD_MODEL_IDS = [model["id"] for model in SD_MODELS_ALL.values()]
 REPO = "https://huggingface.co"
@@ -61,6 +62,7 @@ def main(repo_list, prefix="", file_list=None):
                     upload_to_s3(s3, repo_name, prefix, file)
             else:
                 upload_to_s3(s3, repo_name, prefix, repo_name)
+            shutil.rmtree(repo_name)
     except NoCredentialsError as e:
         print("Error:", e)
 
