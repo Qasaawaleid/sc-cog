@@ -25,7 +25,7 @@ SD_MODEL_CACHE = "diffusers-cache"
 SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
-        "torch_dtype": torch.float16,
+        "torch_dtype": torch.float16
     },
     "Openjourney": {
         "id": "prompthero/openjourney",
@@ -51,7 +51,7 @@ SD_MODELS_ALL = {
         "id": "hakurei/waifu-diffusion",
         "prompt_prefix": "masterpiece, best quality, high quality",
         "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw",
-        "torch_dtype": torch.float16,
+        "torch_dtype": torch.float32
     },
     "22h Diffusion v0.1": {
         "id": "22h/vintedois-diffusion-v0-1",

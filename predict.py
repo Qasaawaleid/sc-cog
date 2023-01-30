@@ -9,27 +9,29 @@ from diffusers import (
 from cog import BasePredictor, Input, Path
 
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.helpers import get_local_model_path, download_sd_models_concurrently
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY, SD_MODEL_DEFAULT_ID
+from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY, SD_MODEL_DEFAULT_ID
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
+from huggingface_hub._login import login
 
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.0"
+version = "0.1.1"
 
 
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
 
-        download_sd_models_concurrently()
+        # Login to Hugging Face
+        login(token=os.environ.get("HUGGINGFACE_TOKEN"))
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
-            get_local_model_path(SD_MODEL_DEFAULT["id"]),
+            SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
+            cache_dir=SD_MODEL_CACHE,
         )
         self.txt2img_pipe = self.txt2img.to('cuda')
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
@@ -44,7 +46,8 @@ class Predictor(BasePredictor):
             if key != SD_MODEL_DEFAULT_KEY:
                 print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
-                    get_local_model_path(SD_MODELS[key]["id"]),
+                    SD_MODELS[key]["id"],
+                    cache_dir=SD_MODEL_CACHE,
                 )
                 print(f"✅ Loaded model: {key}")
 
@@ -129,9 +132,8 @@ class Predictor(BasePredictor):
             default=None
         ),
     ) -> List[Path]:
-        print("/////////////////////////////////////////////////////")
-
         processStart = time.time()
+        print("--------------------------------------------------------------")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
 
@@ -231,5 +233,5 @@ class Predictor(BasePredictor):
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
-        print("/////////////////////////////////////////////////////")
+        print("--------------------------------------------------------------")
         return output_paths
