@@ -227,7 +227,7 @@ class Predictor(BasePredictor):
                 output_paths[i] = Path(output_path_converted)
             conversion_end = time.time()
             print(
-                f'-- Converted to "{output_image_extention}" in: {round((conversion_end - conversion_start) *1000)} ms --'
+                f'-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --'
             )
 
         processEnd = time.time()
