@@ -1,5 +1,7 @@
 from .constants import SD_SCHEDULERS
 from .constants import SD_MODELS, SD_MODEL_CACHE
+
+
 import concurrent.futures
 import boto3
 import os
@@ -25,10 +27,16 @@ def download_sd_model(key):
         # Get the file key and local file path
         key = object.key
         local_file_path = os.path.join(
-            local_directory, key.replace(s3_directory, ''))
+            local_directory, key.replace(s3_directory, '')
+        )
         # Skip if the local file already exists and is the same size
         if os.path.exists(local_file_path) and os.path.getsize(local_file_path) == object.size:
             continue
+        # Create the local directory if it doesn't exist
+        local_directory_path = os.path.dirname(local_file_path)
+        if not os.path.exists(local_directory_path):
+            os.makedirs(local_directory_path)
+        print(f'Downloading "{key}" to "{local_file_path}"...')
         bucket.download_file(key, local_file_path)
     print(f"✅ Downloaded model: {key}")
     return {
