@@ -5,11 +5,7 @@ from botocore.exceptions import NoCredentialsError
 from stable_diffusion.constants import SD_MODELS_ALL
 import shutil
 
-SD_MODEL_IDS = [model["id"] for model in SD_MODELS_ALL.values()]
 REPO = "https://huggingface.co"
-REPO_LIST = []
-for model_id in SD_MODEL_IDS:
-    REPO_LIST.append(REPO + "/" + model_id)
 PREFIX = ""
 FILE_LIST = [
     "feature_extractor/", "safety_checker/",
@@ -17,8 +13,11 @@ FILE_LIST = [
 ]
 
 
-def clone_repo(repo_url, repo_name):
-    subprocess.call(["git", "clone", repo_url, repo_name])
+def clone_repo(repo_url, branch, repo_name):
+    if branch is not None:
+        subprocess.call(["git", "clone", "-b", branch, repo_url, repo_name])
+    else:
+        subprocess.call(["git", "clone", repo_url, repo_name])
 
 
 def clear_bucket(s3):
@@ -49,7 +48,7 @@ def upload_to_s3(s3, repo_name, prefix, file):
             file_path, os.environ['S3_BUCKET_NAME'], s3_path)
 
 
-def main(repo_list, prefix="", file_list=None):
+def main(models, prefix="", file_list=None):
     try:
         s3 = boto3.client('s3',
                           endpoint_url=os.environ['ENDPOINT_URL'],
@@ -57,9 +56,12 @@ def main(repo_list, prefix="", file_list=None):
                           aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
                           )
         clear_bucket(s3)
-        for repo in repo_list:
-            repo_name = repo.split("/")[-1].split(".")[0]
-            clone_repo(repo, repo_name)
+        for key in models:
+            model = models[key]
+            repo_name = model["id"]
+            repo_url = REPO + "/" + repo_name
+            branch = model.get("branch", None)
+            clone_repo(repo_url, branch, repo_name)
             if file_list:
                 for file in file_list:
                     upload_to_s3(s3, repo_name, prefix, file)
@@ -71,4 +73,4 @@ def main(repo_list, prefix="", file_list=None):
 
 
 if __name__ == "__main__":
-    main(REPO_LIST, PREFIX, FILE_LIST)
+    main(SD_MODELS_ALL, PREFIX, FILE_LIST)
