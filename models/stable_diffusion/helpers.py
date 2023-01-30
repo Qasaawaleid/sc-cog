@@ -5,11 +5,12 @@ import boto3
 import os
 
 s3 = boto3.resource('s3',
-                    endpoint_url=os.environ['S3_ENDPOINT_URL'],
-                    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+                    endpoint_url=os.environ.get('S3_ENDPOINT_URL'),
+                    aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+                    aws_secret_access_key=os.environ.get(
+                        'AWS_SECRET_ACCESS_KEY')
                     )
-bucket_name = os.environ['S3_BUCKET_NAME']
+bucket_name = os.environ.get('S3_BUCKET_NAME')
 
 
 def download_sd_model(key):
