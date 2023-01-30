@@ -11,7 +11,6 @@ s3 = boto3.resource('s3',
                         'AWS_SECRET_ACCESS_KEY')
                     )
 bucket_name = os.environ.get('S3_BUCKET_NAME')
-bucket = s3.Bucket(bucket_name)
 
 
 def download_sd_model(key):
@@ -20,6 +19,7 @@ def download_sd_model(key):
     s3_directory = model_id + '/'
     # Specify the local directory to sync to
     local_directory = get_local_model_path(key) + '/'
+    bucket = s3.Bucket(bucket_name)
     # Loop through all files in the S3 directory
     for object in bucket.objects.filter(Prefix=s3_directory):
         # Get the file key and local file path
