@@ -10,7 +10,8 @@ s3 = boto3.resource('s3',
                     aws_secret_access_key=os.environ.get(
                         'AWS_SECRET_ACCESS_KEY')
                     )
-bucket_name = os.environ.get('S3_BUCKET_NAME')
+s3_bucket_name = os.environ.get('S3_BUCKET_NAME')
+bucket = s3.Bucket(bucket_name)
 
 
 def download_sd_model(key):
@@ -20,7 +21,7 @@ def download_sd_model(key):
     # Specify the local directory to sync to
     local_directory = get_local_model_path(key) + '/'
     # Loop through all files in the S3 directory
-    for object in s3.Bucket(bucket_name).objects.filter(Prefix=s3_directory):
+    for object in bucket.objects.filter(Prefix=s3_directory):
         # Get the file key and local file path
         key = object.key
         local_file_path = os.path.join(
@@ -28,18 +29,18 @@ def download_sd_model(key):
         # Skip if the local file already exists and is the same size
         if os.path.exists(local_file_path) and os.path.getsize(local_file_path) == object.size:
             continue
-        s3.download_file(bucket_name, key, local_file_path)
+        bucket.download_file(key, local_file_path)
     print(f"✅ Downloaded model: {key}")
     return {
         "key": key
     }
 
 
-def download_sd_models_concurrently(keys):
+def download_sd_models_concurrently():
     with concurrent.futures.ThreadPoolExecutor(6) as executor:
         # Start the download tasks
         download_tasks = [executor.submit(
-            download_sd_model, key) for key in keys]
+            download_sd_model, key) for key in SD_MODELS]
         # Wait for all tasks to complete
         results = [task.result()
                    for task in concurrent.futures.as_completed(download_tasks)]

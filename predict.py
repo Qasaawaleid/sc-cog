@@ -18,14 +18,14 @@ from huggingface_hub._login import login
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.0.94"
+version = "0.0.95"
 
 
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
 
-        download_sd_models_concurrently(SD_MODELS)
+        download_sd_models_concurrently()
 
         # Login to Hugging Face
         login(token=os.environ.get("HUGGINGFACE_TOKEN"))
