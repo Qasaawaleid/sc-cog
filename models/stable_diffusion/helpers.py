@@ -10,7 +10,7 @@ s3 = boto3.resource('s3',
                     aws_secret_access_key=os.environ.get(
                         'AWS_SECRET_ACCESS_KEY')
                     )
-s3_bucket_name = os.environ.get('S3_BUCKET_NAME')
+bucket_name = os.environ.get('S3_BUCKET_NAME')
 bucket = s3.Bucket(bucket_name)
 
 
