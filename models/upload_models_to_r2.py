@@ -7,6 +7,14 @@ import shutil
 
 SD_MODEL_IDS = [model["id"] for model in SD_MODELS_ALL.values()]
 REPO = "https://huggingface.co"
+REPO_LIST = []
+for model_id in SD_MODEL_IDS:
+    REPO_LIST.append(REPO + "/" + model_id)
+PREFIX = ""
+FILE_LIST = [
+    "feature_extractor/", "safety_checker/",
+    "scheduler", "text_encoder", "tokenizer", "unet", "vae", "model_index.json"
+]
 
 
 def clone_repo(repo_url, repo_name):
@@ -26,13 +34,8 @@ def clear_bucket(s3):
 def upload_to_s3(s3, repo_name, prefix, file):
     file_path = repo_name + "/" + file
     if os.path.isdir(file_path):
-        safetensors_exists = False
         for root, dirs, files in os.walk(file_path):
             for filename in files:
-                if filename.endswith('.safetensors'):
-                    safetensors_exists = True
-                if safetensors_exists and filename.endswith('.bin'):
-                    continue
                 local_path = os.path.join(root, filename)
                 s3_path = prefix + repo_name + "/" + \
                     local_path[len(repo_name)+1:]
@@ -68,12 +71,4 @@ def main(repo_list, prefix="", file_list=None):
 
 
 if __name__ == "__main__":
-    repo_list = []
-    for model_id in SD_MODEL_IDS:
-        repo_list.append(REPO + "/" + model_id)
-    prefix = ""
-    file_list = [
-        "feature_extractor/", "safety_checker/",
-        "scheduler", "text_encoder", "tokenizer", "unet", "vae", "model_index.json"
-    ]
-    main(repo_list, prefix, file_list)
+    main(REPO_LIST, PREFIX, FILE_LIST)
