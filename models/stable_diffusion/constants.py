@@ -26,7 +26,6 @@ SD_MODELS_ALL = {
     "Stable Diffusion v1.5": {
         "id": "runwayml/stable-diffusion-v1-5",
         "torch_dtype": torch.float16,
-        "branch": "fp16",
     },
     "Openjourney": {
         "id": "prompthero/openjourney",
@@ -53,7 +52,6 @@ SD_MODELS_ALL = {
         "prompt_prefix": "masterpiece, best quality, high quality",
         "negative_prompt_prefix": "worst quality, low quality, deleted, nsfw",
         "torch_dtype": torch.float16,
-        "branch": "fp16"
     },
     "22h Diffusion v0.1": {
         "id": "22h/vintedois-diffusion-v0-1",

@@ -52,7 +52,8 @@ def upload_to_s3(s3, repo_name, prefix, file):
                         continue
                 print(f"Uploading to: {s3_path}")
                 s3.upload_file(
-                    local_path, os.environ['S3_BUCKET_NAME'], s3_path)
+                    local_path, os.environ['S3_BUCKET_NAME'], s3_path
+                )
     else:
         s3_path = prefix + repo_name + "/" + file
         print(f"Uploading to: {s3_path}")
