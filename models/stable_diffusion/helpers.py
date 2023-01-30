@@ -14,8 +14,9 @@ bucket_name = os.environ.get('S3_BUCKET_NAME')
 
 
 def download_sd_model(key):
-    print(f"⏳ Downloading model: {key}")
-    s3_directory = key + '/'
+    model_id = SD_MODELS[key]['id']
+    print(f"⏳ Downloading model: {model_id}")
+    s3_directory = model_id + '/'
     # Specify the local directory to sync to
     local_directory = get_local_model_path(key) + '/'
     # Loop through all files in the S3 directory
