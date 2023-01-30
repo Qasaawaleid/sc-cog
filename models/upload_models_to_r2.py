@@ -38,6 +38,12 @@ def upload_to_s3(s3, repo_name, prefix, file):
                 local_path = os.path.join(root, filename)
                 s3_path = prefix + repo_name + "/" + \
                     local_path[len(repo_name)+1:]
+                if filename.endswith('.bin'):
+                    # Check if a .safetensors file exists in the same directory
+                    safetensors_file = root + '/' + \
+                        filename[:-4] + '.safetensors'
+                    if os.path.exists(safetensors_file):
+                        continue
                 print(f"Uploading to: {s3_path}")
                 s3.upload_file(
                     local_path, os.environ['S3_BUCKET_NAME'], s3_path)
