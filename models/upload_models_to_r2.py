@@ -43,6 +43,9 @@ def upload_to_s3(s3, repo_name, prefix, file):
                     safetensors_file = root + '/' + \
                         filename[:-4] + '.safetensors'
                     if os.path.exists(safetensors_file):
+                        print(
+                            f"Skipping {filename} because {safetensors_file} exists"
+                        )
                         continue
                 print(f"Uploading to: {s3_path}")
                 s3.upload_file(
