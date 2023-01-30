@@ -211,7 +211,9 @@ class Predictor(BasePredictor):
         # Convert to output images to the desired format
         if output_image_extention != "png":
             conversion_start = time.time()
-            print(f'-- Converting to "{output_image_extention}" --')
+            print(
+                f'-- Converting - {output_image_extention} - {output_image_quality} --'
+            )
             quality_type = cv2.IMWRITE_JPEG_QUALITY
             if output_image_extention == "webp":
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
