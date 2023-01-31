@@ -26,6 +26,5 @@ build:
     - "ipython==7.19.0"
     - "lingua-language-detector==1.1.3"
     - "huggingface-hub==0.12.0"
-    - "boto3==1.26.60"
 
 predict: "predict.py:Predictor"

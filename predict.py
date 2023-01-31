@@ -13,18 +13,19 @@ from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MO
 from models.stable_diffusion.helpers import download_sd_models_concurrently
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
+from huggingface_hub._login import login
 
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.1"
+version = "0.1.2"
 
 
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
 
-        download_sd_models_concurrently()
+        login(os.environ.get("HUGGINGFACE_TOKEN"))
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
