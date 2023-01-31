@@ -18,7 +18,7 @@ from huggingface_hub._login import login
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.2"
+version = "0.1.3"
 
 
 class Predictor(BasePredictor):
@@ -26,6 +26,7 @@ class Predictor(BasePredictor):
         print(f"⏳ Setup has started - Version: {version}")
 
         login(os.environ.get("HUGGINGFACE_TOKEN"))
+        download_sd_models_concurrently()
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
