@@ -48,6 +48,7 @@ def download_sd_models_concurrently():
         # Wait for all tasks to complete
         results = [task.result()
                    for task in concurrent.futures.as_completed(download_tasks)]
+    executor.shutdown(wait=True)
 
 
 def make_scheduler(name, config):
