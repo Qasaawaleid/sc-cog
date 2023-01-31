@@ -17,14 +17,15 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.3"
+version = "0.1.4"
 
 
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
 
-        download_sd_models_concurrently()
+        if os.environ.get("DOWNLOAD_MODELS_ON_SETUP", "1") == "1":
+            download_sd_models_concurrently()
 
         print(f"⏳ Loading the default pipeline: {SD_MODEL_DEFAULT_ID}")
         self.txt2img = StableDiffusionPipeline.from_pretrained(
