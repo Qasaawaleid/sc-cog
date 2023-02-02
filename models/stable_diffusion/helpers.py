@@ -31,7 +31,7 @@ def download_sd_model(key):
         local_directory_path = os.path.dirname(local_file_path)
         if not os.path.exists(local_directory_path):
             os.makedirs(local_directory_path)
-        print(f'Downloading "{key}" to "{local_file_path}"...')
+        print(f'Downloading: {key}')
         bucket.download_file(key, local_file_path)
     print(f"✅ Downloaded model: {key}")
     return {
