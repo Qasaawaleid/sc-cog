@@ -17,7 +17,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.55"
+version = "0.1.56"
 
 
 class Predictor(BasePredictor):
@@ -83,7 +83,7 @@ class Predictor(BasePredictor):
             le=10,
             default=1
         ),
-        inference_steps: int = Input(
+        num_inference_steps: int = Input(
             description="Number of denoising steps", ge=1, le=500, default=30
         ),
         guidance_scale: float = Input(
@@ -169,7 +169,7 @@ class Predictor(BasePredictor):
                 txt2img_pipe = self.txt2img_pipe
 
             print(
-                f'🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {inference_steps} - Outputs: {num_outputs} 🖥️'
+                f'🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
             startTime = time.time()
             generate_output_paths = generate(
@@ -179,7 +179,7 @@ class Predictor(BasePredictor):
                 negative_prompt_prefix,
                 width, height,
                 num_outputs,
-                inference_steps,
+                num_inference_steps,
                 guidance_scale,
                 scheduler,
                 seed,
@@ -189,7 +189,7 @@ class Predictor(BasePredictor):
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {inference_steps} - Outputs: {num_outputs} 🖥️'
+                f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
             )
 
         if process_type == 'upscale' or process_type == 'generate_and_upscale':

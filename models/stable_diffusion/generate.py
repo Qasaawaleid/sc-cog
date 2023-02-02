@@ -13,7 +13,7 @@ def generate(
     width,
     height,
     num_outputs,
-    inference_steps,
+    num_inference_steps,
     guidance_scale,
     scheduler,
     seed,
@@ -62,7 +62,7 @@ def generate(
         height=height,
         guidance_scale=guidance_scale,
         generator=generator,
-        inference_steps=inference_steps,
+        num_inference_steps=num_inference_steps,
         **extra_kwargs,
     )
 

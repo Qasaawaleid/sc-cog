@@ -67,7 +67,7 @@ def get_data(model, width, height, steps, output, webhook_url):
             'prompt': 'Portrait of a cat by Van Gogh',
             'width': str(width),
             'height': str(height),
-            'inference_steps': str(steps),
+            'num_inference_steps': str(steps),
             'model': str(model),
             'num_outputs': str(output),
         },
