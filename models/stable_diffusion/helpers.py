@@ -6,7 +6,6 @@ from .constants import SD_MODELS, SD_MODEL_CACHE
 import concurrent.futures
 
 
-config = TransferConfig(max_concurrency=10)
 s3 = boto3.resource('s3',
                     endpoint_url=os.environ.get('S3_ENDPOINT_URL'),
                     aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
@@ -34,7 +33,7 @@ def download_sd_model(key):
         if not os.path.exists(local_directory_path):
             os.makedirs(local_directory_path)
         print(f'Downloading: {key}')
-        bucket.download_file(key, local_file_path, Config=config)
+        bucket.download_file(key, local_file_path)
     print(f"✅ Downloaded model: {key}")
     return {
         "key": key
