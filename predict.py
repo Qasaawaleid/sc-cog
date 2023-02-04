@@ -158,13 +158,7 @@ class Predictor(BasePredictor):
 
             txt2img_pipe = None
             if model != SD_MODEL_DEFAULT_KEY:
-                if self.txt2img_alt is not None and self.txt2img_alt_name != model:
-                    self.txt2img_alt.to("cpu")
-
-                self.txt2img_alt = self.txt2img_alts[model]
-                self.txt2img_alt_name = model
-                txt2img_pipe = self.txt2img_alt.to("cuda")
-                txt2img_pipe.enable_xformers_memory_efficient_attention()
+                txt2img_pipe = self.txt2img_alt_pipes[model]
             else:
                 txt2img_pipe = self.txt2img_pipe
 
