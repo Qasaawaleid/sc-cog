@@ -63,6 +63,18 @@ jobs:
         if: success()
         shell: bash
         run: cog build -t stablecog/sc-cog:latest
+
+      - name: Login to Docker Hub
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Push to Docker Hub
+        if: success()
+        shell: bash
+        run: docker push stablecog/sc-cog:latest
       
       - name: Login to GHCR
         if: success()
@@ -76,19 +88,7 @@ jobs:
         if: success()
         shell: bash
         run: docker tag stablecog/sc-cog:latest ghcr.io/stablecog/sc-cog:latest; docker push ghcr.io/stablecog/sc-cog:latest
-
-      - name: Login to Docker Hub
-        if: success()
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Push to Docker Hub
-        if: success()
-        shell: bash
-        run: docker push stablecog/sc-cog:latest
-
+        
   destroy_runner:
     name: Stop instance
     runs-on: ubuntu-latest
