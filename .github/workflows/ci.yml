@@ -62,7 +62,7 @@ jobs:
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t stablecog/sc-cog:vram -t ghcr.io/stablecog/sc-cog:vram
+        run: cog build -t stablecog/sc-cog:vram
       
       - name: Login to GHCR
         if: success()
@@ -75,7 +75,7 @@ jobs:
       - name: Push to GHCR
         if: success()
         shell: bash
-        run: docker push ghcr.io/stablecog/sc-cog:vram
+        run: docker tag stablecog/sc-cog:vram ghcr.io/stablecog/sc-cog:vram; docker push ghcr.io/stablecog/sc-cog:vram
 
       - name: Login to Docker Hub
         if: success()
