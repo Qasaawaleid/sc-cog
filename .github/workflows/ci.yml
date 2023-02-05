@@ -62,7 +62,7 @@ jobs:
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t stb.sh/sc:latest -t ghcr.io/stablecog/sc:latest
+        run: cog build -t stb.sh/sc-cog:latest -t ghcr.io/stablecog/sc-cog:latest
 
       - name: Login to registry
         if: success()
@@ -75,7 +75,7 @@ jobs:
       - name: Push to registry
         if: success()
         shell: bash
-        run: docker push stb.sh/sc:latest
+        run: docker push stb.sh/sc-cog:latest
 
       - name: Login to GHCR
         if: success()
@@ -88,7 +88,7 @@ jobs:
       - name: Push to GHCR
         if: success()
         shell: bash
-        run: docker push ghcr.io/stablecog/sc:latest
+        run: docker push ghcr.io/stablecog/sc-cog:latest
 
   destroy_runner:
     name: Stop instance
