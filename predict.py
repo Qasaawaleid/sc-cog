@@ -9,7 +9,16 @@ from diffusers import (
 from cog import BasePredictor, Input, Path
 
 from models.stable_diffusion.generate import generate
-from models.stable_diffusion.constants import SD_MODEL_CHOICES, SD_MODELS, SD_MODEL_CACHE, SD_MODEL_DEFAULT, SD_SCHEDULER_DEFAULT, SD_SCHEDULER_CHOICES, SD_MODEL_DEFAULT_KEY, SD_MODEL_DEFAULT_ID
+from models.stable_diffusion.constants import (
+    SD_MODEL_CHOICES,
+    SD_MODELS,
+    SD_MODEL_CACHE,
+    SD_MODEL_DEFAULT,
+    SD_SCHEDULER_DEFAULT,
+    SD_SCHEDULER_CHOICES,
+    SD_MODEL_DEFAULT_KEY,
+    SD_MODEL_DEFAULT_ID,
+)
 from models.stable_diffusion.helpers import download_sd_models_concurrently
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
@@ -17,7 +26,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.60"
+version = "0.1.61"
 
 
 class Predictor(BasePredictor):
@@ -31,9 +40,9 @@ class Predictor(BasePredictor):
         self.txt2img = StableDiffusionPipeline.from_pretrained(
             SD_MODEL_DEFAULT["id"],
             torch_dtype=SD_MODEL_DEFAULT["torch_dtype"],
-            cache_dir=SD_MODEL_CACHE
+            cache_dir=SD_MODEL_CACHE,
         )
-        self.txt2img_pipe = self.txt2img.to('cuda')
+        self.txt2img_pipe = self.txt2img.to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
         print(f"✅ Loaded the default pipeline: {SD_MODEL_DEFAULT_ID}")
 
@@ -45,16 +54,18 @@ class Predictor(BasePredictor):
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
                     torch_dtype=SD_MODELS[key]["torch_dtype"],
-                    cache_dir=SD_MODEL_CACHE
+                    cache_dir=SD_MODEL_CACHE,
                 )
-                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to('cuda')
-                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention(
-                )
+                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to("cuda")
+                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention()
                 print(f"✅ Loaded model: {key}")
 
         # For translation
-        self.detect_language = LanguageDetectorBuilder.from_all_languages(
-        ).with_preloaded_language_models().build()
+        self.detect_language = (
+            LanguageDetectorBuilder.from_all_languages()
+            .with_preloaded_language_models()
+            .build()
+        )
         print("✅ Loaded language detector")
 
         print("✅ Setup is done!")
@@ -63,25 +74,22 @@ class Predictor(BasePredictor):
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
-        negative_prompt: str = Input(
-            description="Input negative prompt.", default=""),
+        negative_prompt: str = Input(description="Input negative prompt.", default=""),
         width: int = Input(
             description="Width of output image.",
-            choices=[128, 256, 384, 448, 512, 576,
-                     640, 704, 768, 832, 896, 960, 1024],
+            choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         height: int = Input(
             description="Height of output image.",
-            choices=[128, 256, 384, 448, 512, 576,
-                     640, 704, 768, 832, 896, 960, 1024],
+            choices=[128, 256, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
             default=512,
         ),
         num_outputs: int = Input(
             description="Number of images to output. If the NSFW filter is triggered, you may get fewer outputs than this.",
             ge=1,
             le=10,
-            default=1
+            default=1,
         ),
         num_inference_steps: int = Input(
             description="Number of denoising steps", ge=1, le=500, default=30
@@ -103,9 +111,13 @@ class Predictor(BasePredictor):
             description="Random seed. Leave blank to randomize the seed.", default=None
         ),
         prompt_flores_200_code: str = Input(
-            description="Prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+            description="Prompt language code (FLORES-200). It overrides the language auto-detection.",
+            default=None,
+        ),
         negative_prompt_flores_200_code: str = Input(
-            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.", default=None),
+            description="Negative prompt language code (FLORES-200). It overrides the language auto-detection.",
+            default=None,
+        ),
         prompt_prefix: str = Input(description="Prompt prefix.", default=None),
         negative_prompt_prefix: str = Input(
             description="Negative prompt prefix.", default=None
@@ -116,8 +128,7 @@ class Predictor(BasePredictor):
             default="jpeg",
         ),
         output_image_quality: int = Input(
-            description="Output quality of the image. Can be 1-100.",
-            default=90
+            description="Output quality of the image. Can be 1-100.", default=90
         ),
         image_to_upscale: Path = Input(
             description="Input image for the upscaler (Swinir).", default=None
@@ -129,7 +140,7 @@ class Predictor(BasePredictor):
         ),
         translator_cog_url: str = Input(
             description="URL of the translator cog. If it's blank, TRANSLATOR_COG_URL environment variable will be used (if it exists).",
-            default=None
+            default=None,
         ),
     ) -> List[Path]:
         processStart = time.time()
@@ -151,7 +162,7 @@ class Predictor(BasePredictor):
                     negative_prompt_flores_200_code,
                     translator_cog_url,
                     self.detect_language,
-                    "Prompt & Negative Prompt"
+                    "Prompt & Negative Prompt",
                 )
             else:
                 print("-- Translator cog URL is not set. Skipping translation. --")
@@ -163,7 +174,7 @@ class Predictor(BasePredictor):
                 txt2img_pipe = self.txt2img_pipe
 
             print(
-                f'🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
+                f"🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️"
             )
             startTime = time.time()
             generate_output_paths = generate(
@@ -171,24 +182,25 @@ class Predictor(BasePredictor):
                 t_negative_prompt,
                 prompt_prefix,
                 negative_prompt_prefix,
-                width, height,
+                width,
+                height,
                 num_outputs,
                 num_inference_steps,
                 guidance_scale,
                 scheduler,
                 seed,
                 model,
-                txt2img_pipe
+                txt2img_pipe,
             )
             output_paths = generate_output_paths
             endTime = time.time()
             print(
-                f'🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️'
+                f"🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️"
             )
 
-        if process_type == 'upscale' or process_type == 'generate_and_upscale':
+        if process_type == "upscale" or process_type == "generate_and_upscale":
             startTime = time.time()
-            if process_type == 'upscale':
+            if process_type == "upscale":
                 upscale_output_path = upscale(image_to_upscale)
                 output_paths = [upscale_output_path]
             else:
@@ -198,14 +210,13 @@ class Predictor(BasePredictor):
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
-            print(
-                f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
+            print(f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
         # Convert to output images to the desired format
         if output_image_extention != "png":
             conversion_start = time.time()
             print(
-                f'-- Converting - {output_image_extention} - {output_image_quality} --'
+                f"-- Converting - {output_image_extention} - {output_image_quality} --"
             )
             quality_type = cv2.IMWRITE_JPEG_QUALITY
             if output_image_extention == "webp":
@@ -214,13 +225,14 @@ class Predictor(BasePredictor):
                 output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
                 pngMat = cv2.imread(str(path))
                 cv2.imwrite(
-                    output_path_converted, pngMat,
-                    [int(quality_type), output_image_quality]
+                    output_path_converted,
+                    pngMat,
+                    [int(quality_type), output_image_quality],
                 )
                 output_paths[i] = Path(output_path_converted)
             conversion_end = time.time()
             print(
-                f'-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --'
+                f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --"
             )
 
         processEnd = time.time()
