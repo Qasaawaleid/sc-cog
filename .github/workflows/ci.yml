@@ -62,20 +62,7 @@ jobs:
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t stb.sh/sc-cog:latest -t ghcr.io/stablecog/sc-cog:latest
-
-      - name: Login to registry
-        if: success()
-        uses: docker/login-action@v2
-        with:
-          registry: stb.sh
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push to registry
-        if: success()
-        shell: bash
-        run: docker push stb.sh/sc-cog:latest
+        run: cog build -t ghcr.io/stablecog/sc-cog:latest
 
       - name: Login to GHCR
         if: success()
