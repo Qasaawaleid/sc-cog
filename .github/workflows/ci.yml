@@ -62,7 +62,7 @@ jobs:
       - name: Build & Tag
         if: success()
         shell: bash
-        run: cog build -t ghcr.io/stablecog/sc-cog:vram
+        run: cog build -t stablecog/sc-cog:vram -t ghcr.io/stablecog/sc-cog:vram
       
       - name: Login to GHCR
         if: success()
@@ -76,6 +76,18 @@ jobs:
         if: success()
         shell: bash
         run: docker push ghcr.io/stablecog/sc-cog:vram
+
+      - name: Login to Docker Hub
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Push to Docker Hub
+        if: success()
+        shell: bash
+        run: docker push stablecog/sc-cog:vram
 
   destroy_runner:
     name: Stop instance
