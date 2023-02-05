@@ -122,7 +122,7 @@ class Predictor(BasePredictor):
         negative_prompt_prefix: str = Input(
             description="Negative prompt prefix.", default=None
         ),
-        output_image_extention: str = Input(
+        output_image_extension: str = Input(
             description="Output type of the image. Can be 'png' or 'jpeg' or 'webp'.",
             choices=["png", "jpeg", "webp"],
             default="jpeg",
@@ -142,11 +142,12 @@ class Predictor(BasePredictor):
             description="URL of the translator cog. If it's blank, TRANSLATOR_COG_URL environment variable will be used (if it exists).",
             default=None,
         ),
-    ) -> List[Path]:
+    ) -> dict[str, list[Path] | int]:
         processStart = time.time()
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
         output_paths = []
+        nsfw_count = 0
 
         if process_type == "generate" or process_type == "generate_and_upscale":
             if translator_cog_url is None:
@@ -177,7 +178,7 @@ class Predictor(BasePredictor):
                 f"🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️"
             )
             startTime = time.time()
-            generate_output_paths = generate(
+            generate_output_paths, generate_nsfw_count = generate(
                 t_prompt,
                 t_negative_prompt,
                 prompt_prefix,
@@ -193,6 +194,7 @@ class Predictor(BasePredictor):
                 txt2img_pipe,
             )
             output_paths = generate_output_paths
+            nsfw_count = generate_nsfw_count
             endTime = time.time()
             print(
                 f"🖥️ Generated in {round((endTime - startTime) * 1000)} ms - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️"
@@ -213,16 +215,16 @@ class Predictor(BasePredictor):
             print(f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
         # Convert to output images to the desired format
-        if output_image_extention != "png":
+        if output_image_extension != "png":
             conversion_start = time.time()
             print(
-                f"-- Converting - {output_image_extention} - {output_image_quality} --"
+                f"-- Converting - {output_image_extension} - {output_image_quality} --"
             )
             quality_type = cv2.IMWRITE_JPEG_QUALITY
-            if output_image_extention == "webp":
+            if output_image_extension == "webp":
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
             for i, path in enumerate(output_paths):
-                output_path_converted = f"/tmp/out-{i}.{output_image_extention}"
+                output_path_converted = f"/tmp/out-{i}.{output_image_extension}"
                 pngMat = cv2.imread(str(path))
                 cv2.imwrite(
                     output_path_converted,
@@ -232,7 +234,7 @@ class Predictor(BasePredictor):
                 output_paths[i] = Path(output_path_converted)
             conversion_end = time.time()
             print(
-                f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extention} - {output_image_quality} --"
+                f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extension} - {output_image_quality} --"
             )
 
         processEnd = time.time()
@@ -240,4 +242,7 @@ class Predictor(BasePredictor):
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
         print("//////////////////////////////////////////////////////////////////")
-        return output_paths
+        return {
+            "outputs": output_paths,
+            "nsfw_count": nsfw_count,
+        }

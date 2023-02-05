@@ -18,7 +18,7 @@ def generate(
     scheduler,
     seed,
     model,
-    txt2img_pipe
+    txt2img_pipe,
 ):
     if seed is None:
         seed = int.from_bytes(os.urandom(2), "big")
@@ -56,8 +56,9 @@ def generate(
     generator = torch.Generator("cuda").manual_seed(seed)
     output = pipe(
         prompt=[prompt] * num_outputs if prompt is not None else None,
-        negative_prompt=[negative_prompt] *
-        num_outputs if negative_prompt is not None else None,
+        negative_prompt=[negative_prompt] * num_outputs
+        if negative_prompt is not None
+        else None,
         width=width,
         height=height,
         guidance_scale=guidance_scale,
@@ -77,12 +78,7 @@ def generate(
             output.images[i].save(output_path)
             output_paths.append(Path(output_path))
 
-    if len(output_paths) == 0:
-        raise Exception("All outputs are NSFW.")
-
     if nsfw_count > 0:
-        print(
-            f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs."
-        )
+        print(f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs.")
 
-    return output_paths
+    return output_paths, nsfw_count
