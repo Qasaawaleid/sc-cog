@@ -44,20 +44,20 @@ class Predictor(BasePredictor):
         )
         self.txt2img_pipe = self.txt2img.to("cuda")
         self.txt2img_pipe.enable_xformers_memory_efficient_attention()
-        print(f"✅ Loaded txt2img")
-
-        self.txt2img_alt = None
-        self.txt2img_alt_pipe = None
-        self.txt2img_alt_name = None
+        print(f"✅ Loaded the default pipeline: {SD_MODEL_DEFAULT_ID}")
 
         self.txt2img_alts = {}
+        self.txt2img_alt_pipes = {}
         for key in SD_MODELS:
             if key != SD_MODEL_DEFAULT_KEY:
                 print(f"⏳ Loading model: {key}")
                 self.txt2img_alts[key] = StableDiffusionPipeline.from_pretrained(
                     SD_MODELS[key]["id"],
+                    torch_dtype=SD_MODELS[key]["torch_dtype"],
                     cache_dir=SD_MODEL_CACHE,
                 )
+                self.txt2img_alt_pipes[key] = self.txt2img_alts[key].to("cuda")
+                self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention()
                 print(f"✅ Loaded model: {key}")
 
         # For translation
@@ -71,7 +71,6 @@ class Predictor(BasePredictor):
         print("✅ Setup is done!")
 
     @torch.inference_mode()
-    @torch.cuda.amp.autocast()
     def predict(
         self,
         prompt: str = Input(description="Input prompt.", default=""),
@@ -170,13 +169,7 @@ class Predictor(BasePredictor):
 
             txt2img_pipe = None
             if model != SD_MODEL_DEFAULT_KEY:
-                if self.txt2img_alt is not None and self.txt2img_alt_name != model:
-                    self.txt2img_alt.to("cpu")
-
-                self.txt2img_alt = self.txt2img_alts[model]
-                self.txt2img_alt_name = model
-                txt2img_pipe = self.txt2img_alt.to("cuda")
-                txt2img_pipe.enable_xformers_memory_efficient_attention()
+                txt2img_pipe = self.txt2img_alt_pipes[model]
             else:
                 txt2img_pipe = self.txt2img_pipe
 
