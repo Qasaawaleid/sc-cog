@@ -2,7 +2,6 @@ import os
 import torch
 from .helpers import make_scheduler
 from .constants import SD_MODELS
-from cog import Path
 
 
 def generate(
@@ -67,18 +66,16 @@ def generate(
         **extra_kwargs,
     )
 
-    output_paths = []
+    output_images = []
     nsfw_count = 0
 
     for i, nsfw_flag in enumerate(output.nsfw_content_detected):
-        output_path = f"/tmp/out-{i}.png"
         if nsfw_flag:
             nsfw_count += 1
         else:
-            output.images[i].save(output_path)
-            output_paths.append(Path(output_path))
+            output_images.append(output.images[i])
 
     if nsfw_count > 0:
         print(f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs.")
 
-    return output_paths, nsfw_count
+    return output_images, nsfw_count

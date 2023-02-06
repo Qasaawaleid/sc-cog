@@ -1,6 +1,5 @@
 import time
 import os
-from typing import List
 
 import torch
 from diffusers import (
@@ -26,7 +25,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.68"
+version = "0.1.69"
 
 
 class Predictor(BasePredictor):
@@ -146,6 +145,7 @@ class Predictor(BasePredictor):
         processStart = time.time()
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
+        output_images = []
         output_paths = []
         nsfw_count = 0
 
@@ -178,7 +178,7 @@ class Predictor(BasePredictor):
                 f"🖥️ Generating - Model: {model} - Width: {width} - Height: {height} - Steps: {num_inference_steps} - Outputs: {num_outputs} 🖥️"
             )
             startTime = time.time()
-            generate_output_paths, generate_nsfw_count = generate(
+            generate_output_images, generate_nsfw_count = generate(
                 t_prompt,
                 t_negative_prompt,
                 prompt_prefix,
@@ -193,7 +193,7 @@ class Predictor(BasePredictor):
                 model,
                 txt2img_pipe,
             )
-            output_paths = generate_output_paths
+            output_images = generate_output_images
             nsfw_count = generate_nsfw_count
             endTime = time.time()
             print(
@@ -207,32 +207,42 @@ class Predictor(BasePredictor):
                 output_paths = [upscale_output_path]
             else:
                 upscale_output_paths = []
-                for path in output_paths:
-                    upscale_output_path = upscale(path)
+                for image in output_images:
+                    upscale_output_path = upscale(image)
                     upscale_output_paths.append(upscale_output_path)
                 output_paths = upscale_output_paths
             endTime = time.time()
             print(f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
 
         # Convert to output images to the desired format
-        if output_image_extension != "png":
-            conversion_start = time.time()
+        conversion_start = time.time()
+        if output_image_extension == "png":
+            print(f"-- Writing png to the file system --")
+            for i, image in enumerate(output_images):
+                output_path_converted = f"/tmp/out-{i}.png"
+                cv2.imwrite(output_path_converted, image)
+                output_paths[i] = Path(output_path_converted)
+        else:
             print(
                 f"-- Converting - {output_image_extension} - {output_image_quality} --"
             )
             quality_type = cv2.IMWRITE_JPEG_QUALITY
             if output_image_extension == "webp":
                 quality_type = cv2.IMWRITE_WEBP_QUALITY
-            for i, path in enumerate(output_paths):
+            for i, image in enumerate(output_images):
                 output_path_converted = f"/tmp/out-{i}.{output_image_extension}"
-                pngMat = cv2.imread(str(path))
                 cv2.imwrite(
                     output_path_converted,
-                    pngMat,
+                    image,
                     [int(quality_type), output_image_quality],
                 )
                 output_paths[i] = Path(output_path_converted)
-            conversion_end = time.time()
+        conversion_end = time.time()
+        if output_image_extension == "png":
+            print(
+                f"-- Wrote png to the file system in: {round((conversion_end - conversion_start) *1000)} ms --"
+            )
+        else:
             print(
                 f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extension} - {output_image_quality} --"
             )
