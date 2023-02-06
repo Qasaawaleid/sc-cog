@@ -19,7 +19,6 @@ device = torch.device("cuda")
 
 @torch.cuda.amp.autocast()
 def upscale(image):
-    initial_setup_start_time = time.time()
     if image is None:
         raise ValueError("Image is required for the upscaler.")
 
@@ -46,10 +45,6 @@ def upscale(image):
     shutil.copy(str(image), input_path)
 
     args.folder_lq = input_dir
-    initial_setup_end_time = time.time()
-    print(
-        f"Initial setup time: {round((initial_setup_end_time - initial_setup_start_time) * 1000)}ms"
-    )
 
     start_time_load = time.time()
     model = define_model(args)
@@ -59,7 +54,6 @@ def upscale(image):
     print(f"Load model time: {round((end_time_load - start_time_load) * 1000)}ms")
 
     # setup folder and path
-    setup_start_time = time.time()
     folder, save_dir, border, window_size = setup(args)
     os.makedirs(save_dir, exist_ok=True)
     test_results = OrderedDict()
@@ -69,11 +63,8 @@ def upscale(image):
     test_results["ssim_y"] = []
     test_results["psnr_b"] = []
     # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
-    setup_end_time = time.time()
-    print(f"Setup time: {round((setup_end_time - setup_start_time) * 1000)}ms")
 
     for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, "*")))):
-        read_start_time = time.time()
         # read image
         imgname, img_lq, img_gt = get_image_pair(
             args, path
@@ -84,8 +75,6 @@ def upscale(image):
         img_lq = (
             torch.from_numpy(img_lq).float().unsqueeze(0).to(device)
         )  # CHW-RGB to NCHW-RGB
-        read_end_time = time.time()
-        print(f"Read image time: {round((read_end_time - read_start_time) * 1000)}ms")
 
         # inference
         inf_start_time = time.time()
@@ -116,11 +105,9 @@ def upscale(image):
         output = (output * 255.0).round().astype(np.uint8)
         output_image = output
         save_end_time = time.time()
-        print(f"Save image time: {round((save_end_time - save_start_time) * 1000)}ms")
+        print(
+            f"Image save image time: {round((save_end_time - save_start_time) * 1000)}ms"
+        )
 
-    clean_start_time = time.time()
     clean_folder(input_dir)
-    clean_end_time = time.time()
-    print(f"Cleanup time: {round((clean_end_time - clean_start_time) * 1000)}ms")
-
     return output_image
