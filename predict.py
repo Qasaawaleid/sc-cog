@@ -25,7 +25,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.73"
+version = "0.1.74"
 
 
 class Predictor(BasePredictor):
@@ -216,12 +216,13 @@ class Predictor(BasePredictor):
 
         # Convert to output images to the desired format
         conversion_start = time.time()
+        converted_output_paths = []
         if output_image_extension == "png":
             print(f"-- Writing png to the file system --")
             for i, image in enumerate(output_images):
                 output_path_converted = f"/tmp/out-{i}.png"
                 cv2.imwrite(output_path_converted, image)
-                output_paths[i] = Path(output_path_converted)
+                converted_output_paths.append(Path(output_path_converted))
         else:
             print(
                 f"-- Converting - {output_image_extension} - {output_image_quality} --"
@@ -236,7 +237,8 @@ class Predictor(BasePredictor):
                     image,
                     [int(quality_type), output_image_quality],
                 )
-                output_paths[i] = Path(output_path_converted)
+                converted_output_paths.append(Path(output_path_converted))
+        output_paths = converted_output_paths
         conversion_end = time.time()
         if output_image_extension == "png":
             print(
