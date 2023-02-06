@@ -48,7 +48,7 @@ jobs:
       - name: Prune Docker
         if: success()
         shell: bash
-        run: docker system prune
+        run: docker system prune -f
 
       - name: Install custom cog
         if: success()
