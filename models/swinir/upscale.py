@@ -10,23 +10,15 @@ import cv2
 import tempfile
 from common.helpers import clean_folder
 from cog import Path
-from .constants import MODELS_SWINIR, TASKS_SWINIR
-from .helpers import define_model, get_image_pair, setup, get_args_swinir
+from .constants import DEVICE_SWINIR
+from .helpers import get_image_pair, setup
 import time
-
-device = torch.device("cuda")
 
 
 @torch.cuda.amp.autocast()
-def upscale(image):
+def upscale(image, model, args):
     if image is None:
         raise ValueError("Image is required for the upscaler.")
-
-    args = get_args_swinir()
-    args.task = TASKS_SWINIR["Real-World Image Super-Resolution-Large"]
-    args.scale = 4
-    args.model_path = MODELS_SWINIR["real_sr"]["large"]
-    args.large_model = True
 
     output_image = None
     # check if the image is a numpy array and convert it to path if so
@@ -45,13 +37,6 @@ def upscale(image):
     shutil.copy(str(image), input_path)
 
     args.folder_lq = input_dir
-
-    start_time_load = time.time()
-    model = define_model(args)
-    model.eval()
-    model = model.to(device)
-    end_time_load = time.time()
-    print(f"Load model time: {round((end_time_load - start_time_load) * 1000)}ms")
 
     # setup folder and path
     folder, save_dir, border, window_size = setup(args)
@@ -73,7 +58,7 @@ def upscale(image):
             img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]], (2, 0, 1)
         )  # HCW-BGR to CHW-RGB
         img_lq = (
-            torch.from_numpy(img_lq).float().unsqueeze(0).to(device)
+            torch.from_numpy(img_lq).float().unsqueeze(0).to(DEVICE_SWINIR)
         )  # CHW-RGB to NCHW-RGB
 
         # inference

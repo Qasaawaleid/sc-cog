@@ -21,11 +21,13 @@ from models.stable_diffusion.constants import (
 from models.stable_diffusion.helpers import download_sd_models_concurrently
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
+from models.swinir.helpers import get_args_swinir, define_model_swinir
+from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.78"
+version = "0.1.79"
 
 
 class Predictor(BasePredictor):
@@ -59,7 +61,19 @@ class Predictor(BasePredictor):
                 self.txt2img_alt_pipes[key].enable_xformers_memory_efficient_attention()
                 print(f"✅ Loaded model: {key}")
 
-        # For translation
+        # For upscaler
+        self.upscaler_args = get_args_swinir()
+        self.upscaler_args.task = TASKS_SWINIR[
+            "Real-World Image Super-Resolution-Large"
+        ]
+        self.upscaler_args.scale = 4
+        self.upscaler_args.model_path = MODELS_SWINIR["real_sr"]["large"]
+        self.upscaler_args.large_model = True
+        self.upscaler_model = define_model_swinir(self.upscaler_args)
+        self.upscaler_model.eval()
+        self.upscaler_model = self.upscaler_model.to(DEVICE_SWINIR)
+
+        # For translator
         self.detect_language = (
             LanguageDetectorBuilder.from_all_languages()
             .with_preloaded_language_models()
@@ -203,12 +217,16 @@ class Predictor(BasePredictor):
         if process_type == "upscale" or process_type == "generate_and_upscale":
             startTime = time.time()
             if process_type == "upscale":
-                upscale_output_image = upscale(image_to_upscale)
+                upscale_output_image = upscale(
+                    image_to_upscale, self.upscaler_model, self.upscaler_args
+                )
                 output_images = [upscale_output_image]
             else:
                 upscale_output_images = []
                 for image in output_images:
-                    upscale_output_image = upscale(image)
+                    upscale_output_image = upscale(
+                        image, self.upscaler_model, self.upscaler_args
+                    )
                     upscale_output_images.append(upscale_output_image)
                 output_images = upscale_output_images
             endTime = time.time()
