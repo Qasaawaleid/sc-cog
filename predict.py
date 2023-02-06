@@ -160,7 +160,7 @@ class Predictor(BasePredictor):
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
         output_images = []
-        output_paths = []
+        output_objects = []
         nsfw_count = 0
 
         if process_type == "generate" or process_type == "generate_and_upscale":
@@ -232,11 +232,11 @@ class Predictor(BasePredictor):
             endTime = time.time()
             print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
-        # Convert to images to the desired format
+        # Convert images to the desired format
         conversion_start = time.time()
         print(f"-- Converting - {output_image_extension} - {output_image_quality} --")
 
-        converted_output_paths = []
+        converted_output_objects = []
         params = []
         quality_type = cv2.IMWRITE_JPEG_QUALITY
         if output_image_extension == "webp":
@@ -245,16 +245,14 @@ class Predictor(BasePredictor):
             params = [int(quality_type), output_image_quality]
 
         for i, image in enumerate(output_images):
-            converted_output_path = f"/tmp/out-{i}.{output_image_extension}"
-            mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(
-                converted_output_path,
-                mat,
-                params,
-            )
-            converted_output_paths.append(Path(converted_output_path))
+            obj = {
+                "image": image,
+                "extension": output_image_extension,
+                "params": params,
+            }
+            converted_output_objects.append(obj)
 
-        output_paths = converted_output_paths
+        output_objects = converted_output_objects
 
         conversion_end = time.time()
         print(
@@ -268,6 +266,6 @@ class Predictor(BasePredictor):
         print("//////////////////////////////////////////////////////////////////")
 
         return {
-            "outputs": output_paths,
+            "outputs": output_objects,
             "nsfw_count": nsfw_count,
         }
