@@ -221,7 +221,6 @@ class Predictor(BasePredictor):
         converted_output_paths = []
         params = []
         quality_type = cv2.IMWRITE_JPEG_QUALITY
-
         if output_image_extension == "webp":
             quality_type = cv2.IMWRITE_WEBP_QUALITY
         if output_image_extension != "png":
