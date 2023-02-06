@@ -2,6 +2,7 @@ import os
 import torch
 from .helpers import make_scheduler
 from .constants import SD_MODELS
+import numpy as np
 
 
 def generate(
@@ -73,7 +74,8 @@ def generate(
         if nsfw_flag:
             nsfw_count += 1
         else:
-            output_images.append(output.images[i])
+            img = np.array(output.images[i])
+            output_images.append(img)
 
     if nsfw_count > 0:
         print(f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs.")
