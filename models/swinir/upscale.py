@@ -29,6 +29,14 @@ def upscale(image):
     args.large_model = True
 
     output_image = None
+    # check if the image is a numpy array and convert it to path if so
+    if isinstance(image, np.ndarray):
+        temp_dir = tempfile.mkdtemp()
+        temp_file = tempfile.NamedTemporaryFile(
+            suffix=".png", dir=temp_dir, delete=False
+        )
+        cv2.imwrite(temp_file.name, image)
+        image = Path(temp_file.name)
     try:
         start_time = time.time()
         # set input folder
