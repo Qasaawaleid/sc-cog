@@ -25,7 +25,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.69"
+version = "0.1.70"
 
 
 class Predictor(BasePredictor):
