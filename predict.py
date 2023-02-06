@@ -1,3 +1,4 @@
+import io
 import time
 import os
 
@@ -26,6 +27,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 import cv2
+import numpy
 
 version = "0.1.81"
 
@@ -245,8 +247,14 @@ class Predictor(BasePredictor):
             params = [int(quality_type), output_image_quality]
 
         for i, image in enumerate(output_images):
+            if image is None:
+                continue
+            memfile = io.BytesIO()
+            numpy.save(memfile, image)
+            serialized = memfile.getvalue()
+            memfile.close()
             obj = {
-                "image": image,
+                "image": serialized,
                 "extension": output_image_extension,
                 "params": params,
             }
