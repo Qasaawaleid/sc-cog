@@ -250,7 +250,7 @@ class Predictor(BasePredictor):
         for i, image in enumerate(output_images):
             start = time.time()
             mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            image_bytes = mat.tobytes()
+            image_bytes = bytes(mat)
             end = time.time()
             print(f"Image mat and bytes in: {round((end - start) * 1000)} ms")
             obj = {
