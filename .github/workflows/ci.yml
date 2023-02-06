@@ -45,6 +45,11 @@ jobs:
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
 
+      - name: Prune Docker
+        if: success()
+        shell: bash
+        run: docker system prune
+
       - name: Install custom cog
         if: success()
         uses: jaxxstorm/action-install-gh-release@v1.9.0
