@@ -27,9 +27,8 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 import cv2
-import numpy
 
-version = "0.1.82"
+version = "0.1.83"
 
 
 class Predictor(BasePredictor):
@@ -236,7 +235,9 @@ class Predictor(BasePredictor):
 
         # Convert images to the desired format
         conversion_start = time.time()
-        print(f"-- Converting - {output_image_extension} - {output_image_quality} --")
+        print(
+            f"-- Preparing output objects - Target extension: {output_image_extension} - Target quality: {output_image_quality} --"
+        )
 
         converted_output_objects = []
         params = []
@@ -247,14 +248,11 @@ class Predictor(BasePredictor):
             params = [int(quality_type), output_image_quality]
 
         for i, image in enumerate(output_images):
-            if image is None:
-                continue
-            memfile = io.BytesIO()
-            numpy.save(memfile, image)
-            serialized = memfile.getvalue()
-            memfile.close()
+            converted_output_path = f"/tmp/out-{i}.png"
+            mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(converted_output_path, mat)
             obj = {
-                "image": serialized,
+                "output_path": converted_output_path,
                 "extension": output_image_extension,
                 "params": params,
             }
@@ -264,7 +262,7 @@ class Predictor(BasePredictor):
 
         conversion_end = time.time()
         print(
-            f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extension} - {output_image_quality} --"
+            f"-- Prepared output objects in: {round((conversion_end - conversion_start) *1000)} ms - Target extension: {output_image_extension} - Target quality: {output_image_quality} --"
         )
 
         processEnd = time.time()
