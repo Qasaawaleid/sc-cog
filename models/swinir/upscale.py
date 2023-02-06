@@ -12,6 +12,7 @@ from common.helpers import clean_folder
 from cog import Path
 from .constants import MODELS_SWINIR, TASKS_SWINIR
 from .helpers import define_model, get_image_pair, setup, get_args_swinir
+import time
 
 device = torch.device("cuda")
 
@@ -27,7 +28,9 @@ def upscale(image):
     args.model_path = MODELS_SWINIR["real_sr"]["large"]
     args.large_model = True
 
+    output_image = None
     try:
+        start_time = time.time()
         # set input folder
         input_dir = "input_cog_temp"
         os.makedirs(input_dir, exist_ok=True)
@@ -36,9 +39,12 @@ def upscale(image):
 
         args.folder_lq = input_dir
 
+        start_time_load = time.time()
         model = define_model(args)
         model.eval()
         model = model.to(device)
+        end_time_load = time.time()
+        print(f"Load model time: {round((end_time_load - start_time_load) * 1000)}ms")
 
         # setup folder and path
         folder, save_dir, border, window_size = setup(args)
@@ -50,9 +56,11 @@ def upscale(image):
         test_results["ssim_y"] = []
         test_results["psnr_b"] = []
         # psnr, ssim, psnr_y, ssim_y, psnr_b = 0, 0, 0, 0, 0
+        end_time = time.time()
+        print(f"Setup time: {round((end_time - start_time) * 1000)}ms")
 
-        out_path = Path(tempfile.mkdtemp()) / "out.png"
         for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, "*")))):
+            start_time = time.time()
             # read image
             imgname, img_lq, img_gt = get_image_pair(
                 args, path
@@ -63,8 +71,11 @@ def upscale(image):
             img_lq = (
                 torch.from_numpy(img_lq).float().unsqueeze(0).to(device)
             )  # CHW-RGB to NCHW-RGB
+            end_time = time.time()
+            print(f"Read image time: {round((end_time - start_time) * 1000)}ms")
 
             # inference
+            start_time = time.time()
             with torch.no_grad():
                 # pad input image to be a multiple of window_size
                 _, _, h_old, w_old = img_lq.size()
@@ -78,14 +89,22 @@ def upscale(image):
                 ]
                 output = model(img_lq)
                 output = output[..., : h_old * args.scale, : w_old * args.scale]
+            end_time = time.time()
+            print(f"Inference time: {round((end_time - start_time) * 1000)}ms - {idx}")
 
+            start_time = time.time()
             # save image
             output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
             if output.ndim == 3:
                 output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
             # float32 to uint8
             output = (output * 255.0).round().astype(np.uint8)
-            cv2.imwrite(str(out_path), output)
+            output_image = output
+            end_time = time.time()
+            print(f"Save image time: {round((end_time - start_time) * 1000)}ms")
     finally:
+        start_time = time.time()
         clean_folder(input_dir)
-    return out_path
+        end_time = time.time()
+        print(f"Cleanup time: {round((end_time - start_time) * 1000)}ms")
+    return output_image
