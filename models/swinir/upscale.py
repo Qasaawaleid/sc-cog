@@ -78,7 +78,7 @@ def upscale(image, model, args):
             output = output[..., : h_old * args.scale, : w_old * args.scale]
         inf_end_time = time.time()
         print(
-            f"Inference time: {round((inf_end_time - inf_start_time) * 1000)}ms - {idx}"
+            f"-- Inference time: {round((inf_end_time - inf_start_time) * 1000)} ms --"
         )
 
         save_start_time = time.time()
@@ -91,7 +91,7 @@ def upscale(image, model, args):
         output_image = output
         save_end_time = time.time()
         print(
-            f"Image save image time: {round((save_end_time - save_start_time) * 1000)}ms"
+            f"-- Image save image time: {round((save_end_time - save_start_time) * 1000)} ms --"
         )
 
     clean_folder(input_dir)
