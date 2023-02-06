@@ -25,7 +25,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.76"
+version = "0.1.77"
 
 
 class Predictor(BasePredictor):
@@ -203,16 +203,16 @@ class Predictor(BasePredictor):
         if process_type == "upscale" or process_type == "generate_and_upscale":
             startTime = time.time()
             if process_type == "upscale":
-                upscale_output_path = upscale(image_to_upscale)
-                output_paths = [upscale_output_path]
+                upscale_output_image = upscale(image_to_upscale)
+                output_images = [upscale_output_image]
             else:
-                upscale_output_paths = []
+                upscale_output_images = []
                 for image in output_images:
-                    upscale_output_path = upscale(image)
-                    upscale_output_paths.append(upscale_output_path)
-                output_paths = upscale_output_paths
+                    upscale_output_image = upscale(image)
+                    upscale_output_images.append(upscale_output_image)
+                output_images = upscale_output_images
             endTime = time.time()
-            print(f"-- Upscaled in: {round((endTime - startTime) * 1000)} ms --")
+            print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
         # Convert to output images to the desired format
         conversion_start = time.time()
