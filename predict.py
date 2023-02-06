@@ -28,7 +28,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.83"
+version = "0.1.84"
 
 
 class Predictor(BasePredictor):
@@ -249,11 +249,17 @@ class Predictor(BasePredictor):
 
         for i, image in enumerate(output_images):
             converted_output_path = f"/tmp/out-{i}.png"
+            start = time.time()
             mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            end = time.time()
+            print(f"Image mat in: {round((end - start) * 1000)} ms")
+            start = time.time()
             cv2.imwrite(converted_output_path, mat)
+            end = time.time()
+            print(f"Image write in: {round((end - start) * 1000)} ms")
             obj = {
                 "output_path": converted_output_path,
-                "extension": output_image_extension,
+                "extension": "." + output_image_extension,
                 "params": params,
             }
             converted_output_objects.append(obj)
