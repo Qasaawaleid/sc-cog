@@ -248,17 +248,13 @@ class Predictor(BasePredictor):
             params = [int(quality_type), output_image_quality]
 
         for i, image in enumerate(output_images):
-            converted_output_path = f"/tmp/out-{i}.png"
             start = time.time()
             mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            image_bytes = mat.tobytes()
             end = time.time()
-            print(f"Image mat in: {round((end - start) * 1000)} ms")
-            start = time.time()
-            cv2.imwrite(converted_output_path, mat)
-            end = time.time()
-            print(f"Image write in: {round((end - start) * 1000)} ms")
+            print(f"Image mat and bytes in: {round((end - start) * 1000)} ms")
             obj = {
-                "output_path": converted_output_path,
+                "image_bytes": image_bytes,
                 "extension": "." + output_image_extension,
                 "params": params,
             }
