@@ -25,7 +25,7 @@ from models.swinir.upscale import upscale
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.77"
+version = "0.1.78"
 
 
 class Predictor(BasePredictor):
@@ -214,46 +214,42 @@ class Predictor(BasePredictor):
             endTime = time.time()
             print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
-        # Convert to output images to the desired format
+        # Convert to images to the desired format
         conversion_start = time.time()
+        print(f"-- Converting - {output_image_extension} - {output_image_quality} --")
+
         converted_output_paths = []
-        if output_image_extension == "png":
-            print(f"-- Writing png to the file system --")
-            for i, image in enumerate(output_images):
-                output_path_converted = f"/tmp/out-{i}.png"
-                cv2.imwrite(output_path_converted, image)
-                converted_output_paths.append(Path(output_path_converted))
-        else:
-            print(
-                f"-- Converting - {output_image_extension} - {output_image_quality} --"
+        params = []
+        quality_type = cv2.IMWRITE_JPEG_QUALITY
+
+        if output_image_extension == "webp":
+            quality_type = cv2.IMWRITE_WEBP_QUALITY
+        if output_image_extension != "png":
+            params = [int(quality_type), output_image_quality]
+
+        for i, image in enumerate(output_images):
+            converted_output_path = f"/tmp/out-{i}.{output_image_extension}"
+            mat = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(
+                converted_output_path,
+                mat,
+                params,
             )
-            quality_type = cv2.IMWRITE_JPEG_QUALITY
-            if output_image_extension == "webp":
-                quality_type = cv2.IMWRITE_WEBP_QUALITY
-            for i, image in enumerate(output_images):
-                output_path_converted = f"/tmp/out-{i}.{output_image_extension}"
-                cv2.imwrite(
-                    output_path_converted,
-                    image,
-                    [int(quality_type), output_image_quality],
-                )
-                converted_output_paths.append(Path(output_path_converted))
+            converted_output_paths.append(Path(converted_output_path))
+
         output_paths = converted_output_paths
+
         conversion_end = time.time()
-        if output_image_extension == "png":
-            print(
-                f"-- Wrote png to the file system in: {round((conversion_end - conversion_start) *1000)} ms --"
-            )
-        else:
-            print(
-                f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extension} - {output_image_quality} --"
-            )
+        print(
+            f"-- Converted in: {round((conversion_end - conversion_start) *1000)} ms - {output_image_extension} - {output_image_quality} --"
+        )
 
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
         print("//////////////////////////////////////////////////////////////////")
+
         return {
             "outputs": output_paths,
             "nsfw_count": nsfw_count,
