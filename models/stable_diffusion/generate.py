@@ -74,8 +74,7 @@ def generate(
         if nsfw_flag:
             nsfw_count += 1
         else:
-            img = np.array(output.images[i])
-            output_images.append(img)
+            output_images.append(output.images[i])
 
     if nsfw_count > 0:
         print(f"NSFW content detected in {nsfw_count}/{num_outputs} of the outputs.")

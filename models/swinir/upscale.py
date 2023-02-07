@@ -30,6 +30,13 @@ def upscale(image, model, args):
         )
         cv2.imwrite(temp_file.name, image)
         image = Path(temp_file.name)
+    elif isinstance(image, Image.Image):
+        temp_dir = tempfile.mkdtemp()
+        temp_file = tempfile.NamedTemporaryFile(
+            suffix=".png", dir=temp_dir, delete=False
+        )
+        image.save(temp_file.name)
+        image = Path(temp_file.name)
 
     # set input folder
     input_dir = "input_cog_temp"
