@@ -27,7 +27,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 
-version = "main-0.1.93"
+version = "main-0.1.94"
 
 
 class Predictor(BasePredictor):
@@ -233,10 +233,18 @@ class Predictor(BasePredictor):
 
         # Prepare output objects
         output_objects = []
+        output_len = len(output_images)
         for i, image in enumerate(output_images):
-            image.load()
+            start_time_bytes = time.time()
+            image_bytes = image.tobytes()
+            end_time_bytes = time.time()
+            print(
+                f"-- Image {i+1}/{output_len} converted to bytes in: {round((end_time_bytes - start_time_bytes) * 1000)} ms --"
+            )
             obj = {
-                "pil_image": image,
+                "image_bytes": image_bytes,
+                "image_width": image.width,
+                "image_height": image.height,
                 "target_extension": "." + output_image_extension,
                 "target_quality": output_image_quality,
             }
