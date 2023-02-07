@@ -27,7 +27,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 
-version = "main-0.1.91"
+version = "main-0.1.92"
 
 
 class Predictor(BasePredictor):
@@ -234,7 +234,7 @@ class Predictor(BasePredictor):
         # Prepare output objects
         output_objects = []
         for i, image in enumerate(output_images):
-            print(f"Type of image: {type(image)}")
+            image.load()
             obj = {
                 "pil_image": image,
                 "target_extension": "." + output_image_extension,
