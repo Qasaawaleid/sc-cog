@@ -160,7 +160,6 @@ class Predictor(BasePredictor):
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
         output_images = []
-        output_objects = []
         nsfw_count = 0
 
         if process_type == "generate" or process_type == "generate_and_upscale":
@@ -232,31 +231,15 @@ class Predictor(BasePredictor):
             endTime = time.time()
             print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
-        # Convert images to the desired format
-        conversion_start = time.time()
-        print(
-            f"-- Preparing output objects - Target extension: {output_image_extension} - Target quality: {output_image_quality} --"
-        )
-
-        converted_output_objects = []
-
+        # Prepare output objects
+        output_objects = []
         for i, image in enumerate(output_images):
-            start = time.time()
-            end = time.time()
-            print(f"Image mat and bytes in: {round((end - start) * 1000)} ms")
             obj = {
                 "pil_image": image,
                 "extension": "." + output_image_extension,
                 "quality": output_image_quality,
             }
-            converted_output_objects.append(obj)
-
-        output_objects = converted_output_objects
-
-        conversion_end = time.time()
-        print(
-            f"-- Prepared output objects in: {round((conversion_end - conversion_start) *1000)} ms - Target extension: {output_image_extension} - Target quality: {output_image_quality} --"
-        )
+            output_objects.append(obj)
 
         processEnd = time.time()
         print(
