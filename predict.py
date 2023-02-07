@@ -26,9 +26,8 @@ from models.swinir.helpers import get_args_swinir, define_model_swinir
 from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
-import cv2
 
-version = "0.1.85"
+version = "0.1.86"
 
 
 class Predictor(BasePredictor):
@@ -240,23 +239,15 @@ class Predictor(BasePredictor):
         )
 
         converted_output_objects = []
-        params = []
-        quality_type = cv2.IMWRITE_JPEG_QUALITY
-        if output_image_extension == "webp":
-            quality_type = cv2.IMWRITE_WEBP_QUALITY
-        if output_image_extension != "png":
-            params = [int(quality_type), output_image_quality]
 
         for i, image in enumerate(output_images):
             start = time.time()
-            encoded = cv2.imencode("." + output_image_extension, image, params)[1]
-            image_bytes = encoded.tobytes()
             end = time.time()
             print(f"Image mat and bytes in: {round((end - start) * 1000)} ms")
             obj = {
-                "image_bytes": image_bytes,
+                "pil_image": image,
                 "extension": "." + output_image_extension,
-                "params": params,
+                "quality": output_image_quality,
             }
             converted_output_objects.append(obj)
 

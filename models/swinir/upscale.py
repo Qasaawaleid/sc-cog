@@ -13,6 +13,7 @@ from cog import Path
 from .constants import DEVICE_SWINIR
 from .helpers import get_image_pair, setup
 import time
+from PIL import Image
 
 
 @torch.cuda.amp.autocast()
@@ -95,4 +96,8 @@ def upscale(image, model, args):
         )
 
     clean_folder(input_dir)
-    return output_image
+    start = time.time()
+    pil_image = Image.fromarray(output_image)
+    end = time.time()
+    print(f"Upscale - Array to PIL Image in: {round((end - start) * 1000)} ms")
+    return pil_image
