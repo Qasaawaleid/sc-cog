@@ -28,7 +28,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 from lingua import LanguageDetectorBuilder
 import cv2
 
-version = "0.1.84"
+version = "0.1.85"
 
 
 class Predictor(BasePredictor):
