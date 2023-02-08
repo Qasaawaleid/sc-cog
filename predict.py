@@ -252,14 +252,14 @@ class Predictor(BasePredictor):
             }
             output_objects.append(obj)
 
+        result = {
+            "outputs": output_objects,
+            "nsfw_count": nsfw_count,
+        }
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
         )
         print("//////////////////////////////////////////////////////////////////")
 
-        result = {
-            "outputs": output_objects,
-            "nsfw_count": nsfw_count,
-        }
         return result
