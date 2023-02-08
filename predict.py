@@ -262,5 +262,5 @@ class Predictor(BasePredictor):
             "outputs": output_objects,
             "nsfw_count": nsfw_count,
         }
-        print(result)
+        print(output_objects[0])
         return result
