@@ -258,7 +258,9 @@ class Predictor(BasePredictor):
         )
         print("//////////////////////////////////////////////////////////////////")
 
-        return {
+        result = {
             "outputs": output_objects,
             "nsfw_count": nsfw_count,
         }
+        print(result)
+        return result
