@@ -26,8 +26,22 @@ from models.swinir.helpers import get_args_swinir, define_model_swinir
 from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
+from typing import List
 
 version = "main-0.1.95"
+
+
+class OutputObject:
+    def __init__(self, image_path: Path, target_extension: str, target_quality: int):
+        self.image_path = image_path
+        self.target_extension = target_extension
+        self.target_quality = target_quality
+
+
+class ResultObject:
+    def __init__(self, outputs: List[OutputObject], nsfw_count: int):
+        self.outputs = outputs
+        self.nsfw_count = nsfw_count
 
 
 class Predictor(BasePredictor):
@@ -155,7 +169,7 @@ class Predictor(BasePredictor):
             description="URL of the translator cog. If it's blank, TRANSLATOR_COG_URL environment variable will be used (if it exists).",
             default=None,
         ),
-    ) -> dict[str, list[Path] | int]:
+    ) -> ResultObject:
         processStart = time.time()
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
@@ -232,30 +246,28 @@ class Predictor(BasePredictor):
             print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
         # Prepare output objects
-        output_objects = []
+        output_objects: List[OutputObject] = []
         output_len = len(output_images)
         for i, image in enumerate(output_images):
-            start_time_bytes = time.time()
-            image.load()
-            image_bytes = image.tobytes()
-            image.close()
-            end_time_bytes = time.time()
-            print(
-                f"-- Image {i+1}/{output_len} converted to bytes in: {round((end_time_bytes - start_time_bytes) * 1000)} ms --"
+            start_time_save = time.time()
+            output_path = f"/tmp/out-{i}.png"
+            image.save(output_path)
+            image_path = Path(output_path)
+            obj = OutputObject(
+                image_path=image_path,
+                target_quality=output_image_quality,
+                target_extension=output_image_extension,
             )
-            obj = {
-                "image_bytes": image_bytes,
-                "image_width": image.width,
-                "image_height": image.height,
-                "target_extension": "." + output_image_extension,
-                "target_quality": output_image_quality,
-            }
             output_objects.append(obj)
+            end_time_save = time.time()
+            print(
+                f"-- Image {i+1}/{output_len} saved to file in: {round((end_time_save - start_time_save) * 1000)} ms --"
+            )
 
-        result = {
-            "outputs": output_objects,
-            "nsfw_count": nsfw_count,
-        }
+        result = ResultObject(
+            outputs=output_objects,
+            nsfw_count=nsfw_count,
+        )
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
