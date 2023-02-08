@@ -233,7 +233,7 @@ class Predictor(BasePredictor):
             print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
 
         # Prepare output objects
-        output_objects: List[OutputObject] = []
+        output_objects = []
         output_len = len(output_images)
         for i, image in enumerate(output_images):
             start_time_save = time.time()
@@ -255,6 +255,7 @@ class Predictor(BasePredictor):
             "outputs": output_objects,
             "nsfw_count": nsfw_count,
         }
+        print(result)
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
