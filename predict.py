@@ -27,6 +27,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 from typing import List
+from io import BytesIO
 
 version = "main-0.1.95"
 
@@ -230,25 +231,25 @@ class Predictor(BasePredictor):
                     upscale_output_images.append(upscale_output_image)
                 output_images = upscale_output_images
             endTime = time.time()
-            print(f"✨ Upscaled in: {round((endTime - startTime) * 1000)} ms ✨")
+            print(f"⭐️ Upscaled in: {round((endTime - startTime) * 1000)} ms ⭐️")
 
         # Prepare output objects
         output_objects = []
         output_len = len(output_images)
         for i, image in enumerate(output_images):
             start_time_save = time.time()
-            output_path = f"/tmp/out-{i}.png"
-            image.save(output_path)
-            image_path = Path(output_path)
+            image_bytes_io = BytesIO()
+            image.save(image_bytes_io, "PNG")
+            image_bytes = image_bytes_io.getvalue()
             obj = {
-                "image_path": image_path,
+                "image_bytes": image_bytes,
                 "target_quality": output_image_quality,
                 "target_extension": output_image_extension,
             }
             output_objects.append(obj)
             end_time_save = time.time()
             print(
-                f"-- Image {i+1}/{output_len} saved to file in: {round((end_time_save - start_time_save) * 1000)} ms --"
+                f"-- Image {i+1}/{output_len} converted to bytes in: {round((end_time_save - start_time_save) * 1000)} ms --"
             )
 
         result = {
