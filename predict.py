@@ -237,6 +237,7 @@ class Predictor(BasePredictor):
         for i, image in enumerate(output_images):
             start_time_bytes = time.time()
             image_bytes = image.tobytes()
+            image.close()
             end_time_bytes = time.time()
             print(
                 f"-- Image {i+1}/{output_len} converted to bytes in: {round((end_time_bytes - start_time_bytes) * 1000)} ms --"
