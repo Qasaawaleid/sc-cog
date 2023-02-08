@@ -31,19 +31,6 @@ from typing import List
 version = "main-0.1.95"
 
 
-class OutputObject:
-    def __init__(self, image_path: Path, target_extension: str, target_quality: int):
-        self.image_path = image_path
-        self.target_extension = target_extension
-        self.target_quality = target_quality
-
-
-class ResultObject:
-    def __init__(self, outputs: List[OutputObject], nsfw_count: int):
-        self.outputs = outputs
-        self.nsfw_count = nsfw_count
-
-
 class Predictor(BasePredictor):
     def setup(self):
         print(f"⏳ Setup has started - Version: {version}")
@@ -169,7 +156,7 @@ class Predictor(BasePredictor):
             description="URL of the translator cog. If it's blank, TRANSLATOR_COG_URL environment variable will be used (if it exists).",
             default=None,
         ),
-    ) -> ResultObject:
+    ) -> dict[str, List[dict[str, str]] | int]:
         processStart = time.time()
         print("//////////////////////////////////////////////////////////////////")
         print(f"⏳ Process started: {process_type} ⏳")
@@ -253,21 +240,21 @@ class Predictor(BasePredictor):
             output_path = f"/tmp/out-{i}.png"
             image.save(output_path)
             image_path = Path(output_path)
-            obj = OutputObject(
-                image_path=image_path,
-                target_quality=output_image_quality,
-                target_extension=output_image_extension,
-            )
+            obj = {
+                "image_path": image_path,
+                "target_quality": output_image_quality,
+                "target_extension": output_image_extension,
+            }
             output_objects.append(obj)
             end_time_save = time.time()
             print(
                 f"-- Image {i+1}/{output_len} saved to file in: {round((end_time_save - start_time_save) * 1000)} ms --"
             )
 
-        result = ResultObject(
-            outputs=output_objects,
-            nsfw_count=nsfw_count,
-        )
+        result = {
+            "outputs": output_objects,
+            "nsfw_count": nsfw_count,
+        }
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
