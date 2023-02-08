@@ -236,6 +236,7 @@ class Predictor(BasePredictor):
         output_len = len(output_images)
         for i, image in enumerate(output_images):
             start_time_bytes = time.time()
+            image.load()
             image_bytes = image.tobytes()
             image.close()
             end_time_bytes = time.time()
