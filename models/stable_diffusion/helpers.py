@@ -4,6 +4,8 @@ from boto3.s3.transfer import TransferConfig
 from .constants import SD_SCHEDULERS
 from .constants import SD_MODELS, SD_MODEL_CACHE
 import concurrent.futures
+from io import BytesIO
+from PIL import Image
 
 
 s3 = boto3.resource(
@@ -54,3 +56,9 @@ def download_sd_models_concurrently():
 
 def make_scheduler(name, config):
     return SD_SCHEDULERS[name]["from_config"](config)
+
+
+def png_image_to_bytes(image: Image.Image) -> bytes:
+    with BytesIO() as output:
+        image.save(output, format="PNG")
+        return output.getvalue()

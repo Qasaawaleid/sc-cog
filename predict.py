@@ -19,7 +19,10 @@ from models.stable_diffusion.constants import (
     SD_MODEL_DEFAULT_KEY,
     SD_MODEL_DEFAULT_ID,
 )
-from models.stable_diffusion.helpers import download_sd_models_concurrently
+from models.stable_diffusion.helpers import (
+    download_sd_models_concurrently,
+    png_image_to_bytes,
+)
 from models.nllb.translate import translate_text
 from models.swinir.upscale import upscale
 from models.swinir.helpers import get_args_swinir, define_model_swinir
@@ -238,9 +241,7 @@ class Predictor(BasePredictor):
         output_len = len(output_images)
         for i, image in enumerate(output_images):
             start_time_save = time.time()
-            image_bytes_io = BytesIO()
-            image.save(image_bytes_io, "PNG")
-            image_bytes = image_bytes_io.getvalue()
+            image_bytes = png_image_to_bytes(image)
             obj = {
                 "image_bytes": image_bytes,
                 "target_quality": output_image_quality,
