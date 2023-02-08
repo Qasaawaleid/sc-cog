@@ -257,7 +257,6 @@ class Predictor(BasePredictor):
             "outputs": output_objects,
             "nsfw_count": nsfw_count,
         }
-        print(result)
         processEnd = time.time()
         print(
             f"✅ Process completed in: {round((processEnd - processStart) * 1000)} ms ✅"
