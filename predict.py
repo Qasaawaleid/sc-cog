@@ -30,7 +30,7 @@ from models.swinir.constants import TASKS_SWINIR, MODELS_SWINIR, DEVICE_SWINIR
 
 from lingua import LanguageDetectorBuilder
 from typing import List
-from io import BytesIO
+
 
 version = "main-0.1.95"
 
